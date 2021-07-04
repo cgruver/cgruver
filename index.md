@@ -4,3 +4,8 @@
 
 layout: home
 ---
+# Adventure In Kubernetes - With OpenShift and OKD 4
+
+## Step One - The Router
+
+[Router](/pages/router/)
