@@ -1,14 +1,11 @@
 ---
 layout: page
 ---
-# Lab Router - GL.iNet GL-MV1000 or GL-MV1000W
 
-[GL-MV1000](https://www.gl-inet.com/products/gl-mv1000/)  
-[OpenWRT](https://openwrt.org)
 
-## Setting up DHCP, DNS, and iPXE host install
+### __Initial Router Setup__
 
-You will need to enable root ssh access to your router.  The best way to do this is by adding an SSH key.  __Don't allow password access over ssh.__
+
 
 1. Login to your router with a browser: `https://<Initial Router IP>`
 1. Expand the `MORE SETTINGS` menu on the left, and select `LAN IP`
@@ -73,10 +70,6 @@ LAB_DOMAIN=your.lab.domain # Replace with the domain that you want to use for th
 ```bash
 LAB_NET=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1)
 LAB_ROUTER=$(echo ${LAB_NET} | cut -d"/" -f1)
-IFS=. read -r i1 i2 i3 i4 << EOF
-${LAB_ROUTER}
-EOF
-BASTION_HOST=${i1}.${i2}.${i3}.$((${i4}+1))
 LAB_CIDR=$(echo ${LAB_NET} | cut -d"/" -f2)
 cidr2mask ()
 {
@@ -85,6 +78,12 @@ cidr2mask ()
    echo ${1-0}.${2-0}.${3-0}.${4-0}
 }
 LAB_NETMASK=$(cidr2mask ${LAB_CIDR})
+
+net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${LAB_CIDR})) ))
+o1=$(( ${i1} & (${net_addr}>>24) ))
+o2=$(( ${i2} & (${net_addr}>>16) ))
+o3=$(( ${i3} & (${net_addr}>>8) ))
+BASTION_HOST=${o1}.${o2}.${o3}.10
 
 mkdir -p /root/bin
 cat << EOF > /root/bin/setEnv.sh
@@ -190,9 +189,17 @@ wget http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/isolinux/initrd.i
 
 ## DNS Configuration
 
+Now, we will set up Bind to serve DNS.  We will also disable the DNS functions of dnsmasq to let Bind do all the work.
+
+Backup the default bind config.
+
 ```bash
 mv /etc/bind/named.conf /etc/bind/named.conf.orig
+```
 
+Set some env variables that we'll use to create our bind config.
+
+```bash
 LAB_CIDR=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1 | cut -d"/" -f2)
 
 IFS=. read -r i1 i2 i3 i4 << EOF
@@ -207,8 +214,11 @@ o4=$(( ${i4} & ${net_addr} ))
 LAB_NETWORK=${o1}.${o2}.${o3}.${o4}
 NET_PREFIX=${o1}.${o2}.${o3}
 NET_PREFIX_ARPA=${o3}.${o2}.${o1}
+```
 
+Create the Bind config file:
 
+```bash
 cat << EOF > /etc/bind/named.conf
 acl "trusted" {
  ${LAB_NETWORK}/${LAB_CIDR};
@@ -288,7 +298,11 @@ zone "255.in-addr.arpa" {
 };
 
 EOF
+```
 
+Create the forward lookup zone for our OpenShift lab:
+
+```bash
 cat << EOF > /etc/bind/db.${LAB_DOMAIN}
 @       IN      SOA     router.${LAB_DOMAIN}. admin.${LAB_DOMAIN}. (
              3          ; Serial
@@ -301,10 +315,10 @@ cat << EOF > /etc/bind/db.${LAB_DOMAIN}
     IN      NS     router.${LAB_DOMAIN}.
 
 ; name servers - A records
-router.${LAB_DOMAIN}.         IN      A      ${NET_PREFIX}.10
+router.${LAB_DOMAIN}.         IN      A      ${LAB_ROUTER}
 
 ; ${LAB_NETWORK}/${LAB_CIDR} - A records
-bastion.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}
+bastion.${LAB_DOMAIN}.         IN      A      ${BASTION_HOST}
 nexus.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}
 kvm-host01.${LAB_DOMAIN}.      IN      A      ${NET_PREFIX}.200
 kvm-host02.${LAB_DOMAIN}.      IN      A      ${NET_PREFIX}.201
@@ -328,7 +342,11 @@ _etcd-server-ssl._tcp.okd4.${LAB_DOMAIN}    86400     IN    SRV     0    10    2
 _etcd-server-ssl._tcp.okd4.${LAB_DOMAIN}    86400     IN    SRV     0    10    2380    etcd-1.okd4.${LAB_DOMAIN}.
 _etcd-server-ssl._tcp.okd4.${LAB_DOMAIN}    86400     IN    SRV     0    10    2380    etcd-2.okd4.${LAB_DOMAIN}.
 EOF
+```
 
+Create the reverse lookup zone:
+
+```bash
 cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
 @       IN      SOA     router.${LAB_DOMAIN}. admin.${LAB_DOMAIN}. (
                               3         ; Serial
@@ -342,7 +360,7 @@ cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
 
 ; PTR Records
 1.${NET_PREFIX_ARPA}    IN      PTR     router.${LAB_DOMAIN}.
-2.${NET_PREFIX_ARPA}    IN      PTR     bastion.${LAB_DOMAIN}.
+10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${LAB_DOMAIN}.
 200.${NET_PREFIX_ARPA}   IN      PTR     kvm-host01.${LAB_DOMAIN}. 
 201.${NET_PREFIX_ARPA}   IN      PTR     kvm-host02.${LAB_DOMAIN}. 
 202.${NET_PREFIX_ARPA}   IN      PTR     kvm-host03.${LAB_DOMAIN}. 
@@ -354,7 +372,11 @@ cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
 71.${NET_PREFIX_ARPA}    IN      PTR     okd4-worker-1.${LAB_DOMAIN}. 
 72.${NET_PREFIX_ARPA}    IN      PTR     okd4-worker-2.${LAB_DOMAIN}. 
 EOF
+```
 
+Create a sinkhole zone to simulate a disconnected network.
+
+```bash
 cat << EOF > /etc/bind/db.sinkhole
 @       IN      SOA     router.${LAB_DOMAIN}. admin.${LAB_DOMAIN}. (
                               3         ; Serial
@@ -371,7 +393,11 @@ cat << EOF > /etc/bind/db.sinkhole
 ;sinkhole-dockerhub    CNAME    . ;
 ;sinkhole-github    CNAME    . ;
 EOF
+```
 
+Create the necessary files, and set permissions for the bind user.
+
+```bash
 mkdir -p /data/var/named/dynamic
 mkdir /data/var/named/data
 chown -R bind:bind /data/var/named
@@ -537,7 +563,10 @@ listen okd4-api
     mode tcp
     option tcpka
     option tcp-check
-${API_LIST}
+    server okd4-bootstrap ${NET_PREFIX}.49:6443 check weight 1
+    server okd4-master-0 ${NET_PREFIX}.60:6443 check weight 1
+    server okd4-master-1 ${NET_PREFIX}.61:6443 check weight 1
+    server okd4-master-2 ${NET_PREFIX}.62:6443 check weight 1
 
 listen okd4-mc 
     bind 0.0.0.0:22623
@@ -545,7 +574,10 @@ listen okd4-mc
     option                  tcplog
     mode tcp
     option tcpka
-${MC_LIST}
+    server okd4-bootstrap ${NET_PREFIX}.49:22623 check weight 1
+    server okd4-master-0 ${NET_PREFIX}.60:22623 check weight 1
+    server okd4-master-1 ${NET_PREFIX}.61:22623 check weight 1
+    server okd4-master-2 ${NET_PREFIX}.62:22623 check weight 1
 
 listen okd4-apps 
     bind 0.0.0.0:80
@@ -553,7 +585,9 @@ listen okd4-apps
     option                  tcplog
     mode tcp
     option tcpka
-${APPS_LIST}
+    server okd4-master-0 ${NET_PREFIX}.60:80 check weight 1
+    server okd4-master-1 ${NET_PREFIX}.61:80 check weight 1
+    server okd4-master-2 ${NET_PREFIX}.62:80 check weight 1
 
 listen okd4-apps-ssl 
     bind 0.0.0.0:443
@@ -562,6 +596,37 @@ listen okd4-apps-ssl
     mode tcp
     option tcpka
     option tcp-check
-${APPS_SSL_LIST}
+    server okd4-master-0 ${NET_PREFIX}.60:443 check weight 1
+    server okd4-master-1 ${NET_PREFIX}.61:443 check weight 1
+    server okd4-master-2 ${NET_PREFIX}.62:443 check weight 1
 EOF
+```
+
+## Firewall
+
+```bash
+uci add firewall rule
+uci set firewall.@rule[-1].src='wan'
+
+rule_name=$(uci add firewall rule) 
+uci batch << EOI
+set firewall.$rule_name.enabled='1'
+set firewall.$rule_name.target='ACCEPT'
+set firewall.$rule_name.src='wan'
+set firewall.$rule_name.proto='tcp udp'
+set firewall.$rule_name.dest_port='111'
+set firewall.$rule_name.name='NFS_share'
+EOI
+uci commit
+
+uci add firewall rule
+uci set firewall.@rule[-1].src='wan'
+uci set firewall.@rule[-1].target='ACCEPT'
+uci set firewall.@rule[-1].proto='tcp'
+uci set firewall.@rule[-1].dest_port='22'
+uci commit firewall
+/etc/init.d/firewall restart
+
+/etc/init.d/firewall reload
+
 ```

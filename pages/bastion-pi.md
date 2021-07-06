@@ -1,4 +1,6 @@
+## Setting up a Raspberry Pi as your lab bastion host
 
+Testing
 
 ```bash
 
@@ -284,4 +286,16 @@ Now we should be able to start Nexus:
 ```bash
 /etc/init.d/nexus enable
 /etc/init.d/nexus start
+```
+
+GitLab
+
+```bash
+https://packages.gitlab.com/gitlab/raspberry-pi2/packages/raspbian/buster/gitlab-ce_14.0.0-ce.0_armhf.deb
+
+https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_13.11.6-ce.0_arm64.deb
+
+wget https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_13.11.6-ce.0_arm64.
+deb/download.deb
+
 ```
