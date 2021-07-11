@@ -1,8 +1,7 @@
 ---
 layout: home
+title: A Chronicle of my Adventures In Code - With OpenShift (OKD), Quarkus, and more!
 ---
-# A Chronicle of my Adventures In Code - With OpenShift (OKD), Quarkus, and more!
-
 Watch this space for my new Blog, and home lab tutorials.
 
 Coming Soon!

@@ -8,6 +8,8 @@ url: "https://upstreamwithoutapaddle.com"
 github_username:  cgruver
 theme: minima
 # theme: jekyll-theme-cayman
+header_pages:
+ - about.md
 plugins:
   - jekyll-feed
 exclude:
