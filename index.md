@@ -1,11 +1,10 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: home
 ---
-# Adventure In Kubernetes - With OpenShift and OKD 4
+# A Chronicle of my Adventures In Code - With OpenShift (OKD), Quarkus, and more!
 
-## Step One - The Router
+Watch this space for my new Blog, and home lab tutorials.
 
-[Router](/pages/router/)
+Coming Soon!
+
+[Checkout my Projects on GitHub](https://github.com/cgruver)

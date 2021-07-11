@@ -1,13 +1,10 @@
 ---
 layout: page
+permalink: /home-lab/internal-router/
 ---
+# Initial Router Setup
 
-
-### __Initial Router Setup__
-
-
-
-1. Login to your router with a browser: `https://<Initial Router IP>`
+1. Login to your router with a browser: `https://192.168.8.1`
 1. Expand the `MORE SETTINGS` menu on the left, and select `LAN IP`
 1. Fill in the following:
 
@@ -318,8 +315,6 @@ cat << EOF > /etc/bind/db.${LAB_DOMAIN}
 router.${LAB_DOMAIN}.         IN      A      ${LAB_ROUTER}
 
 ; ${LAB_NETWORK}/${LAB_CIDR} - A records
-bastion.${LAB_DOMAIN}.         IN      A      ${BASTION_HOST}
-nexus.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}
 kvm-host01.${LAB_DOMAIN}.      IN      A      ${NET_PREFIX}.200
 kvm-host02.${LAB_DOMAIN}.      IN      A      ${NET_PREFIX}.201
 kvm-host03.${LAB_DOMAIN}.      IN      A      ${NET_PREFIX}.202
@@ -360,7 +355,6 @@ cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
 
 ; PTR Records
 1.${NET_PREFIX_ARPA}    IN      PTR     router.${LAB_DOMAIN}.
-10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${LAB_DOMAIN}.
 200.${NET_PREFIX_ARPA}   IN      PTR     kvm-host01.${LAB_DOMAIN}. 
 201.${NET_PREFIX_ARPA}   IN      PTR     kvm-host02.${LAB_DOMAIN}. 
 202.${NET_PREFIX_ARPA}   IN      PTR     kvm-host03.${LAB_DOMAIN}. 
