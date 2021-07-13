@@ -10,6 +10,7 @@ theme: minima
 # theme: jekyll-theme-cayman
 header_pages:
  - about.md
+ - videos.md
 plugins:
   - jekyll-feed
 exclude:
