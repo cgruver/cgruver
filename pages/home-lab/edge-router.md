@@ -4,50 +4,68 @@ permalink: /home-lab/edge-router/
 ---
 # Initial Router Setup
 
-1. Login to your router with a browser: `https://192.168.8.1`
-1. Expand the `MORE SETTINGS` menu on the left, and select `LAN IP`
-1. Fill in the following:
+1. If you don't have an SSH key pair configured, then create one now:
 
-    |||
-    |---|---|
-    |LAN IP|10.11.10.1|
-    |Start IP Address|10.11.10.11|
-    |End IP Address|10.11.10.29|
+    ```bash
+    ssh-keygen -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
+    ```
 
-1. Click `Apply`
-1. Now, select the `Advanced` option from the left menu bar.
-1. Login to the Advanced Administration console
-1. Expand the `System` menu at the top of the screen, and select `Administration`
-1. Select the `SSH Access` tab.
-   1. Ensure that the Dropbear Instance `Interface` is set to `unspecified` and that the `Port` is `22`
-   1. Ensure that the following are __NOT__ checked:
-      * `Password authentication`
-      * `Allow root logins with password`
-      * `Gateway ports`
-   1. Click `Save`
-1. Select the `SSH-Keys` tab
-    1. Paste your __*public*__ SSH key into the `SSH-Keys` section at the bottom of the page and select `Add Key`
+1. Connect to your new router:
 
-        Your public SSH key is likely in the file `$HOME/.ssh/id_rsa.pub`
-    1. Repeat with additional keys.
-    1. Click `Save & Apply`
+    If you are using the `GL-MV1000`, then connect with a network cable.
 
-Now that we have enabled SSH access to the router, we will login and complete our setup from the command-line.
+    If you are using the `GL-MV1000W` then you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
+
+1. Copy your SSH public key to the router for login:
+
+    ```bash
+    cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
+    ```
+
+1. Log into the router:
+
+    ```bash
+    ssh root@192.168.8.1
+    ```
+
+1. Set a root password:
+
+    ```bash
+    passwd
+    ```
+
+1. Configure the network:
+
+    ```bash
+    export EDGE_ROUTER=10.11.10.1
+
+    uci set dropbear.@dropbear[0].PasswordAuth='off'
+    uci set dropbear.@dropbear[0].RootPasswordAuth='off'
+    uci commit dropbear
+
+    uci set network.lan.ipaddr="${EDGE_ROUTER}"
+    uci set network.lan.netmask='255.255.255.0'
+    uci commit network
+
+    uci set dhcp.lan.leasetime='5m'
+    uci set dhcp.lan.start='11'
+    uci set dhcp.lan.limit='19'
+    uci add_list dhcp.lan.dhcp_option="6,${EDGE_ROUTER},8.8.8.8,8.8.4.4"
+    uci commit dhcp
+
+    poweroff
+    ```
+
+1. Now connect the uplink port of the router to your home internet router by connecting a network cable, or set it up as a WiFi repeater.  Note: you will lose bandwidth in repeater mode, but it is still very handy for connecting on the road.
 
 ```bash
-ssh root@<router IP>
-```
-
-If you are using the `GL-AR750S-Ext` you will need to add an sd-card, note that I create a symbolic link from the SD card to /data so that the configuration matches the configuration of the `GL-MV1000`.  Since I have both, this keeps things consistent.
-
-```bash
-ln -s /mnt/sda1 /data        # This is not necessary for the GL-MV1000 or GL-MV1000W
+ssh root@10.11.10.1
 ```
 
 ## Install some additional packages on your router
 
 ```bash
-opkg update && opkg install ip-full procps-ng-ps wget git-http ca-bundle haproxy bind-server bind-tools bash sfdisk rsync shadow resize2fs
+opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools
 ```
 
 ## Create an SSH Key Pair
@@ -61,39 +79,33 @@ dropbearkey -t rsa -s 4096 -f /root/.ssh/id_dropbear
 ## Setup environment variables for your lab router
 
 ```bash
-LAB_DOMAIN=your.lab.domain # Replace with the domain that you want to use for this router.
+export LAB_DOMAIN=your.lab.domain # Replace with the domain that you want to use for this router.
 ```
 
 ```bash
-LAB_NET=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1)
-LAB_ROUTER=$(echo ${LAB_NET} | cut -d"/" -f1)
-LAB_CIDR=$(echo ${LAB_NET} | cut -d"/" -f2)
+export NET_INFO=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1)
+export EDGE_ROUTER=$(echo ${NET_INFO} | cut -d"/" -f1)
+export LAB_CIDR=$(echo ${NET_INFO} | cut -d"/" -f2)
 cidr2mask ()
 {
    set -- $(( 5 - ($1 / 8) )) 255 255 255 255 $(( (255 << (8 - ($1 % 8))) & 255 )) 0 0 0
    [ $1 -gt 1 ] && shift $1 || shift
    echo ${1-0}.${2-0}.${3-0}.${4-0}
 }
-LAB_NETMASK=$(cidr2mask ${LAB_CIDR})
-
+export NETMASK=$(cidr2mask ${LAB_CIDR})
+IFS=. read -r i1 i2 i3 i4 << EOF
+${EDGE_ROUTER}
+EOF
 net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${LAB_CIDR})) ))
 o1=$(( ${i1} & (${net_addr}>>24) ))
 o2=$(( ${i2} & (${net_addr}>>16) ))
 o3=$(( ${i3} & (${net_addr}>>8) ))
-BASTION_HOST=${o1}.${o2}.${o3}.10
-
-mkdir -p /root/bin
-cat << EOF > /root/bin/setEnv.sh
-export LAB_DOMAIN=${LAB_DOMAIN}
-export PXE_HOST=${LAB_ROUTER}
-export LAB_NAMESERVER=${LAB_ROUTER}
-export LAB_ROUTER=${LAB_ROUTER}
-export BASTION_HOST=${BASTION_HOST}
-export LAB_NETMASK=${LAB_NETMASK}
-EOF
-chmod 750 /root/bin/setEnv.sh
-mkdir -p /etc/profile.d
-echo ". /root/bin/setEnv.sh" > /etc/profile.d/lab.sh
+o4=$(( ${i4} & ${net_addr} ))
+export LAB_NETWORK=${o1}.${o2}.${o3}.${o4}
+export NET_PREFIX=${o1}.${o2}.${o3}
+export NET_PREFIX_ARPA=${o3}.${o2}.${o1}
+export BASTION_HOST=${o1}.${o2}.${o3}.10
+export LAB_ROUTER=${o1}.${o2}.$(( ${o3} + 1 )).1
 ```
 
 __Log out, then back in.  Check that the env settings are as expected.__
@@ -112,25 +124,6 @@ Backup the default bind config.
 mv /etc/bind/named.conf /etc/bind/named.conf.orig
 ```
 
-Set some env variables that we'll use to create our bind config.
-
-```bash
-LAB_CIDR=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1 | cut -d"/" -f2)
-
-IFS=. read -r i1 i2 i3 i4 << EOF
-${LAB_ROUTER}
-EOF
-net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${LAB_CIDR})) ))
-o1=$(( ${i1} & (${net_addr}>>24) ))
-o2=$(( ${i2} & (${net_addr}>>16) ))
-o3=$(( ${i3} & (${net_addr}>>8) ))
-o4=$(( ${i4} & ${net_addr} ))
-
-LAB_NETWORK=${o1}.${o2}.${o3}.${o4}
-NET_PREFIX=${o1}.${o2}.${o3}
-NET_PREFIX_ARPA=${o3}.${o2}.${o1}
-```
-
 Create the Bind config file:
 
 ```bash
@@ -140,7 +133,7 @@ acl "trusted" {
 };
 
 options {
- listen-on port 53 { 127.0.0.1; ${LAB_NAMESERVER}; };
+ listen-on port 53 { 127.0.0.1; ${EDGE_ROUTER}; };
  
  directory  "/data/var/named";
  dump-file  "/data/var/named/data/cache_dump.db";
@@ -173,6 +166,12 @@ logging {
 zone "." IN {
  type hint;
  file "/etc/bind/db.root";
+};
+
+zone "dc1.${LAB_DOMAIN}" {
+    type forward;
+    forward only;
+    forwarders { ${LAB_ROUTER}; };
 };
 
 zone "${LAB_DOMAIN}" {
@@ -223,7 +222,7 @@ cat << EOF > /etc/bind/db.${LAB_DOMAIN}
     IN      NS     router.${LAB_DOMAIN}.
 
 ; name servers - A records
-router.${LAB_DOMAIN}.         IN      A      ${LAB_ROUTER}
+router.${LAB_DOMAIN}.         IN      A      ${EDGE_ROUTER}
 
 ; ${LAB_NETWORK}/${LAB_CIDR} - A records
 bastion.${LAB_DOMAIN}.         IN      A      ${BASTION_HOST}

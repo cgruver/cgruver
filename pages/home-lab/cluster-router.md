@@ -4,6 +4,7 @@ permalink: /home-lab/internal-router/
 ---
 # Initial Router Setup
 
+1. Connect to the router
 1. Login to your router with a browser: `https://192.168.8.1`
 1. Expand the `MORE SETTINGS` menu on the left, and select `LAN IP`
 1. Fill in the following:
@@ -36,12 +37,6 @@ Now that we have enabled SSH access to the router, we will login and complete ou
 
 ```bash
 ssh root@<router IP>
-```
-
-If you are using the `GL-AR750S-Ext` you will need to add an sd-card, note that I create a symbolic link from the SD card to /data so that the configuration matches the configuration of the `GL-MV1000`.  Since I have both, this keeps things consistent.
-
-```bash
-ln -s /mnt/sda1 /data        # This is not necessary for the GL-MV1000 or GL-MV1000W
 ```
 
 ## Install some additional packages on your router

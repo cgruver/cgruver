@@ -1,5 +1,9 @@
 # Notes
 
+```bash
+cat ~/.ssh/id_rsa.pub | ssh root@YOUR_OPENWRT_ROUTER "cat >> /etc/dropbear/authorized_keys"
+```
+
 ## GitLab
 
 ```bash
