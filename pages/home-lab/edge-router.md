@@ -1,8 +1,10 @@
 ---
 layout: page
 permalink: /home-lab/edge-router/
+title: Edge Network Router
 ---
-# Initial Router Setup
+
+The operating system is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
 
 1. If you don't have an SSH key pair configured, then create one now:
 
@@ -36,29 +38,46 @@ permalink: /home-lab/edge-router/
 
 1. Configure the network:
 
-    ```bash
-    export EDGE_ROUTER=10.11.10.1
+   ```bash
+   export EDGE_ROUTER=10.11.10.1
 
-    uci set dropbear.@dropbear[0].PasswordAuth='off'
-    uci set dropbear.@dropbear[0].RootPasswordAuth='off'
-    uci commit dropbear
+   uci set dropbear.@dropbear[0].PasswordAuth='off'
+   uci set dropbear.@dropbear[0].RootPasswordAuth='off'
+   uci commit dropbear
 
-    uci set network.lan.ipaddr="${EDGE_ROUTER}"
-    uci set network.lan.netmask='255.255.255.0'
-    uci commit network
+   uci set network.lan.ipaddr="${EDGE_ROUTER}"
+   uci set network.lan.netmask='255.255.255.0'
+   uci commit network
 
-    uci set dhcp.lan.leasetime='5m'
-    uci set dhcp.lan.start='11'
-    uci set dhcp.lan.limit='19'
-    uci add_list dhcp.lan.dhcp_option="6,${EDGE_ROUTER},8.8.8.8,8.8.4.4"
-    uci commit dhcp
+   uci set dhcp.lan.leasetime='5m'
+   uci set dhcp.lan.start='11'
+   uci set dhcp.lan.limit='19'
+   uci add_list dhcp.lan.dhcp_option="6,${EDGE_ROUTER},8.8.8.8,8.8.4.4"
+   uci commit dhcp
+   ```
 
-    poweroff
-    ```
+1. Configure Wireless repeater to your home Wifi:
 
-1. Now connect the uplink port of the router to your home internet router by connecting a network cable, or set it up as a WiFi repeater.  Note: you will lose bandwidth in repeater mode, but it is still very handy for connecting on the road.
+   ```bash
+   uci set wireless.radio2.disabled='0'
+   uci set wireless.radio2.repeater='1'
+   uci set wireless.sta.ssid='Your-WiFi-SSID'  # Replace with your WiFi SSID
+   uci set wireless.sta.encryption='psk2'      # Replace with your encryption type
+   uci set wireless.sta.key='Your-WiFi-Key'    # Replace with your WiFi Key
+   ```
+
+1. Configure a Wireless Network for Your Lab:
+
+   ```bash
+   uci set wireless.default_radio0.ssid='OKD-LAB'
+   uci set wireless.default_radio0.key='WelcomeToMyLab'
+   uci set wireless.default_radio0.encryption='psk2'
+   ```
+
+1. Now restart the router, connect to your new lab WiFi network, and log into the router:
 
 ```bash
+reboot
 ssh root@10.11.10.1
 ```
 
@@ -262,3 +281,5 @@ chown -R bind:bind /etc/bind
 ```bash
 /usr/sbin/named -u bind -g -c /etc/bind/named.conf
 ```
+
+[Bastion Host](/home-lab/bastion-pi)

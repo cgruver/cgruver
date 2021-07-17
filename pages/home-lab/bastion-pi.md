@@ -1,8 +1,9 @@
 ---
 layout: page
 permalink: /home-lab/bastion-pi/
+title: OpenWRT With a Slice of Pi
 ---
-# Setting up a Raspberry Pi as your lab bastion host
+## Setting up a Raspberry Pi as your lab bastion host
 
 For your bastion host, you will need a Raspberry Pi 4b with 8GB of RAM.  I am using a [Vilros kit from Amazon](https://www.amazon.com/gp/product/B089ZZ8DTV/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1).  You will also need an SD Card of at least 64GB capacity.  Get one with fast read/write speeds as it will be used to serve up RPMs for host installations and images from your Nexus registry.
 
@@ -364,3 +365,5 @@ Finish configuring the bastion host:
     /etc/init.d/nexus enable
     /etc/init.d/nexus start
     ```
+
+[Cluster Router](/home-lab/cluster-router)

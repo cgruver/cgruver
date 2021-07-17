@@ -1,8 +1,8 @@
 ---
 layout: page
 permalink: /home-lab/internal-router/
+title: Internal Network Router
 ---
-# Initial Router Setup
 
 1. Connect to the router
 1. Login to your router with a browser: `https://192.168.8.1`
@@ -619,3 +619,5 @@ uci commit firewall
 /etc/init.d/firewall reload
 
 ```
+
+1. [KVM Host Setup](/home-lab/kvm-host-setup)
