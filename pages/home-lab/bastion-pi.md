@@ -6,9 +6,9 @@ permalink: /home-lab/bastion-pi/
 
 For your bastion host, you will need a Raspberry Pi 4b with 8GB of RAM.  I am using a [Vilros kit from Amazon](https://www.amazon.com/gp/product/B089ZZ8DTV/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1).  You will also need an SD Card of at least 64GB capacity.  Get one with fast read/write speeds as it will be used to serve up RPMs for host installations and images from your Nexus registry.
 
-We are going to use the router that we set up in the previous step to configure the OS for the Raspberry Pi.
+We are going to use the edge router that we set up in the previous step to configure the OS for the Raspberry Pi.
 
-1. Insert the SD Card into the router.
+1. Insert the SD Card into the edge router.
 1. SSH into the router
 
     ```bash
