@@ -4,9 +4,9 @@ permalink: /home-lab/edge-router/
 title: Edge Network Router
 ---
 
-The operating system is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
+The operating system running your router is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
 
-1. If you don't have an SSH key pair configured, then create one now:
+1. If you don't have an SSH key pair configured on your workstation, then create one now:
 
     ```bash
     ssh-keygen -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
@@ -24,6 +24,14 @@ The operating system is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.
     cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
     ```
 
+1. Create an environment script to help configure the router:
+
+   ```bash
+   ${OKD4_LAB_PATH}/bin/createEnvScript.sh -e 
+   cat ${OKD4_LAB_PATH}/work-dir/edge-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+   rm -rf ${OKD4_LAB_PATH}/work-dir
+   ```
+
 1. Log into the router:
 
     ```bash
@@ -36,101 +44,127 @@ The operating system is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.
     passwd
     ```
 
-1. Configure the network:
+1. Create an SSH key pair:
 
    ```bash
-   export EDGE_ROUTER=10.11.10.1
+   mkdir -p /root/.ssh
+   dropbearkey -t rsa -s 4096 -f /root/.ssh/id_dropbear
+   ```
 
+1. Disable password login:
+
+   ```bash
    uci set dropbear.@dropbear[0].PasswordAuth='off'
    uci set dropbear.@dropbear[0].RootPasswordAuth='off'
    uci commit dropbear
+   ```
 
-   uci set network.lan.ipaddr="${EDGE_ROUTER}"
-   uci set network.lan.netmask='255.255.255.0'
+1. Configure the IP address:
+
+   ```bash
+   uci set network.lan.ipaddr="${ROUTER}"
+   uci set network.lan.netmask=${NETMASK}
+   uci delete network.guest
+   uci delete network.wan6
    uci commit network
+   ```
 
+1. Configure DHCP:
+
+   ```bash
    uci set dhcp.lan.leasetime='5m'
    uci set dhcp.lan.start='11'
    uci set dhcp.lan.limit='19'
-   uci add_list dhcp.lan.dhcp_option="6,${EDGE_ROUTER},8.8.8.8,8.8.4.4"
+   uci add_list dhcp.lan.dhcp_option="6,${ROUTER},8.8.8.8,8.8.4.4"
    uci commit dhcp
    ```
 
-1. Configure Wireless repeater to your home Wifi:
+1. Configure a Wireless repeater to your home Wifi:
 
    ```bash
+   uci delete wireless.guest2g
+   uci delete wireless.sta2
+
    uci set wireless.radio2.disabled='0'
    uci set wireless.radio2.repeater='1'
+   uci set wireless.sta=wifi-iface
+   uci set wireless.sta.device='radio2'
+   uci set wireless.sta.ifname='wlan2'
+   uci set wireless.sta.mode='sta'
+   uci set wireless.sta.disabled='0'
+   uci set wireless.sta.network='wwan'
+   uci set wireless.sta.wds='1'
    uci set wireless.sta.ssid='Your-WiFi-SSID'  # Replace with your WiFi SSID
    uci set wireless.sta.encryption='psk2'      # Replace with your encryption type
    uci set wireless.sta.key='Your-WiFi-Key'    # Replace with your WiFi Key
+   uci commit wireless
+   ```
+
+1. Create a Network Interface for the repeater:
+
+   ```bash
+   uci set network.wwan=interface
+   uci set network.wwan.proto='dhcp'
+   uci set network.wwan.metric='20'
+   uci commit network
+   ```
+
+1. Add the `wwan` network to the `wan` firewall zone:
+
+   ```bash
+   unset zone
+   let i=0
+   let j=1
+   while [[ ${j} -eq 1 ]]
+   do
+     zone=$(uci get firewall.@zone[${i}].name)
+     let rc=${?}
+     if [[ ${rc} -ne 0 ]]
+     then
+       let j=2
+      elif [[ ${zone} == "wan" ]]
+      then
+        let j=0
+      else
+        let i=${i}+1
+      fi
+   done
+   if [[ ${j} -eq 0 ]]
+   then
+     uci add_list firewall.@zone[${i}].network='wwan'
+     uci commit firewall
+    else
+      echo "FIREWALL ZONE NOT FOUND, CCONFIGURE MANUALLY WITH LUCI"
+    fi
    ```
 
 1. Configure a Wireless Network for Your Lab:
 
    ```bash
+   uci set wireless.default_radio0=wifi-iface
+   uci set wireless.default_radio0.device='radio0'
+   uci set wireless.default_radio0.ifname='wlan0'
+   uci set wireless.default_radio0.network='lan'
+   uci set wireless.default_radio0.mode='ap'
+   uci set wireless.default_radio0.disabled='0'
    uci set wireless.default_radio0.ssid='OKD-LAB'
    uci set wireless.default_radio0.key='WelcomeToMyLab'
    uci set wireless.default_radio0.encryption='psk2'
+   uci set wireless.default_radio0.multi_ap='1'
+   uci commit wireless
    ```
 
 1. Now restart the router, connect to your new lab WiFi network, and log into the router:
 
 ```bash
 reboot
-ssh root@10.11.10.1
+ssh root@${EDGE_ROUTER}
 ```
 
 ## Install some additional packages on your router
 
 ```bash
 opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools
-```
-
-## Create an SSH Key Pair
-
-```bash
-mkdir -p /root/.ssh
-dropbearkey -t rsa -s 4096 -f /root/.ssh/id_dropbear
-
-```
-
-## Setup environment variables for your lab router
-
-```bash
-export LAB_DOMAIN=your.lab.domain # Replace with the domain that you want to use for this router.
-```
-
-```bash
-export NET_INFO=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1)
-export EDGE_ROUTER=$(echo ${NET_INFO} | cut -d"/" -f1)
-export LAB_CIDR=$(echo ${NET_INFO} | cut -d"/" -f2)
-cidr2mask ()
-{
-   set -- $(( 5 - ($1 / 8) )) 255 255 255 255 $(( (255 << (8 - ($1 % 8))) & 255 )) 0 0 0
-   [ $1 -gt 1 ] && shift $1 || shift
-   echo ${1-0}.${2-0}.${3-0}.${4-0}
-}
-export NETMASK=$(cidr2mask ${LAB_CIDR})
-IFS=. read -r i1 i2 i3 i4 << EOF
-${EDGE_ROUTER}
-EOF
-net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${LAB_CIDR})) ))
-o1=$(( ${i1} & (${net_addr}>>24) ))
-o2=$(( ${i2} & (${net_addr}>>16) ))
-o3=$(( ${i3} & (${net_addr}>>8) ))
-o4=$(( ${i4} & ${net_addr} ))
-export LAB_NETWORK=${o1}.${o2}.${o3}.${o4}
-export NET_PREFIX=${o1}.${o2}.${o3}
-export NET_PREFIX_ARPA=${o3}.${o2}.${o1}
-export BASTION_HOST=${o1}.${o2}.${o3}.10
-export LAB_ROUTER=${o1}.${o2}.$(( ${o3} + 1 )).1
-```
-
-__Log out, then back in.  Check that the env settings are as expected.__
-
-```bash
-env
 ```
 
 ## DNS Configuration
@@ -143,16 +177,33 @@ Backup the default bind config.
 mv /etc/bind/named.conf /etc/bind/named.conf.orig
 ```
 
+Set some variables:
+
+```bash
+CIDR=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1 | cut -d"/" -f2)
+IFS=. read -r i1 i2 i3 i4 << EOF
+${ROUTER}
+EOF
+net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${CIDR})) ))
+o1=$(( ${i1} & (${net_addr}>>24) ))
+o2=$(( ${i2} & (${net_addr}>>16) ))
+o3=$(( ${i3} & (${net_addr}>>8) ))
+o4=$(( ${i4} & ${net_addr} ))
+NET_PREFIX=${o1}.${o2}.${o3}
+NET_PREFIX_ARPA=${o3}.${o2}.${o1}
+```
+
 Create the Bind config file:
 
 ```bash
 cat << EOF > /etc/bind/named.conf
 acl "trusted" {
- ${LAB_NETWORK}/${LAB_CIDR};
+ ${NETWORK}/${CIDR};
+ 127.0.0.1;
 };
 
 options {
- listen-on port 53 { 127.0.0.1; ${EDGE_ROUTER}; };
+ listen-on port 53 { 127.0.0.1; ${ROUTER}; };
  
  directory  "/data/var/named";
  dump-file  "/data/var/named/data/cache_dump.db";
@@ -187,15 +238,9 @@ zone "." IN {
  file "/etc/bind/db.root";
 };
 
-zone "dc1.${LAB_DOMAIN}" {
-    type forward;
-    forward only;
-    forwarders { ${LAB_ROUTER}; };
-};
-
-zone "${LAB_DOMAIN}" {
+zone "${DOMAIN}" {
     type master;
-    file "/etc/bind/db.${LAB_DOMAIN}"; # zone file path
+    file "/etc/bind/db.${DOMAIN}"; # zone file path
 };
 
 zone "${NET_PREFIX_ARPA}.in-addr.arpa" {
@@ -226,11 +271,11 @@ zone "255.in-addr.arpa" {
 EOF
 ```
 
-Create the forward lookup zone for our OpenShift lab:
+Create the forward lookup zone:
 
 ```bash
-cat << EOF > /etc/bind/db.${LAB_DOMAIN}
-@       IN      SOA     router.${LAB_DOMAIN}. admin.${LAB_DOMAIN}. (
+cat << EOF > /etc/bind/db.${DOMAIN}
+@       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
              3          ; Serial
              604800     ; Refresh
               86400     ; Retry
@@ -238,14 +283,14 @@ cat << EOF > /etc/bind/db.${LAB_DOMAIN}
              604800 )   ; Negative Cache TTL
 ;
 ; name servers - NS records
-    IN      NS     router.${LAB_DOMAIN}.
+    IN      NS     router.${DOMAIN}.
 
 ; name servers - A records
-router.${LAB_DOMAIN}.         IN      A      ${EDGE_ROUTER}
+router.${DOMAIN}.         IN      A      ${ROUTER}
 
-; ${LAB_NETWORK}/${LAB_CIDR} - A records
-bastion.${LAB_DOMAIN}.         IN      A      ${BASTION_HOST}
-nexus.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}
+; ${NETWORK}/${CIDR} - A records
+bastion.${DOMAIN}.         IN      A      ${BASTION_HOST}
+nexus.${DOMAIN}.           IN      A      ${BASTION_HOST}
 EOF
 ```
 
@@ -253,7 +298,7 @@ Create the reverse lookup zone:
 
 ```bash
 cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
-@       IN      SOA     router.${LAB_DOMAIN}. admin.${LAB_DOMAIN}. (
+@       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
                               3         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -261,11 +306,11 @@ cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
                          604800 )       ; Negative Cache TTL
 
 ; name servers - NS records
-      IN      NS      router.${LAB_DOMAIN}.
+      IN      NS      router.${DOMAIN}.
 
 ; PTR Records
-1.${NET_PREFIX_ARPA}    IN      PTR     router.${LAB_DOMAIN}.
-10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${LAB_DOMAIN}.
+1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
+10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${DOMAIN}.
 EOF
 ```
 
@@ -278,8 +323,32 @@ chown -R bind:bind /data/var/named
 chown -R bind:bind /etc/bind
 ```
 
+When you have completed all of your configuration changes, you can test the configuration with the following command:
+
 ```bash
-/usr/sbin/named -u bind -g -c /etc/bind/named.conf
+named-checkconf
 ```
+
+If the output is clean, then you are ready to fire it up!
+
+First, tell `dnsmasq` not to hanlde DNS:
+
+```bash
+uci set dhcp.@dnsmasq[0].domain='${LAB_DOMAIN}'
+uci set dhcp.@dnsmasq[0].localuse=0
+uci set dhcp.@dnsmasq[0].cachelocal=0
+uci set dhcp.@dnsmasq[0].port=0
+uci commit dhcp
+/etc/init.d/dnsmasq restart
+```
+
+Then, enable Bind and reboot the router:
+
+```bash
+/etc/init.d/named enable
+/etc/init.d/named start
+```
+
+Now it's time to set up your Bastion host:
 
 [Bastion Host](/home-lab/bastion-pi)

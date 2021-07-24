@@ -76,3 +76,9 @@ uci commit firewall
    uci set wireless.default_radio0.disabled='1'
    uci set wireless.guest2g.disabled='1'
    ```
+
+Test Bind
+
+```bash
+/usr/sbin/named -u bind -g -c /etc/bind/named.conf
+```

@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /home-lab/full-lab/
+permalink: /home-lab/lab-intro/
 title: Building a Portable Kubernetes Home Lab with OKD4
 ---
 There are a lot of really good Kubernetes and OpenShift tutorials out there.  This one strives to be a little bit different in that it is going to simulate the network configuration found in a real data center environment.  This tutorial is targeted toward architects and engineers who are interested in both infrastructure and application development.  The resulting OpenShift cluster will be sized to do some real compute work.  This is not a Hello World lab.
@@ -42,9 +42,11 @@ By following this tutorial, you will set up the following capabilities for your 
 
 Follow each of the guides below to create your lab:
 
+1. [Prepare your Worstation](/home-lab/workstation)
 1. [Edge Router](/home-lab/edge-router)
 1. [Bastion Host](/home-lab/bastion-pi)
 1. [Cluster Router](/home-lab/cluster-router)
 1. [KVM Host Setup](/home-lab/kvm-host-setup)
 1. [Prepare for OpenShift Install](/home-lab/prepare-okd-install)
 1. [OpenShift Install](/home-lab/install-okd)
+1. [Post Installation Fun](/home-lab/post-install)
