@@ -27,9 +27,9 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
 1. Create an environment script to help configure the router:
 
    ```bash
-   ${OKD4_LAB_PATH}/bin/createEnvScript.sh -e 
-   cat ${OKD4_LAB_PATH}/work-dir/edge-router | ssh root@192.168.8.1 "cat >> /root/.profile"
-   rm -rf ${OKD4_LAB_PATH}/work-dir
+   ${OKD_LAB_PATH}/bin/createEnvScript.sh -e 
+   cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+   rm -rf ${OKD_LAB_PATH}/work-dir
    ```
 
 1. Log into the router:
@@ -233,11 +233,6 @@ logging {
         };
 };
 
-zone "." IN {
- type hint;
- file "/etc/bind/db.root";
-};
-
 zone "${DOMAIN}" {
     type master;
     file "/etc/bind/db.${DOMAIN}"; # zone file path
@@ -348,6 +343,26 @@ Then, enable Bind and reboot the router:
 /etc/init.d/named enable
 /etc/init.d/named start
 ```
+
+## __Hugely Helpful Tip:__
+
+__If you are using a MacBook for your workstation, you can enable DNS resolution to your lab by creating a file in the `/etc/resolver` directory on your Mac.__
+
+```bash
+sudo bash
+<enter your password>
+vi /etc/resolver/your.domain.com
+```
+
+Name the file `your.domain.com` after the domain that you created for your lab.  Enter something like this example, modified for your DNS server's IP:
+
+```bash
+nameserver 10.11.12.1
+```
+
+Save the file.
+
+Your MacBook should now query your new DNS server for entries in your new domain.  __Note:__ If your MacBook is on a different network and is routed to your Lab network, then the `acl` entry in your DNS configuration must allow your external network to query.  Otherwise, you will bang your head wondering why it does not work...  __The ACL is very powerful.  Use it.  Just like you are using firewalld.  Right?  I know you did not disable it on your linux hosts...  surely not...  if you did...  TURN IT BACK ON NOW!!!  NOW, NOW, NOW, NOW..., NOW!__
 
 Now it's time to set up your Bastion host:
 

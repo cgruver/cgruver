@@ -40,14 +40,12 @@ You need to choose two things to get started:
    export BASTION_HOST=${BASTION_HOST}
    export EDGE_ROUTER=${EDGE_ROUTER}
    export NETMASK=255.255.255.0
-   export INSTALL_HOST=\${BASTION_HOST}
-   export INSTALL_URL=http://\${INSTALL_HOST}/install
-   export OKD4_LAB_PATH=${HOME}/okd-lab
+   export OKD_LAB_PATH=${HOME}/okd-lab
    export OKD_NIGHTLY_REGISTRY=registry.svc.ci.openshift.org/origin/release
    export OKD_STABLE_REGISTRY=quay.io/openshift/okd
    export LOCAL_REGISTRY=nexus.${LAB_DOMAIN}:5001
    export LOCAL_REPOSITORY=origin
-   export LOCAL_SECRET_JSON=${OKD4_LAB_PATH}/pull_secret.json
+   export LOCAL_SECRET_JSON=${OKD_LAB_PATH}/pull_secret.json
    EOF
 
    chmod 750 ~/okd-lab/bin/setLabEnv.sh
@@ -57,15 +55,15 @@ You need to choose two things to get started:
 
    ```bash
    . ~/okd-lab/bin/setLabEnv.sh
-   cd ${OKD4_LAB_PATH}
+   cd ${OKD_LAB_PATH}
    git clone https://github.com/cgruver/okd-home-lab.git
    ```
 
 1. Copy the scripts to your lab `bin` directory:
 
    ```bash
-   cp okd-home-lab/bin/* ${OKD4_LAB_PATH}/bin
-   chmod 750 ${OKD4_LAB_PATH}/bin/*
+   cp okd-home-lab/bin/* ${OKD_LAB_PATH}/bin
+   chmod 750 ${OKD_LAB_PATH}/bin/*
    ```
 
 1. Now, you are ready to configure your edge router.

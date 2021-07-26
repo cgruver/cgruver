@@ -47,8 +47,8 @@ I have provided a set of utility scripts to automate a lot of the tasks associat
     Copy this file into place, and modify it if necessary:
 
     ```bash
-    mkdir -p ${OKD4_LAB_PATH}/guest-inventory
-    cp ./Provisioning/guest_inventory/okd4_lab ${OKD4_LAB_PATH}/guest-inventory
+    mkdir -p ${OKD_LAB_PATH}/guest-inventory
+    cp ./Provisioning/guest_inventory/okd4_lab ${OKD_LAB_PATH}/guest-inventory
     ```
 
 1. Retrieve the `oc` command.  We're going to grab an older version of `oc`, but that's OK.  We just need it to retrieve to current versions of `oc` and `openshift-install`
@@ -79,7 +79,7 @@ I have provided a set of utility scripts to automate a lot of the tasks associat
     1. We need to put the pull secret into a JSON file that we will use to mirror the OKD images into our Nexus registry.  We'll also need the pull secret for our cluster install.
 
         ```bash
-        cat << EOF > ${OKD4_LAB_PATH}/pull_secret.json
+        cat << EOF > ${OKD_LAB_PATH}/pull_secret.json
         {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_PWD}"}}}
         EOF 
         ```
@@ -137,17 +137,17 @@ I have provided a set of utility scripts to automate a lot of the tasks associat
     Copy this file to our working directory.
 
     ```bash
-    cp ./Provisioning/install-config-upi.yaml ${OKD4_LAB_PATH}/install-config-upi.yaml
+    cp ./Provisioning/install-config-upi.yaml ${OKD_LAB_PATH}/install-config-upi.yaml
     ```
 
     Patch in some values:
 
     ```bash
-    sed -i "s|%%LAB_DOMAIN%%|${LAB_DOMAIN}|g" ${OKD4_LAB_PATH}/install-config-upi.yaml
-    SECRET=$(cat ${OKD4_LAB_PATH}/pull_secret.json)
-    sed -i "s|%%PULL_SECRET%%|${SECRET}|g" ${OKD4_LAB_PATH}/install-config-upi.yaml
+    sed -i "s|%%LAB_DOMAIN%%|${LAB_DOMAIN}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
+    SECRET=$(cat ${OKD_LAB_PATH}/pull_secret.json)
+    sed -i "s|%%PULL_SECRET%%|${SECRET}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
     SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
-    sed -i "s|%%SSH_KEY%%|${SSH_KEY}|g" ${OKD4_LAB_PATH}/install-config-upi.yaml
+    sed -i "s|%%SSH_KEY%%|${SSH_KEY}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
     ```
 
     For the last piece, you need to manually paste in a cert.  No `sed` magic here for you...
@@ -272,7 +272,7 @@ I have provided a set of utility scripts to automate a lot of the tasks associat
 1. Create the cluster virtual machines and set up for OKD installation:
 
     ```bash
-    DeployOkdNodes.sh -i=${OKD4_LAB_PATH}/guest-inventory/okd4_lab -cn=okd4
+    DeployOkdNodes.sh -i=${OKD_LAB_PATH}/guest-inventory/okd4_lab -cn=okd4
     ```
 
     This script does a whole lot of work for us.
@@ -282,7 +282,7 @@ I have provided a set of utility scripts to automate a lot of the tasks associat
     1. Invokes the openshift-install command against our install-config to produce ignition files
     1. Copies the ignition files into place for FCOS install
     1. Sets up for a mirrored install by putting `quay.io` and `registry.svc.ci.openshift.org` into a DNS sinkhole.
-    1. Creates guest VMs based on the inventory file at `${OKD4_LAB_PATH}/guest-inventory/okd4`
+    1. Creates guest VMs based on the inventory file at `${OKD_LAB_PATH}/guest-inventory/okd4`
     1. Creates iPXE boot files for each VM and copies them to the iPXE server, (your router)
 
 [OpenShift Install](/home-lab/install-okd)

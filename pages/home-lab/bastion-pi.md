@@ -195,6 +195,13 @@ Finish configuring the bastion host:
    /etc/init.d/uhttpd restart
    ```
 
+1. Create folders for the installation files:
+
+   ```bash
+   mkdir -p /www/install/kickstart
+   mkdir /www/install/postinstall
+   ```
+
 1. Create CentOS Stream repository mirror:
 
    ```bash
@@ -203,6 +210,36 @@ Finish configuring the bastion host:
      mkdir -p /www/install/repos/${i}
      rsync  -avSHP --delete rsync://mirror.vcu.edu/centos/8-stream/${i}/x86_64/os/ /www/install/repos/${i}
    done
+   ```
+
+1. Create a repo file for the mirror:
+
+   ```bash
+   cat << EOF > /www/install/postinstall/local-repos.repo
+   [local-appstream]
+   name=AppStream
+   baseurl=http://${BASTION_HOST}/install/repos/AppStream/
+   gpgcheck=0
+   enabled=1
+
+   [local-extras]
+   name=extras
+   baseurl=http://${BASTION_HOST}/install/repos/extras/
+   gpgcheck=0
+   enabled=1
+
+   [local-baseos]
+   name=BaseOS
+   baseurl=http://${BASTION_HOST}/install/repos/BaseOS/
+   gpgcheck=0
+   enabled=1
+
+   [local-powertools]
+   name=PowerTools
+   baseurl=http://${BASTION_HOST}/install/repos/PowerTools/
+   gpgcheck=0
+   enabled=1
+   EOF
    ```
 
 1. Install Java runtime

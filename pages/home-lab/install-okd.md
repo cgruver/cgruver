@@ -75,7 +75,7 @@ __Don't be alarmed if you see streams of `connection refused` errors for a minut
   * Bootstrap Progress:
 
       ```bash
-      openshift-install --dir=${OKD4_LAB_PATH}/okd4-install-dir wait-for bootstrap-complete --log-level debug
+      openshift-install --dir=${OKD_LAB_PATH}/okd4-install-dir wait-for bootstrap-complete --log-level debug
       ```
 
   * When bootstrap is complete, remove the bootstrap node from HA-Proxy
@@ -93,7 +93,7 @@ __Don't be alarmed if you see streams of `connection refused` errors for a minut
   * Install Progress:
 
       ```bash
-      openshift-install --dir=${OKD4_LAB_PATH}/okd4-install-dir wait-for install-complete --log-level debug
+      openshift-install --dir=${OKD_LAB_PATH}/okd4-install-dir wait-for install-complete --log-level debug
       ```
 
 * Install Complete:
@@ -117,7 +117,7 @@ Point your browser to the url listed at the completion of install: `https://cons
 
 Log in as `kubeadmin` with the password from the output at the completion of the install.
 
-__If you forget the password for this initial account, you can find it in the file:__ `${OKD4_LAB_PATH}/okd4-install-dir/auth/kubeadmin-password`
+__If you forget the password for this initial account, you can find it in the file:__ `${OKD_LAB_PATH}/okd4-install-dir/auth/kubeadmin-password`
 
 __Note: the first time you try to log in, you may have to wait a bit for all of the console resources to initialize.__
 
@@ -126,7 +126,7 @@ You will have to accept the certs for your new cluster.
 ### Issue commands against your new cluster:
 
 ```bash
-export KUBECONFIG="${OKD4_LAB_PATH}/okd4-install-dir/auth/kubeconfig"
+export KUBECONFIG="${OKD_LAB_PATH}/okd4-install-dir/auth/kubeconfig"
 oc get pods --all-namespaces
 ```
 

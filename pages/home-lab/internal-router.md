@@ -13,22 +13,22 @@ title: Internal Network Router
 1. Create an environment script to help configure the router:
 
    ```bash
-   ${OKD4_LAB_PATH}/bin/createEnvScript.sh -c=1
-   cat ${OKD4_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+   ${OKD_LAB_PATH}/bin/createEnvScript.sh -c=1
+   cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
    ```
 
 1. Add env vars to the edge router for additional configuration:
 
    ```bash
-   cat ${OKD4_LAB_PATH}/work-dir/edge-router | ssh root@${EDGE_ROUTER} "cat >> /root/.profile"
+   cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@${EDGE_ROUTER} "cat >> /root/.profile"
    ```
 
 1. Add a forwarding zone to the edge router DNS:
 
    ```bash
-   cat ${OKD4_LAB_PATH}/work-dir/edge-zone | ssh root@${EDGE_ROUTER} "cat >> /etc/bind/named.conf"
+   cat ${OKD_LAB_PATH}/work-dir/edge-zone | ssh root@${EDGE_ROUTER} "cat >> /etc/bind/named.conf"
    ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
-   rm -rf ${OKD4_LAB_PATH}/work-dir
+   rm -rf ${OKD_LAB_PATH}/work-dir
    ```
 
 1. Log into the router:
@@ -65,8 +65,11 @@ title: Internal Network Router
    uci set network.wan.ipaddr=${EDGE_IP}
    uci set network.wan.netmask=${NETMASK}
    uci set network.wan.gateway=${EDGE_ROUTER}
+   uci set network.wan.hostname=router.${DOMAIN}
+   uci set network.wan.dns=${EDGE_ROUTER}
    uci set network.lan.ipaddr=${ROUTER}
    uci set network.lan.netmask=${NETMASK}
+   uci set network.lan.hostname=router.${DOMAIN}
    uci delete network.guest
    uci delete network.wan6
    uci commit network
@@ -90,12 +93,12 @@ title: Internal Network Router
    uci set dhcp.ipxe_boot.userclass='iPXE'
    uci set dhcp.uefi=boot
    uci set dhcp.uefi.filename='tag:efi64,tag:!ipxe,ipxe.efi'
-   uci set dhcp.uefi.serveraddress='${ROUTER}'
+   uci set dhcp.uefi.serveraddress="${ROUTER}"
    uci set dhcp.uefi.servername='pxe'
    uci set dhcp.uefi.force='1'
    uci set dhcp.ipxe=boot
    uci set dhcp.ipxe.filename='tag:ipxe,boot.ipxe'
-   uci set dhcp.ipxe.serveraddress='${ROUTER}'
+   uci set dhcp.ipxe.serveraddress="${ROUTER}"
    uci set dhcp.ipxe.servername='pxe'
    uci set dhcp.ipxe.force='1'
    uci commit dhcp
@@ -147,7 +150,7 @@ title: Internal Network Router
 1. Before we can log into the internal network router, we need to create a static route in the edge router:
 
    ```bash
-   ssh ${EDGE_ROUTER}
+   ssh root@${EDGE_ROUTER}
    unset ROUTE
    ROUTE=$(uci add network route)
    uci set network.${ROUTE}.interface=lan
@@ -162,14 +165,14 @@ title: Internal Network Router
 1. Now, we should be able to log into our new internal network router:
 
    ```bash
-   DC1_ROUTER=$(ssh ${EDGE_ROUTER} "echo ${DC1_ROUTER}")
+   DC1_ROUTER=$(ssh root@${EDGE_ROUTER} ". /root/.profile ; echo \${DC1_ROUTER}")
    ssh root@${DC1_ROUTER}
    ```
 
 1. Install some additional packages on your router:
 
    ```bash
-   opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools wget haproxy bash
+   opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools wget haproxy bash shadow
    ```
 
 ## Configure TFTP and PXE Booting
@@ -448,50 +451,44 @@ When you have completed all of your configuration changes, you can test the conf
 
 If the output is clean, then you are ready to fire it up!
 
-### Starting DNS
+1. First, tell `dnsmasq` not to hanlde DNS:
 
-Now that we are done with the configuration let's enable DNS and start it up.
+   ```bash
+   uci set dhcp.@dnsmasq[0].domain='${DOMAIN}'
+   uci set dhcp.@dnsmasq[0].localuse=0
+   uci set dhcp.@dnsmasq[0].cachelocal=0
+   uci set dhcp.@dnsmasq[0].port=0
+   uci commit dhcp
+   /etc/init.d/dnsmasq restart
+   ```
 
-```bash
-uci set dhcp.@dnsmasq[0].domain='${DOMAIN}'
-uci set dhcp.@dnsmasq[0].localuse=0
-uci set dhcp.@dnsmasq[0].cachelocal=0
-uci set dhcp.@dnsmasq[0].port=0
-uci commit dhcp
-/etc/init.d/dnsmasq restart
-/etc/init.d/named enable
-/etc/init.d/named start
-```
+1. Then, enable Bind and reboot the router:
 
-You can now test DNS resolution.  Try some `pings` or `dig` commands.
+   ```bash
+   /etc/init.d/named enable
+   /etc/init.d/named start
+   ```
 
-### __Hugely Helpful Tip:__
+1. You can now test DNS resolution.  Try some `pings` or `dig` commands.
 
-__If you are using a MacBook for your workstation, you can enable DNS resolution to your lab by creating a file in the `/etc/resolver` directory on your Mac.__
+## Set up HA Proxy for our OpenShift cluster
 
-```bash
-sudo bash
-<enter your password>
-vi /etc/resolver/your.domain.com
-```
+1. First, save a copy of the original config file:
 
-Name the file `your.domain.com` after the domain that you created for your lab.  Enter something like this example, modified for your DNS server's IP:
-
-```bash
-nameserver 10.11.11.1
-```
-
-Save the file.
-
-Your MacBook should now query your new DNS server for entries in your new domain.  __Note:__ If your MacBook is on a different network and is routed to your Lab network, then the `acl` entry in your DNS configuration must allow your external network to query.  Otherwise, you will bang your head wondering why it does not work...  __The ACL is very powerful.  Use it.  Just like you are using firewalld.  Right?  I know you did not disable it on your linux hosts...  surely not...  if you did...  TURN IT BACK ON NOW!!!  NOW, NOW, NOW, NOW..., NOW!__
-
-## Set up HA Proxy
-
-1. Now we will set up HA-Proxy for our OpenShift cluster:
-
-  ```bash
+   ```bash
    mv /etc/haproxy.cfg /etc/haproxy.cfg.orig
+   ```
 
+1. Disable `lighttpd`.  We are going to use `uhttpd`.  Note: this will disable the GL-iNet GUI.  You can still use LUCI.
+
+   ```bash
+   /etc/init.d/lighttpd disable
+   /etc/init.d/lighttpd stop
+   ```
+
+1. Configure `uhttpd` to only listen on specific interfaces.  We want HA Proxy to use `80` and `443` as well:
+
+   ```bash
    uci del_list uhttpd.main.listen_http="[::]:80"
    uci del_list uhttpd.main.listen_http="0.0.0.0:80"
    uci del_list uhttpd.main.listen_https="[::]:443"
@@ -501,30 +498,47 @@ Your MacBook should now query your new DNS server for entries in your new domain
    uci add_list uhttpd.main.listen_http="127.0.0.1:80"
    uci add_list uhttpd.main.listen_https="127.0.0.1:443"
    uci commit uhttpd
-   /etc/init.d/uhttpd restart
+   /etc/init.d/uhttpd enable
+   /etc/init.d/uhttpd start
+   ```
 
+1. Create a network interface for HA Proxy:
+
+   ```bash
    uci set network.lan_lb01=interface
-   uci set network.lan_lb01.ifname='@lan'
-   uci set network.lan_lb01.proto='static'
-   uci set network.lan_lb01.hostname='okd4-lb01'
-   uci set network.lan_lb01.ipaddr='10.11.12.2/255.255.255.0'
+   uci set network.lan_lb01.ifname="@lan"
+   uci set network.lan_lb01.proto="static"
+   uci set network.lan_lb01.hostname="okd4-lb01.${DOMAIN}"
+   uci set network.lan_lb01.ipaddr="${LB_IP}/${NETMASK}"
    uci commit network
    /etc/init.d/network reload
+   ```
 
+1. Create a user for HA Proxy:
 
+   ```bash
+   groupadd haproxy
+   useradd -d /data/haproxy -g haproxy haproxy
+   mkdir -p /data/haproxy
+   chown -R haproxy:haproxy /data/haproxy
+   ```
+
+1. Create the HA Proxy configuration:
+
+   ```bash
    cat << EOF > /etc/haproxy.cfg
    global
 
        log         127.0.0.1 local2
 
-       chroot      /var/lib/haproxy
+       chroot      /data/haproxy
        pidfile     /var/run/haproxy.pid
        maxconn     50000
        user        haproxy
        group       haproxy
        daemon
 
-       stats socket /var/lib/haproxy/stats
+       stats socket /data/haproxy/stats
 
    defaults
        mode                    http
@@ -542,7 +556,7 @@ Your MacBook should now query your new DNS server for entries in your new domain
        maxconn                 50000
 
    listen okd4-api 
-       bind 0.0.0.0:6443
+       bind ${LB_IP}:6443
        balance roundrobin
        option                  tcplog
        mode tcp
@@ -554,7 +568,7 @@ Your MacBook should now query your new DNS server for entries in your new domain
        server okd4-master-2 ${NET_PREFIX}.62:6443 check weight 1
 
    listen okd4-mc 
-       bind 0.0.0.0:22623
+       bind ${LB_IP}:22623
        balance roundrobin
        option                  tcplog
        mode tcp
@@ -565,7 +579,7 @@ Your MacBook should now query your new DNS server for entries in your new domain
        server okd4-master-2 ${NET_PREFIX}.62:22623 check weight 1
 
    listen okd4-apps 
-       bind 0.0.0.0:80
+       bind ${LB_IP}:80
        balance source
        option                  tcplog
        mode tcp
@@ -575,7 +589,7 @@ Your MacBook should now query your new DNS server for entries in your new domain
        server okd4-master-2 ${NET_PREFIX}.62:80 check weight 1
 
    listen okd4-apps-ssl 
-       bind 0.0.0.0:443
+       bind ${LB_IP}:443
        balance source
        option                  tcplog
        mode tcp
@@ -587,33 +601,11 @@ Your MacBook should now query your new DNS server for entries in your new domain
    EOF
    ```
 
-## Firewall
+1. Start HA Proxy:
 
-```bash
-uci add firewall rule
-uci set firewall.@rule[-1].src='wan'
-
-rule_name=$(uci add firewall rule) 
-uci batch << EOI
-set firewall.$rule_name.enabled='1'
-set firewall.$rule_name.target='ACCEPT'
-set firewall.$rule_name.src='wan'
-set firewall.$rule_name.proto='tcp udp'
-set firewall.$rule_name.dest_port='111'
-set firewall.$rule_name.name='NFS_share'
-EOI
-uci commit
-
-uci add firewall rule
-uci set firewall.@rule[-1].src='wan'
-uci set firewall.@rule[-1].target='ACCEPT'
-uci set firewall.@rule[-1].proto='tcp'
-uci set firewall.@rule[-1].dest_port='22'
-uci commit firewall
-/etc/init.d/firewall restart
-
-/etc/init.d/firewall reload
-
-```
+   ```bash
+   /etc/init.d/haproxy enable
+   /etc/init.d/haproxy start
+   ```
 
 1. [KVM Host Setup](/home-lab/kvm-host-setup)

@@ -28,7 +28,7 @@ I have provided a helper script, `DeployKvmHost.sh` that will configure the file
     DeployKvmHost.sh -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=nvme0n1 # Example with 1 NVME SSD
     DeployKvmHost.sh -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
 
-Finally, make sure that you have created DNS `A` and `PTR` records.  [DNS Setup](DNS_Config.md)
+Finally, make sure that you have created DNS `A` and `PTR` records.  The DNS configuration that we set up previously included three KVM hosts, kvm-host01, kvm-host02, and kvm-host03.
 
 We are now ready to plug in the NUC and boot it up.
 
@@ -66,7 +66,4 @@ That's it!  Your host is now a Brick.  If your PXE environment is set up properl
 
 Go ahead a build out all of your KVM hosts are this point.  For this lab you need at least one KVM host with 64GB of RAM.  With this configuration, you will build an OKD cluster with 3 Master nodes which are also schedulable, (is that a word?), as worker nodes.  If you have two, then you will build an OKD cluster with 3 Master and 3 Worker nodes.
 
-It is now time to deploy an OKD cluster: [Deploy OKD](DeployOKD.md)
-
 [Prepare for OpenShift Install](/home-lab/prepare-okd-install)
-
