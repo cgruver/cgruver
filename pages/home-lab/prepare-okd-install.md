@@ -18,16 +18,16 @@ Since we are simulating a secure data center environment, let's deny internet ac
 1. Add a firewall rule to block internet bound traffic from the internal router:
 
   ```bash
-  rule_name=$(uci add firewall rule) 
+  new_rule=$(uci add firewall rule) 
   uci batch << EOI
-  set firewall.$rule_name.enabled='1'
-  set firewall.$rule_name.target='REJECT'
-  set firewall.$rule_name.src='lan'
-  set firewall.$rule_name.src_ip='${DC1_NETWORK}/24'
-  set firewall.$rule_name.dest='wan'
-  set firewall.$rule_name.name='DC1_BLOCK'
-  set firewall.$rule_name.proto='all'
-  set firewall.$rule_name.family='ipv4'
+  set firewall.${new_rule}.enabled='1'
+  set firewall.${new_rule}.target='REJECT'
+  set firewall.${new_rule}.src='lan'
+  set firewall.${new_rule}.src_ip='${DC1_NETWORK}/24'
+  set firewall.${new_rule}.dest='wan'
+  set firewall.${new_rule}.name='DC1_BLOCK'
+  set firewall.${new_rule}.proto='all'
+  set firewall.${new_rule}.family='ipv4'
   EOI
   uci commit firewall
   /etc/init.d/firewall restart
