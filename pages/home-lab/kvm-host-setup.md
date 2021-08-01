@@ -21,20 +21,37 @@ The installation on a bare metal host will work like this:
 
 There are a couple of things that we need to put in place to get started.
 
-First we need to flip the NUC over and get the MAC address for the wired NIC.  You also need to know whether you have NVME or SATA SSDs in the NUC.
+1. Copy the SSH public key from your workstation to the authorized_keys file hosted on the bastion pi:
 
-I have provided a helper script, `DeployKvmHost.sh` that will configure the files for you.
+   ```bash
+   cat ~/.ssh/id_rsa.pub | ssh root@${BASTION_HOST} "cat >> /www/install/postinstall/authorized_keys"
+   ```
 
-    DeployKvmHost.sh -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=nvme0n1 # Example with 1 NVME SSD
-    DeployKvmHost.sh -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
+1. Create an encrypted root password for your KVM hosts:
 
-Finally, make sure that you have created DNS `A` and `PTR` records.  The DNS configuration that we set up previously included three KVM hosts, kvm-host01, kvm-host02, and kvm-host03.
+   ```bash
+   openssl passwd -1 'host-root-password' > ${OKD_LAB_PATH}/lab_host_pw
+   ```
+
+
+First, make sure that you have created DNS `A` and `PTR` records.  The DNS configuration that we set up previously included three KVM hosts, kvm-host01, kvm-host02, and kvm-host03.
 
 We are now ready to plug in the NUC and boot it up.
 
 __Note:__  This is the point at which you might have to attach a keyboard and monitor to your NUC.  We need to ensure that the BIOS is set up to attempt a Network Boot with UEFI, not legacy.  You also need to ensure that `Secure Boot` is disabled in the BIOS since we are not explicitly trusting the boot images.
 
 __Now, Take this opportunity to apply the latest BIOS to your NUC.__  You won't need the keyboard or mouse again, until it's time for another BIOS update...  Eventually we'll figure out how to push those from the OS too.  ;-)
+
+Now we need to flip the NUC over and get the MAC address for the wired NIC.  You also need to know whether you have NVME or SATA SSDs in the NUC.
+
+I have provided a helper script, `DeployKvmHost.sh` that will configure the `iPXE` and `kickstart` files for you.
+
+   ```bash
+   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=nvme0n1 # Example with 1 NVME SSD
+   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
+   ```
+
+After creating the install files, connect the NUC to your internal router and power it on.  After a few minutes, it should be up a running.
 
 The last thing that I've prepared for you is the ability to reinstall your OS.
 
@@ -46,24 +63,29 @@ The script is a quick and dirty way to brick your host so that when it reboots, 
 
 The script will destroy your boot partitions and wipe the MBR in the installed SSD drives.  For example:
 
-Destroy boot partitions:
+1. Destroy boot partitions:
 
-    umount /boot/efi
-    umount /boot
-    wipefs -a /dev/sda2
-    wipefs -a /dev/sda1
+   ```bash
+   umount /boot/efi
+   umount /boot
+   wipefs -a /dev/sda2
+   wipefs -a /dev/sda1
+   ```
 
-Wipe MBR:
+1. Wipe MBR:
 
-    dd if=/dev/zero of=/dev/sda bs=512 count=1
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1
+   ```bash
+   dd if=/dev/zero of=/dev/sda bs=512 count=1
+   ```
 
-Reboot:
+1. Reboot:
 
-    shutdown -r now
+   ```bash
+   shutdown -r now
+   ```
 
 That's it!  Your host is now a Brick.  If your PXE environment is set up properly, then in a few minutes you will have a fresh OS install.
 
 Go ahead a build out all of your KVM hosts are this point.  For this lab you need at least one KVM host with 64GB of RAM.  With this configuration, you will build an OKD cluster with 3 Master nodes which are also schedulable, (is that a word?), as worker nodes.  If you have two, then you will build an OKD cluster with 3 Master and 3 Worker nodes.
 
-[Prepare for OpenShift Install](/home-lab/prepare-okd-install)
+Next, [Prepare for OpenShift Install](/home-lab/prepare-okd-install)

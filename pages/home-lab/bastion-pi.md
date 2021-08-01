@@ -143,13 +143,14 @@ We are going to use the edge router that we set up in the previous step to confi
 
 __Remove card from router, put it in the Pi, and boot it up.__
 
-Finish configuring the bastion host:
+### Finish configuring the bastion host:
 
 1. From your workstation, SSH into the bastion host
 
    ```bash
-   . ~/okd-lab/bin/setLabEnv.sh
-   ~/okd-lab/bin/createEnvScript.sh -e | ssh root@${BASTION_HOST} "cat >> /root/.profile"
+   ${OKD_LAB_PATH}/bin/createEnvScript.sh -e 
+   cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@${BASTION_HOST} "cat >> /root/.profile"
+   rm -rf ${OKD_LAB_PATH}/work-dir
    ssh root@${BASTION_HOST}
    ```
 
@@ -200,16 +201,56 @@ Finish configuring the bastion host:
    ```bash
    mkdir -p /www/install/kickstart
    mkdir /www/install/postinstall
+   mkdir /www/install/fcos
    ```
 
-1. Create CentOS Stream repository mirror:
+1. Download the Fedora CoreOS install files:
+
+   ```bash
+   curl -o /www/install/fcos/vmlinuz https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-kernel-x86_64
+   curl -o /www/install/fcos/initrd https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-initramfs.x86_64.img
+   curl -o /www/install/fcos/rootfs.img https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-rootfs.x86_64.img
+   ```
+
+1. Create a script for synching a CentOS Stream repository mirror:
+
+   ```bash
+   mkdir -p /root/bin
+
+   cat << EOF > /root/bin/MirrorSync.sh
+   #!/bin/bash
+
+   for i in BaseOS AppStream PowerTools extras
+   do 
+     rsync  -avSHP --delete \${REPO_MIRROR}8-stream/\${i}/x86_64/os/ /www/install/repos/\${i}/x86_64/os/ > /tmp/repo-mirror.\${i}.out 2>&1
+   done
+   EOF
+
+   chmod 750 /root/bin/MirrorSync.sh
+   ```
+
+1. Create the repo mirror tree:
 
    ```bash
    for i in BaseOS AppStream PowerTools extras
    do 
-     mkdir -p /www/install/repos/${i}
-     rsync  -avSHP --delete rsync://mirror.vcu.edu/centos/8-stream/${i}/x86_64/os/ /www/install/repos/${i}
+     mkdir -p /www/install/repos/${i}/x86_64/os/
    done
+   ```
+
+1. Go to [https://centos.org/download/mirrors/](https://centos.org/download/mirrors/) and select a mirror new you that supports `rsync`:
+
+   Add the mirror's rsync link as an environment variable to `/root/.profile`
+
+   ```bash
+   export REPO_MIRROR=rsync://your.centos.mirror.com/centos/
+   echo "export REPO_MIRROR=${REPO_MIRROR}" >> /root/.profile
+   ```
+
+1. Start the mirror.  This will take a while:
+
+   ```bash
+   nohup /root/bin/MirrorSync.sh ${REPO_MIRROR} &
    ```
 
 1. Create a repo file for the mirror:
@@ -218,29 +259,77 @@ Finish configuring the bastion host:
    cat << EOF > /www/install/postinstall/local-repos.repo
    [local-appstream]
    name=AppStream
-   baseurl=http://${BASTION_HOST}/install/repos/AppStream/
+   baseurl=http://${BASTION_HOST}/install/repos/AppStream/x86_64/os/
    gpgcheck=0
    enabled=1
 
    [local-extras]
    name=extras
-   baseurl=http://${BASTION_HOST}/install/repos/extras/
+   baseurl=http://${BASTION_HOST}/install/repos/extras/x86_64/os/
    gpgcheck=0
    enabled=1
 
    [local-baseos]
    name=BaseOS
-   baseurl=http://${BASTION_HOST}/install/repos/BaseOS/
+   baseurl=http://${BASTION_HOST}/install/repos/BaseOS/x86_64/os/
    gpgcheck=0
    enabled=1
 
    [local-powertools]
    name=PowerTools
-   baseurl=http://${BASTION_HOST}/install/repos/PowerTools/
+   baseurl=http://${BASTION_HOST}/install/repos/PowerTools/x86_64/os/
    gpgcheck=0
    enabled=1
    EOF
    ```
+
+1. Enable NTP server:
+
+   ```bash
+   uci set system.ntp.enable_server="1"
+   uci commit system
+   /etc/init.d/sysntpd restart
+   ```
+
+1. Create a Chrony configuration file for KVM Hosts:
+
+   ```bash
+   cat << EOF > /www/install/postinstall/chrony.conf
+   server ${BASTION_HOST} iburst
+   driftfile /var/lib/chrony/drift
+   makestep 1.0 3
+   rtcsync
+   logdir /var/log/chrony
+   EOF
+   ```
+
+1. Create a script to trigger a host reinstall:
+
+   ```bash
+   cat << EOF > /www/install/postinstall/rebuildhost.sh
+   #!/bin/bash
+
+   P1=\$(lsblk -l | grep /boot/efi | cut -d" " -f1)
+   P2=\$(lsblk -l | grep /boot | grep -v efi | cut -d" " -f1)
+   MAJ=\$(lsblk -l | grep \${P1} | tr -s " " | cut -d" " -f2 | cut -d: -f1)
+   BOOT_DISK=\$(lsblk -l | grep "\${MAJ}:0" | cut -d" " -f1)
+
+   umount /boot/efi
+   umount /boot
+   wipefs -a /dev/\${P1}
+   wipefs -a /dev/\${P2}
+   dd if=/dev/zero of=/dev/\${BOOT_DISK} bs=512 count=1
+   shutdown -r now
+   EOF
+   ```
+
+1. Copy the bastion host SSH public key to a file for host installation:
+
+   ```bash
+   dropbearkey -y -f /root/.ssh/id_dropbear | grep "ssh-" > /www/install/postinstall/authorized_keys
+   ```
+
+### Install Nexus
 
 1. Install Java runtime
 
@@ -319,6 +408,8 @@ Finish configuring the bastion host:
    SERVICE_USE_PID=0
 
    start() {
+      ulimit -Hn 65536
+      ulimit -Sn 65536
        service_start /usr/local/nexus/nexus-3/bin/nexus start
    }
 
@@ -364,4 +455,6 @@ Finish configuring the bastion host:
    /etc/init.d/nexus start
    ```
 
-[Internal Router](/home-lab/internal-router)
+1. Next, set up the router for your OpenShift cluster:
+
+   __[Internal Router](/home-lab/internal-router)__

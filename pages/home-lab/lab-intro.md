@@ -43,10 +43,9 @@ By following this tutorial, you will set up the following capabilities for your 
 Follow each of the guides below to create your lab:
 
 1. [Prepare your Worstation](/home-lab/workstation)
-1. [Edge Router](/home-lab/edge-router)
-1. [Bastion Host](/home-lab/bastion-pi)
-1. [Internal Router](/home-lab/internal-router)
+1. [Edge Router Setup](/home-lab/edge-router)
+1. [Bastion Host Setup](/home-lab/bastion-pi)
+1. [Internal Router Setup](/home-lab/internal-router)
 1. [KVM Host Setup](/home-lab/kvm-host-setup)
 1. [Prepare for OpenShift Install](/home-lab/prepare-okd-install)
 1. [OpenShift Install](/home-lab/install-okd)
-1. [Post Installation Fun](/home-lab/post-install)

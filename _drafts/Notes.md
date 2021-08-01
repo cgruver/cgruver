@@ -53,6 +53,29 @@ uci commit firewall
 
 /etc/init.d/firewall reload
 
+config rule
+    option name     example rule
+    option src      lan
+    option family   ipv4
+    option proto    all
+    option dest     wan
+    option dest_ip  192.168.1.64/26
+    option target   REJECT
+
+rule_name=$(uci add firewall rule) 
+uci batch << EOI
+set firewall.$rule_name.enabled='1'
+set firewall.$rule_name.target='REJECT'
+set firewall.$rule_name.src='lan'
+set firewall.$rule_name.src_ip='10.11.13.0/24'
+set firewall.$rule_name.dest='wan'
+set firewall.$rule_name.name='DC1_BLOCK'
+set firewall.$rule_name.proto='all'
+set firewall.$rule_name.family='ipv4'
+EOI
+uci commit firewall
+/etc/init.d/firewall reload
+
 ```
 
 ## WiFi
@@ -70,11 +93,17 @@ uci commit firewall
 1. Configure a Wireless Network for Your Lab:
 
    ```bash
-   uci set wireless.default_radio3.ssid='OKD-LAB'
+   uci set wireless.default_radio3=wifi-iface
+   uci set wireless.default_radio3.device='radio3'
+   uci set wireless.default_radio3.ifname='wlan3'
+   uci set wireless.default_radio3.network='lan'
+   uci set wireless.default_radio3.mode='ap'
+   uci set wireless.default_radio3.disabled='0'
+   uci set wireless.default_radio3.ssid='OKD-LAB-5G'
    uci set wireless.default_radio3.key='WelcomeToMyLab'
    uci set wireless.default_radio3.encryption='psk2'
-   uci set wireless.default_radio0.disabled='1'
-   uci set wireless.guest2g.disabled='1'
+   uci set wireless.default_radio3.multi_ap='1'
+   uci commit wireless
    ```
 
 Test Bind

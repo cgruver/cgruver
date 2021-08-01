@@ -3,286 +3,208 @@ layout: page
 permalink: /home-lab/prepare-okd-install/
 title: Preparing to Install OpenShift
 ---
-## Prepare to Install OKD 4.4
+## Prepare to Install OKD 4
 
-I have provided a set of utility scripts to automate a lot of the tasks associated with deploying and tearing down an OKD cluster.  In your `~/bin/lab-bin` directory you will see the following:
+### No Internet For You!
 
-| | |
-|-|-|
-| `UnDeployLabGuest.sh` | Destroys a guest VM and supporting infrastructure |
-| `DeployOkdNodes.sh` | Creates the HA-Proxy, Bootstrap, Master, and Worker VMs from an inventory file, (described below) |
-| `UnDeployOkdNodes.sh` | Destroys the OKD cluster and all supporting infrastructure |
-| `PowerOnVms.sh` | Helper script that uses IPMI to power on the VMs listed in an inventory file |
+Since we are simulating a secure data center environment, let's deny internet access to our internal network:
 
-1. First, let's prepare to deploy the VMs for our OKD cluster by preparing the Cluster VM inventory file:
+1. Log into the edger router:
 
-    This is not an ansible inventory like you might have encountered with OKD 3.11.  This is something I made up for my lab that allows me to quickly create, manage, and destroy virtual machines.
+  ```bash
+  ssh root@${EDGE_ROUTER}
+  ```
 
-    I have provided an example that will create the virtual machines for this deployment.  It is located at `./Provisioning/guest_inventory/okd4_lab`.  The file is structured in such a way that it can be parsed by the utility scripts provided in this project.  The columns in the comma delimited file are used for the following purposes:
+1. Add a firewall rule to block internet bound traffic from the internal router:
 
-    | Column | Name | Description |
-    |-|-|-|
-    | 1 | KVM_HOST_NODE  | The hypervisor host that this VM will be provisioned on |
-    | 2 | GUEST_HOSTNAME | The hostname of this VM, must be in DNS with `A` and `PTR` records |
-    | 3 | MEMORY | The amount of RAM in MB to allocate to this VM |
-    | 4 | CPU | The number of vCPUs to allocate to this VM |
-    | 5 | ROOT_VOL | The size in GB of the first HDD to provision |
-    | 6 | DATA_VOL | The size in GB of the second HDD to provision; `0` for none |
-    | 7 | NUM_OF_NICS | The number of NICs to provision for thie VM; `1` or `2` |
-    | 8 | ROLE | The OKD role that this VM will play: `bootstrap`, `master`, or `worker` |
+  ```bash
+  rule_name=$(uci add firewall rule) 
+  uci batch << EOI
+  set firewall.$rule_name.enabled='1'
+  set firewall.$rule_name.target='REJECT'
+  set firewall.$rule_name.src='lan'
+  set firewall.$rule_name.src_ip='${DC1_NETWORK}/24'
+  set firewall.$rule_name.dest='wan'
+  set firewall.$rule_name.name='DC1_BLOCK'
+  set firewall.$rule_name.proto='all'
+  set firewall.$rule_name.family='ipv4'
+  EOI
+  uci commit firewall
+  /etc/init.d/firewall restart
+  ```
 
-    It looks like this: (The entries for the three worker nodes are commented out, if you have two KVM hosts with 64GB RAM each, then you can uncomment those lines and have a full 6-node cluster)
+### Set up Nexus for image mirroring:
 
-    ```bash
-    bastion,okd4-lb01,4096,1,50,0,1,ha-proxy,2668
-    bastion,okd4-bootstrap,16384,4,50,0,1,bootstrap,6229
-    kvm-host01,okd4-master-0,20480,4,100,0,1,master,6230
-    kvm-host01,okd4-master-1,20480,4,100,0,1,master,6231
-    kvm-host01,okd4-master-2,20480,4,100,0,1,master,6232
-    # kvm-host02,okd4-worker-0,20480,4,100,0,1,worker,6233
-    # kvm-host02,okd4-worker-1,20480,4,100,0,1,worker,6234
-    # kvm-host02,okd4-worker-2,20480,4,100,0,1,worker,6235
-    ```
+Now point your browser to `https://nexus.your.domain.com:8443`.  Login, and create a password for your admin user.
 
-    Copy this file into place, and modify it if necessary:
+If prompted to allow anonymous access, select to allow.
 
-    ```bash
-    mkdir -p ${OKD_LAB_PATH}/guest-inventory
-    cp ./Provisioning/guest_inventory/okd4_lab ${OKD_LAB_PATH}/guest-inventory
-    ```
+The `?` in the top right hand corner of the Nexus screen will take you to their documentation.
 
-1. Retrieve the `oc` command.  We're going to grab an older version of `oc`, but that's OK.  We just need it to retrieve to current versions of `oc` and `openshift-install`
+We need to create a hosted Docker registry to hold the mirror of the OKD images that we will use to install our cluster.
 
-    ```bash
-    wget https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-07-14-153706-ga/openshift-client-linux-4.5.0-0.okd-2020-07-14-153706-ga.tar.gz
-    ```
+1. Login as your new admin user
+1. Select the gear icon from the top bar, in between a cube icon and the search dialog.
+1. Select `Repositories` from the left menu bar.
 
-1. Uncompress the archive and move the `oc` executable to your ~/bin directory.  Make sure ~/bin is in your path.
+    ![Nexus Admin](images/NexusAdmin.png)
 
-    ```bash
-    tar -xzf openshift-client-linux-4.5.0-0.okd-2020-07-14-153706-ga.tar.gz
-    mv oc ~/bin
-    ```
+1. Select `+ Create repository`
+1. Select `docker (hosted)`
+1. Name your repository `origin`
+1. Check `HTTPS` and put `5001` in the port dialog entry
+1. Check `Allow anonymous docker pull`
+1. Check `Enable Docker V1 API`, you may need this for some older docker clients.
 
-    The `DeployOkdNodes.sh` script will pull the correct version of `oc` and `openshift-install` when we run it.  It will over-write older versions in `~/bin`.
+    ![Nexus OKD Repo](images/CreateOriginRepo.png)
 
-1. Now, we need a couple of pull secrets.  
+1. Click `Create repository` at the bottom of the page.
+1. Now expand the `Security` menu on the left and select `Realms`
+1. Add `Docker Bearer Token Realm` to the list of active `Realms`
 
-   The first one is for quay.io.  Since we are installing OKD, we don't need an official pull secret.  So, we will use a fake one.
+    ![Realms](images/NexusRealms.png)
 
-    1. Create the pull secret for Nexus.  Use a username and password that has write authority to the `origin` repository that we created earlier.
+1. Click `Save`
+1. Now, select `Roles` from the expanded `Security` menu on the left.
+1. Click `+ Create role` and select `Nexus role`
+1. Create the role as shown:
 
-        ```bash
-        NEXUS_PWD=$(echo -n "admin:your_admin_password" | base64 -w0)
-        ```
+    ![Nexus Role](images/NexusRole.png)
 
-    1. We need to put the pull secret into a JSON file that we will use to mirror the OKD images into our Nexus registry.  We'll also need the pull secret for our cluster install.
+1. Add the appropriate privileges as shown:
 
-        ```bash
-        cat << EOF > ${OKD_LAB_PATH}/pull_secret.json
-        {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_PWD}"}}}
-        EOF 
-        ```
+    ![Role Privileges](images/RolePrivileges.png)
 
-1. We need to pull a current version of OKD.  So point your browser at `https://origin-release.svc.ci.openshift.org`.  
+1. Click `Create role`
+1. Now, select `Users` from the expanded `Security` menu on the left.
 
-    ![OKD Release](images/OKD-Release.png)
+    ![Create User](images/CreateUser.png)
 
-    Select the most recent 4.4.0-0.okd release that is in a Phase of `Accepted`, and copy the release name into an environment variable:
+1. Click `Create local user`
+1. Create the user as shown:
 
-    ```bash
-    export OKD_RELEASE=4.7.0-0.okd-2021-04-24-103438
-    getOkdCmds.sh
-    ```
+    ![Nexus User](images/NexusUser.png)
 
-1. The next step is to prepare our install-config.yaml file that `openshift-install` will use to create the `ignition` files for bootstrap, master, and worker nodes.
+### Create OpenShift image mirror:
 
-    I have prepared a skeleton file for you in this project, `./Provisioning/install-config-upi.yaml`.
+1. Add the Nexus cert to the trust store on your workstation:
 
-    ```yaml
-    apiVersion: v1
-    baseDomain: %%LAB_DOMAIN%%
-    metadata:
-      name: %%CLUSTER_NAME%%
-    networking:
-      networkType: OpenShiftSDN
-      clusterNetwork:
-      - cidr: 10.100.0.0/14 
-        hostPrefix: 23 
-      serviceNetwork: 
-      - 172.30.0.0/16
-      machineNetwork:
-      - cidr: 10.11.11.0/24
-    compute:
-    - name: worker
-      replicas: 0
-    controlPlane:
-      name: master
-      replicas: 3
-    platform:
-      none: {}
-    pullSecret: '%%PULL_SECRET%%'
-    sshKey: %%SSH_KEY%%
-    additionalTrustBundle: |
+   * Mac OS:
 
-    imageContentSources:
-    - mirrors:
-      - nexus.%%LAB_DOMAIN%%:5001/origin
-      source: registry.svc.ci.openshift.org/origin/%%OKD_VER%%
-    - mirrors:
-      - nexus.%%LAB_DOMAIN%%:5001/origin
-      source: registry.svc.ci.openshift.org/origin/release
-    ```
+     ```bash
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
+     ```
 
-    Copy this file to our working directory.
+   * Linux:
 
-    ```bash
-    cp ./Provisioning/install-config-upi.yaml ${OKD_LAB_PATH}/install-config-upi.yaml
-    ```
+     ```bash
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     update-ca-trust
+     ```
 
-    Patch in some values:
+1. Next, we need a couple of pull secrets:
 
-    ```bash
-    sed -i "s|%%LAB_DOMAIN%%|${LAB_DOMAIN}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
-    SECRET=$(cat ${OKD_LAB_PATH}/pull_secret.json)
-    sed -i "s|%%PULL_SECRET%%|${SECRET}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
-    SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
-    sed -i "s|%%SSH_KEY%%|${SSH_KEY}|g" ${OKD_LAB_PATH}/install-config-upi.yaml
-    ```
+   1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `origin` repository that we created.
 
-    For the last piece, you need to manually paste in a cert.  No `sed` magic here for you...
+      ```bash
+      NEXUS_PWD=$(echo -n "openshift-mirror:your_password" | base64)
+      ```
 
-    Copy the contents of: `/etc/pki/ca-trust/source/anchors/nexus.crt` and paste it into the blank line here in the config file:
+   1. We need to put the pull secret into a JSON file that we will use to mirror the OKD images into our Nexus registry.  We'll also need the pull secret for our cluster install.  Since we are installing OKD, we don't need an official quay.io pull secret.  So, we will use a fake one.
 
-    ```bash
-    additionalTrustBundle: |
+      ```bash
+      cat << EOF > ${OKD_LAB_PATH}/pull_secret.json
+      {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_PWD}"}}}
+      EOF
+      ```
 
-    imageContentSources:
-    ```
-
-    You need to indent every line of the cert with two spaces for the yaml syntax.
-
-    Your install-config-upi.yaml file should now look something like:
-
-    ```yaml
-    apiVersion: v1
-    baseDomain: your.domain.org
-    metadata:
-      name: %%CLUSTER_NAME%%
-    networking:
-      networkType: OpenShiftSDN
-      clusterNetwork:
-      - cidr: 10.100.0.0/14 
-        hostPrefix: 23 
-      serviceNetwork: 
-      - 172.30.0.0/16
-    compute:
-    - name: worker
-      replicas: 0
-    controlPlane:
-      name: master
-      replicas: 3
-    platform:
-      none: {}
-    pullSecret: '{"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.oscluster.clgcom.org:5002": {"auth": "YREDACTEDREDACTED=="}}}'
-    sshKey: ssh-rsa AAAREDACTEDREDACTEDAQAREDACTEDREDACTEDMnvPFqpEoOvZi+YK3L6MIGzVXbgo8SZREDACTEDREDACTEDbNZhieREDACTEDREDACTEDYI/upDR8TUREDACTEDREDACTEDoG1oJ+cRf6Z6gd+LZNE+jscnK/xnAyHfCBdhoyREDACTEDREDACTED9HmLRkbBkv5/2FPpc+bZ2xl9+I1BDr2uREDACTEDREDACTEDG7Ms0vJqrUhwb+o911tOJB3OWkREDACTEDREDACTEDU+1lNcFE44RREDACTEDREDACTEDov8tWSzn root@bastion
-    additionalTrustBundle: |
-      -----BEGIN CERTIFICATE-----
-      MIIFyTREDACTEDREDACTEDm59lk0W1CnMA0GCSqGSIb3DQEBCwUAMHsxCzAJBgNV
-      BAYTAlREDACTEDREDACTEDVTMREwDwYDVQQIDAhWaXJnaW5pYTEQMA4GA1UEBwwH
-      A1UECgwGY2xnY29tMREwDwREDACTEDREDACTEDYDVQQLDAhva2Q0LWxhYjEjMCEG
-      b3NjbHVzdGVyLmNsZ2NvbS5vcmcwHhcNMjAwMzREDACTEDREDACTEDE0MTYxMTQ2
-      MTQ2WREDACTEDREDACTEDjB7MQswCQYDVQQGEwJVUzERMA8GA1UECAwIVmlyZ2lu
-      B1JvYW5va2UxDzANBgNVBREDACTEDREDACTEDAoMBmNsZ2NvbTERMA8GA1UECwwI
-      BgNVBAMMGm5leHVzLm9zY2x1c3Rlci5jbGdjbREDACTEDREDACTED20ub3JnMIIC
-      REDACTEDREDACTEDAQEFAAOCAg8AMIICCgKCAgEAwwnvZEW+UqsyyWwHS4rlWbcz
-      hmvMMBXEXqNqSp5sREDACTEDREDACTEDlYrjKIBdLa9isEfgIydtTWZugG1L1iA4
-      hgdAlW83s8wwKW4bbEd8iDZyUFfzmFSKREDACTEDREDACTEDTrwk9JcH+S3/oGbk
-      9iq8oKMiFkz9loYxTu93/p/iGieTWMFGajbAuUPjZsBYgbf9REDACTEDREDACTED
-      REDACTEDREDACTEDYlFMcpkdlfYwJbJcfqeXAf9Y/QJQbBqRFxJCuXzr/D5Ingg3
-      HrXXvOr612LWHFvZREDACTEDREDACTEDYj7JRKKPKXIA0NHA29Db0TdVUzDi3uUs
-      WcDBmIpfZTXfrHG9pcj1CbOsw3vPhD4mREDACTEDREDACTEDCApsGKET4FhnFLkt
-      yc2vpaut8X3Pjep821pQznT1sR6G1bF1eP84nFhL7qnBdhEwREDACTEDREDACTED
-      REDACTEDREDACTEDIuOZH60cUhMNpl0uMSYU2BvfVDKQlcGPUh7pDWWhZ+5I1pei
-      KgWUMBT/j3KAJNgFREDACTEDREDACTEDX43aDvUxyjbDg8FyjBGY1jdS8TnGg3YM
-      zGP5auSqeyO1yZ2v3nbr9xUoRTVuzPUwREDACTEDREDACTED0SfiaeGPczpNfT8f
-      6H0CAwEAAaNQME4wHQYDVR0OBBYEFPAJpXdtNX0bi8dh1QMsREDACTEDREDACTED
-      REDACTEDREDACTEDIwQYMBaAFPAJpXdtNX0bi8dh1QMsE1URxd8tMAwGA1UdEwQF
-      hvcNAQELBQADggIBREDACTEDREDACTEDAAx0CX20lQhP6HBNRl7C7IpTEBpds/4E
-      dHuDuGMILaawZTbbKLMTlGu01Y8uCO/3REDACTEDREDACTEDUVZeX7X9NAw80l4J
-      kPtLrp169L/09F+qc8c39jb7QaNRWenrNEFFJqoLRakdXM1MREDACTEDREDACTED
-      REDACTEDREDACTED5CAWBCRgm67NhAJlzYOyqplLs0dPPX+kWdANotCfVxDx1jRM
-      8tDL/7kurJA/wSOLREDACTEDREDACTEDDCaNs205/nEAEhrHLr8NHt42/TpmgRlg
-      fcZ7JFw3gOtsk6Mi3XtS6rxSKpVqUWJ8REDACTEDREDACTED3nafC2IQCmBU2KIZ
-      3Oir8xCyVjgf4EY/dQc5GpIxrJ3dV+U2Hna3ZsiCooAdq957REDACTEDREDACTED
-      REDACTEDREDACTED57krXJy+4z8CdSMa36Pmc115nrN9Ea5C12d6UVnHnN+Kk4cL
-      Wr9ZZSO3jDiwuzidREDACTEDREDACTEDk/IP3tkLtS0s9gWDdHdHeW0eit+trPib
-      Oo9fJIxuD246HTQb+51ZfrvyBcbAA/M3REDACTEDREDACTED06B/Uq4CQMjhRwrU
-      aUEYgiOJjUjLXGJSuDVdCo4J9kpQa5D1bUxcHxTp3R98CasnREDACTEDREDACTED
-      -----END CERTIFICATE-----
-    imageContentSources:
-    - mirrors:
-      - nexus.your.domain.org:5001/origin
-      source: %%OKD_SOURCE_1%%
-    - mirrors:
-      - nexus.your.domain.org:5001/origin
-      source: %%OKD_SOURCE_2%%
-    ```
-
-1. Now mirror the OKD images into the local Nexus:
+1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
     ```bash
     mirrorOkdRelease.sh
     ```
 
-    The output should look something like:
+    The final output should look something like:
 
-    ```bash
-    Success
-    Update image:  nexus.your.domain.org:5001/origin:4.5.0-0.okd-2020-08-12-020541
-    Mirror prefix: nexus.your.domain.org:5001/origin
+   ```bash
+   Success
+   Update image:  nexus.my.awesome.lab:5001/origin:4.7.0-0.okd-2021-07-03-190901
+   Mirror prefix: nexus.my.awesome.lab:5001/origin
+   Mirror prefix: nexus.my.awesome.lab:5001/origin:4.7.0-0.okd-2021-07-03-190901
 
-    To use the new mirrored repository to install, add the following section to the install-config.yaml:
+   To use the new mirrored repository to install, add the following section to the install-config.yaml:
 
-    imageContentSources:
-    - mirrors:
-      - nexus.your.domain.org:5001/origin
-      source: quay.io/openshift/okd
-    - mirrors:
-      - nexus.your.domain.org:5001/origin
-      source: quay.io/openshift/okd-content
+   imageContentSources:
+   - mirrors:
+     - nexus.my.awesome.lab:5001/origin
+     source: quay.io/openshift/okd
+   - mirrors:
+     - nexus.my.awesome.lab:5001/origin
+     source: quay.io/openshift/okd-content
 
 
-    To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
+   To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
 
-    apiVersion: operator.openshift.io/v1alpha1
-    kind: ImageContentSourcePolicy
-    metadata:
-      name: example
-    spec:
-      repositoryDigestMirrors:
-      - mirrors:
-        - nexus.your.domain.org:5001/origin
-        source: quay.io/openshift/okd
-      - mirrors:
-        - nexus.your.domain.org:5001/origin
-        source: quay.io/openshift/okd-content
-    ```
+   apiVersion: operator.openshift.io/v1alpha1
+   kind: ImageContentSourcePolicy
+   metadata:
+     name: example
+   spec:
+     repositoryDigestMirrors:
+     - mirrors:
+       - nexus.my.awesome.lab:5001/origin
+       source: quay.io/openshift/okd
+     - mirrors:
+       - nexus.my.awesome.lab:5001/origin
+       source: quay.io/openshift/okd-content    
+   ```
 
-1. Create the cluster virtual machines and set up for OKD installation:
+### Create the OpenShift install manifests, Fedora CoreOS ignition files, and the node VMs
 
-    ```bash
-    DeployOkdNodes.sh -i=${OKD_LAB_PATH}/guest-inventory/okd4_lab -cn=okd4
-    ```
+1. First, let's prepare to deploy the VMs for our OKD cluster by preparing the Cluster VM inventory file:
 
-    This script does a whole lot of work for us.
+   This is not an ansible inventory like you might have encountered with OKD 3.11.  This is something I made up for my lab that allows me to quickly create, manage, and destroy virtual machines.
 
-    1. It will pull the current versions of `oc` and `openshift-install` based on the value of `${OKD_RELEASE}` that we set previously.
-    1. fills in the OKD version and `%%CLUSTER_NAME%%` in the install-config-upi.yaml file and copies that file to the install directory as install-config.yaml.
+   The file is structured in such a way that it can be parsed by the utility scripts provided in this project.  The columns in the comma delimited file are used for the following purposes:
+
+   | Column | Name | Description |
+   |-|-|-|
+   | 1 | HOST_NODE  | The hypervisor host that this VM will be provisioned on |
+   | 2 | GUEST_HOSTNAME | The hostname of this VM, must be in DNS with `A` and `PTR` records |
+   | 3 | MEMORY | The amount of RAM in MB to allocate to this VM |
+   | 4 | CPU | The number of vCPUs to allocate to this VM |
+   | 5 | ROOT_VOL | The size in GB of the first HDD to provision |
+   | 6 | DATA_VOL | The size in GB of the second HDD to provision; `0` for none |
+   | 7 | ROLE | The OKD role that this VM will play: `bootstrap`, `master`, or `worker` |
+
+   Creste the inventory file:
+
+   ```bash
+   cat << EOF > ${OKD_LAB_PATH}/node-inventory
+   kvm-host01,okd4-bootstrap,12288,4,50,0,bootstrap
+   kvm-host01,okd4-master-0,20480,6,100,0,master
+   kvm-host01,okd4-master-1,20480,6,100,0,master
+   kvm-host01,okd4-master-2,20480,6,100,0,master
+   EOF
+   ```
+
+1. Create the manifests and VMs:
+
+   ```bash
+   cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/id_rsa.pub
+   ${OKD_LAB_PATH}/bin/DeployOkdNodes.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   ```
+
+    This script does a whole lot of work for us.  Crack it open and take a look.
+
+    1. Creates the OpenShift install-config.yaml
     1. Invokes the openshift-install command against our install-config to produce ignition files
-    1. Copies the ignition files into place for FCOS install
-    1. Sets up for a mirrored install by putting `quay.io` and `registry.svc.ci.openshift.org` into a DNS sinkhole.
-    1. Creates guest VMs based on the inventory file at `${OKD_LAB_PATH}/guest-inventory/okd4`
+    1. Uses `butane` to modify the ignition files to configure each node's network settings
+    1. Copies the ignition files into place for Fedora CoreOS
+    1. Creates guest VMs based on the inventory file
     1. Creates iPXE boot files for each VM and copies them to the iPXE server, (your router)
 
-[OpenShift Install](/home-lab/install-okd)
+1. Finaly, we are ready to install OpenShift!
+
+   [OpenShift Install](/home-lab/install-okd)

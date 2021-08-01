@@ -76,6 +76,8 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
    uci set dhcp.lan.start='11'
    uci set dhcp.lan.limit='19'
    uci add_list dhcp.lan.dhcp_option="6,${ROUTER},8.8.8.8,8.8.4.4"
+   uci delete dhcp.guest
+
    uci commit dhcp
    ```
 
@@ -87,13 +89,15 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
 
    uci set wireless.radio2.disabled='0'
    uci set wireless.radio2.repeater='1'
+   uci set wireless.radio2.legacy_rates='0'
+   uci set wireless.radio2.htmode='HT20'
    uci set wireless.sta=wifi-iface
    uci set wireless.sta.device='radio2'
    uci set wireless.sta.ifname='wlan2'
    uci set wireless.sta.mode='sta'
    uci set wireless.sta.disabled='0'
    uci set wireless.sta.network='wwan'
-   uci set wireless.sta.wds='1'
+   uci set wireless.sta.wds='0'
    uci set wireless.sta.ssid='Your-WiFi-SSID'  # Replace with your WiFi SSID
    uci set wireless.sta.encryption='psk2'      # Replace with your encryption type
    uci set wireless.sta.key='Your-WiFi-Key'    # Replace with your WiFi Key
@@ -151,15 +155,17 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
    uci set wireless.default_radio0.key='WelcomeToMyLab'
    uci set wireless.default_radio0.encryption='psk2'
    uci set wireless.default_radio0.multi_ap='1'
+   uci set wireless.radio0.legacy_rates='0'
+   uci set wireless.radio0.htmode='HT20'
    uci commit wireless
    ```
 
 1. Now restart the router, connect to your new lab WiFi network, and log into the router:
 
-```bash
-reboot
-ssh root@${EDGE_ROUTER}
-```
+   ```bash
+   reboot
+   ssh root@${EDGE_ROUTER}
+   ```
 
 ## Install some additional packages on your router
 
@@ -171,199 +177,179 @@ opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools
 
 Now, we will set up Bind to serve DNS.  We will also disable the DNS functions of dnsmasq to let Bind do all the work.
 
-Backup the default bind config.
+1. Backup the default bind config.
 
-```bash
-mv /etc/bind/named.conf /etc/bind/named.conf.orig
-```
+   ```bash
+   mv /etc/bind/named.conf /etc/bind/named.conf.orig
+   ```
 
-Set some variables:
+1. Set some variables:
 
-```bash
-CIDR=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1 | cut -d"/" -f2)
-IFS=. read -r i1 i2 i3 i4 << EOF
-${ROUTER}
-EOF
-net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${CIDR})) ))
-o1=$(( ${i1} & (${net_addr}>>24) ))
-o2=$(( ${i2} & (${net_addr}>>16) ))
-o3=$(( ${i3} & (${net_addr}>>8) ))
-o4=$(( ${i4} & ${net_addr} ))
-NET_PREFIX=${o1}.${o2}.${o3}
-NET_PREFIX_ARPA=${o3}.${o2}.${o1}
-```
+   ```bash
+   CIDR=$(ip -br addr show dev br-lan label br-lan | cut -d" " -f1 | cut -d"/" -f2)
+   IFS=. read -r i1 i2 i3 i4 << EOF
+   ${ROUTER}
+   EOF
+   net_addr=$(( ((1<<32)-1) & (((1<<32)-1) << (32 - ${CIDR})) ))
+   o1=$(( ${i1} & (${net_addr}>>24) ))
+   o2=$(( ${i2} & (${net_addr}>>16) ))
+   o3=$(( ${i3} & (${net_addr}>>8) ))
+   o4=$(( ${i4} & ${net_addr} ))
+   NET_PREFIX=${o1}.${o2}.${o3}
+   NET_PREFIX_ARPA=${o3}.${o2}.${o1}
+   ```
 
-Create the Bind config file:
+1. Create the Bind config file:
 
-```bash
-cat << EOF > /etc/bind/named.conf
-acl "trusted" {
- ${NETWORK}/${CIDR};
- 127.0.0.1;
-};
+   ```bash
+   cat << EOF > /etc/bind/named.conf
+   acl "trusted" {
+    ${NETWORK}/${CIDR};
+    127.0.0.1;
+   };
 
-options {
- listen-on port 53 { 127.0.0.1; ${ROUTER}; };
- 
- directory  "/data/var/named";
- dump-file  "/data/var/named/data/cache_dump.db";
- statistics-file "/data/var/named/data/named_stats.txt";
- memstatistics-file "/data/var/named/data/named_mem_stats.txt";
- allow-query     { trusted; };
+   options {
+   listen-on port 53 { 127.0.0.1; ${ROUTER}; };
+   
+   directory  "/data/var/named";
+   dump-file  "/data/var/named/data/cache_dump.db";
+   statistics-file "/data/var/named/data/named_stats.txt";
+   memstatistics-file "/data/var/named/data/named_mem_stats.txt";
+   allow-query     { trusted; };
 
- recursion yes;
+   recursion yes;
 
- dnssec-enable yes;
- dnssec-validation yes;
+   dnssec-enable yes;
+   dnssec-validation yes;
 
- /* Path to ISC DLV key */
- bindkeys-file "/etc/bind/bind.keys";
+   /* Path to ISC DLV key */
+   bindkeys-file "/etc/bind/bind.keys";
 
- managed-keys-directory "/data/var/named/dynamic";
+   managed-keys-directory "/data/var/named/dynamic";
 
- pid-file "/var/run/named/named.pid";
- session-keyfile "/var/run/named/session.key";
+   pid-file "/var/run/named/named.pid";
+   session-keyfile "/var/run/named/session.key";
 
-};
+   };
 
-logging {
-        channel default_debug {
-                file "data/named.run";
-                severity dynamic;
-        };
-};
+   logging {
+         channel default_debug {
+                  file "data/named.run";
+                  severity dynamic;
+         };
+   };
 
-zone "${DOMAIN}" {
-    type master;
-    file "/etc/bind/db.${DOMAIN}"; # zone file path
-};
+   zone "${DOMAIN}" {
+      type master;
+      file "/etc/bind/db.${DOMAIN}"; # zone file path
+   };
 
-zone "${NET_PREFIX_ARPA}.in-addr.arpa" {
-    type master;
-    file "/etc/bind/db.${NET_PREFIX_ARPA}";
-};
+   zone "${NET_PREFIX_ARPA}.in-addr.arpa" {
+      type master;
+      file "/etc/bind/db.${NET_PREFIX_ARPA}";
+   };
 
-zone "localhost" {
-    type master;
-    file "/etc/bind/db.local";
-};
+   zone "localhost" {
+      type master;
+      file "/etc/bind/db.local";
+   };
 
-zone "127.in-addr.arpa" {
-    type master;
-    file "/etc/bind/db.127";
-};
+   zone "127.in-addr.arpa" {
+      type master;
+      file "/etc/bind/db.127";
+   };
 
-zone "0.in-addr.arpa" {
-    type master;
-    file "/etc/bind/db.0";
-};
+   zone "0.in-addr.arpa" {
+      type master;
+      file "/etc/bind/db.0";
+   };
 
-zone "255.in-addr.arpa" {
-    type master;
-    file "/etc/bind/db.255";
-};
+   zone "255.in-addr.arpa" {
+      type master;
+      file "/etc/bind/db.255";
+   };
 
-EOF
-```
+   EOF
+   ```
 
-Create the forward lookup zone:
+1. Create the forward lookup zone:
 
-```bash
-cat << EOF > /etc/bind/db.${DOMAIN}
-@       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
-             3          ; Serial
-             604800     ; Refresh
-              86400     ; Retry
-            2419200     ; Expire
-             604800 )   ; Negative Cache TTL
-;
-; name servers - NS records
-    IN      NS     router.${DOMAIN}.
+   ```bash
+   cat << EOF > /etc/bind/db.${DOMAIN}
+   @       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
+               3          ; Serial
+               604800     ; Refresh
+               86400     ; Retry
+               2419200     ; Expire
+               604800 )   ; Negative Cache TTL
+   ;
+   ; name servers - NS records
+      IN      NS     router.${DOMAIN}.
 
-; name servers - A records
-router.${DOMAIN}.         IN      A      ${ROUTER}
+   ; name servers - A records
+   router.${DOMAIN}.         IN      A      ${ROUTER}
 
-; ${NETWORK}/${CIDR} - A records
-bastion.${DOMAIN}.         IN      A      ${BASTION_HOST}
-nexus.${DOMAIN}.           IN      A      ${BASTION_HOST}
-EOF
-```
+   ; ${NETWORK}/${CIDR} - A records
+   bastion.${DOMAIN}.         IN      A      ${BASTION_HOST}
+   nexus.${DOMAIN}.           IN      A      ${BASTION_HOST}
+   EOF
+   ```
 
-Create the reverse lookup zone:
+   Create the reverse lookup zone:
 
-```bash
-cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
-@       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
-                              3         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
+   ```bash
+   cat << EOF > /etc/bind/db.${NET_PREFIX_ARPA}
+   @       IN      SOA     router.${DOMAIN}. admin.${DOMAIN}. (
+                                 3         ; Serial
+                           604800         ; Refresh
+                           86400         ; Retry
+                           2419200         ; Expire
+                           604800 )       ; Negative Cache TTL
 
-; name servers - NS records
-      IN      NS      router.${DOMAIN}.
+   ; name servers - NS records
+         IN      NS      router.${DOMAIN}.
 
-; PTR Records
-1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
-10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${DOMAIN}.
-EOF
-```
+   ; PTR Records
+   1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
+   10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${DOMAIN}.
+   EOF
+   ```
 
-Create the necessary files, and set permissions for the bind user.
+1. Create the necessary files, and set permissions for the bind user.
 
-```bash
-mkdir -p /data/var/named/dynamic
-mkdir /data/var/named/data
-chown -R bind:bind /data/var/named
-chown -R bind:bind /etc/bind
-```
+   ```bash
+   mkdir -p /data/var/named/dynamic
+   mkdir /data/var/named/data
+   chown -R bind:bind /data/var/named
+   chown -R bind:bind /etc/bind
+   ```
 
-When you have completed all of your configuration changes, you can test the configuration with the following command:
+1. When you have completed all of your configuration changes, you can test the configuration with the following command:
 
-```bash
-named-checkconf
-```
+   ```bash
+   named-checkconf
+   ```
 
-If the output is clean, then you are ready to fire it up!
+   If the output is clean, then you are ready to fire it up!
 
-First, tell `dnsmasq` not to hanlde DNS:
+1. First, tell `dnsmasq` not to hanlde DNS:
 
-```bash
-uci set dhcp.@dnsmasq[0].domain='${LAB_DOMAIN}'
-uci set dhcp.@dnsmasq[0].localuse=0
-uci set dhcp.@dnsmasq[0].cachelocal=0
-uci set dhcp.@dnsmasq[0].port=0
-uci commit dhcp
-/etc/init.d/dnsmasq restart
-```
+   ```bash
+   uci set dhcp.@dnsmasq[0].domain=${DOMAIN}
+   uci set dhcp.@dnsmasq[0].localuse=0
+   uci set dhcp.@dnsmasq[0].cachelocal=0
+   uci set dhcp.@dnsmasq[0].port=0
+   uci commit dhcp
+   /etc/init.d/dnsmasq restart
+   ```
 
-Then, enable Bind and reboot the router:
+1. Then, enable Bind and reboot the router:
 
-```bash
-/etc/init.d/named enable
-/etc/init.d/named start
-```
+   ```bash
+   /etc/init.d/named enable
+   /etc/init.d/named start
+   ```
 
-## __Hugely Helpful Tip:__
+1. Now it's time to set up your Bastion host:
 
-__If you are using a MacBook for your workstation, you can enable DNS resolution to your lab by creating a file in the `/etc/resolver` directory on your Mac.__
-
-```bash
-sudo bash
-<enter your password>
-vi /etc/resolver/your.domain.com
-```
-
-Name the file `your.domain.com` after the domain that you created for your lab.  Enter something like this example, modified for your DNS server's IP:
-
-```bash
-nameserver 10.11.12.1
-```
-
-Save the file.
-
-Your MacBook should now query your new DNS server for entries in your new domain.  __Note:__ If your MacBook is on a different network and is routed to your Lab network, then the `acl` entry in your DNS configuration must allow your external network to query.  Otherwise, you will bang your head wondering why it does not work...  __The ACL is very powerful.  Use it.  Just like you are using firewalld.  Right?  I know you did not disable it on your linux hosts...  surely not...  if you did...  TURN IT BACK ON NOW!!!  NOW, NOW, NOW, NOW..., NOW!__
-
-Now it's time to set up your Bastion host:
-
-[Bastion Host](/home-lab/bastion-pi)
+   __[Bastion Host](/home-lab/bastion-pi)__

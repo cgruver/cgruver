@@ -264,6 +264,8 @@ title: Internal Network Router
 
     recursion yes;
 
+    forwarders { ${EDGE_ROUTER}; };
+
     dnssec-enable yes;
     dnssec-validation yes;
 
@@ -608,4 +610,6 @@ If the output is clean, then you are ready to fire it up!
    /etc/init.d/haproxy start
    ```
 
-1. [KVM Host Setup](/home-lab/kvm-host-setup)
+1. Next, install CentOS Stream on your KVM host:
+
+   __[KVM Host Setup](/home-lab/kvm-host-setup)__
