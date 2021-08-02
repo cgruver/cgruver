@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /home-lab/edge-router/
-title: Edge Network Router: GL-MV1000W 
+title: "Edge Network Router: GL-MV1000W"
 ---
 
 The operating system running your router is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
