@@ -68,7 +68,7 @@ By following this tutorial, you will set up the following capabilities for your 
 
 Follow each of the guides below to create your lab:
 
-1. [Prepare your Worstation](/home-lab/workstation)
+1. [Prepare your Workstation](/home-lab/workstation)
 1. [Edge Router Setup](/home-lab/edge-router)
 1. [Bastion Host Setup](/home-lab/bastion-pi)
 1. [Internal Router Setup](/home-lab/internal-router)
