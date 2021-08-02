@@ -16,7 +16,7 @@ __Without further ado...  Welcome to my new Blog:__
 
 Technology is one of my many hobbies.  I write code and learn new things for fun and relaxation, which naturally led me to seek out ways to take my tech toys with me when travelling.
 
-So...  For my inaugural blog post, I am going to show you how to build an OpenShift lab that you can pack in a small bag.  
+So...  For my inaugural blog post, I am going to show you how to build an OpenShift lab that you can pack in a small bag.  We'll be using [OKD](https://www.okd.io).  OKD is the Kubernetes distribution that [Red Hat OpenShift](https://cloud.redhat.com/learn/what-is-openshift) is built on.  The main difference is that OKD sits on top of [Fedora CoreOS](https://getfedora.org/en/coreos?stream=stable), the upstream of [Red Hat CoreOS](https://cloud.redhat.com/learn/coreos/).
 
 There are a lot of really good Kubernetes and OpenShift tutorials out there.  This one strives to be a little bit different in that it is going to simulate the network configuration found in a real data center environment.  This tutorial is targeted toward architects and engineers who are interested in both infrastructure and application development.  This is not Code Ready Containers, or MiniKube.  Both of those are excellent developer tools and can be used to learn Kubernetes basics.  No, what you will build from the following tutorial will be a production like OpenShift cluster.  Your new lab will be very expandable as well.  Add more KVM hosts, and you can build more sophisticated OpenShift environments.
 
