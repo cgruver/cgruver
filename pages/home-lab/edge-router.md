@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /home-lab/edge-router/
-title: Edge Network Router
+title: Edge Network Router: GL-MV1000W 
 ---
 
 The operating system running your router is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
@@ -14,9 +14,7 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
 
 1. Connect to your new router:
 
-    If you are using the `GL-MV1000`, then connect with a network cable.
-
-    If you are using the `GL-MV1000W` then you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
+    For the `GL-MV1000W` you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
 
 1. Copy your SSH public key to the router for login:
 
