@@ -385,16 +385,6 @@ __Remove card from router, put it in the Pi, and boot it up.__
    chown -R nexus:nexus /usr/local/nexus
    ```
 
-1. Enable firewall access:
-
-   ```bash
-   # firewall-cmd --add-port=8081/tcp --permanent
-   # firewall-cmd --add-port=8443/tcp --permanent
-   # firewall-cmd --add-port=5000/tcp --permanent 
-   # firewall-cmd --add-port=5001/tcp --permanent
-   # firewall-cmd --reload
-   ````
-
 1. Create a service script for Nexus so the OS can start and stop it:
 
    ```bash
