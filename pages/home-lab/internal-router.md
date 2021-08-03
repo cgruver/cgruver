@@ -78,7 +78,7 @@ title: Internal Network Router
 1. Configure DHCP and enable TFTP for PXE boot:
 
    ```bash
-   uci add_list dhcp.lan.dhcp_option="6,${ROUTER},8.8.8.8,8.8.4.4"
+   uci add_list dhcp.lan.dhcp_option="6,${ROUTER}"
    uci set dhcp.lan.leasetime="5m"
    uci set dhcp.@dnsmasq[0].enable_tftp=1
    uci set dhcp.@dnsmasq[0].tftp_root=/data/tftpboot
@@ -139,6 +139,8 @@ title: Internal Network Router
    ENTRY=$(uci add firewall forwarding)
    uci set firewall.${ENTRY}.src=wan
    uci set firewall.${ENTRY}.dest=lan
+   uci commit firewall
+   /etc/init.d/firewall restart
    ```
 
 1. Now power off the router, connect to the uplink port on the router to one of the LAN ports on your edge router:
