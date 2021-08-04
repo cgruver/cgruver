@@ -51,6 +51,21 @@ I have provided a helper script, `DeployKvmHost.sh` that will configure the `iPX
    ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
    ```
 
+1. Read the MAC address off of the bottom of the NUC.  Make sure you get the address for the wired NIC not the WiFi.
+
+1. Create the `iPXE` and `kickstart` files:
+
+   ```bash
+   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=<MAC Address Here> -d=nvme0n1
+   ```
+
+   ```bash
+   -c=<cluster number>
+   -h=<short hostname of the KVM host>
+   -m=<MAC Address of the NUC>
+   -d=<comma delimited list of installed SSDs>
+   ```
+
 After creating the install files, connect the NUC to your internal router and power it on.  After a few minutes, it should be up a running.
 
 The last thing that I've prepared for you is the ability to reinstall your OS.
