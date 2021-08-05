@@ -11,27 +11,27 @@ Since we are simulating a secure data center environment, let's deny internet ac
 
 1. Log into the edger router:
 
-  ```bash
-  ssh root@${EDGE_ROUTER}
-  ```
+   ```bash
+   ssh root@${EDGE_ROUTER}
+   ```
 
 1. Add a firewall rule to block internet bound traffic from the internal router:
 
-  ```bash
-  new_rule=$(uci add firewall rule) 
-  uci batch << EOI
-  set firewall.${new_rule}.enabled='1'
-  set firewall.${new_rule}.target='REJECT'
-  set firewall.${new_rule}.src='lan'
-  set firewall.${new_rule}.src_ip='${DC1_NETWORK}/24'
-  set firewall.${new_rule}.dest='wan'
-  set firewall.${new_rule}.name='DC1_BLOCK'
-  set firewall.${new_rule}.proto='all'
-  set firewall.${new_rule}.family='ipv4'
-  EOI
-  uci commit firewall
-  /etc/init.d/firewall restart
-  ```
+   ```bash
+   new_rule=$(uci add firewall rule) 
+   uci batch << EOI
+   set firewall.${new_rule}.enabled='1'
+   set firewall.${new_rule}.target='REJECT'
+   set firewall.${new_rule}.src='lan'
+   set firewall.${new_rule}.src_ip='${DC1_NETWORK}/24'
+   set firewall.${new_rule}.dest='wan'
+   set firewall.${new_rule}.name='DC1_BLOCK'
+   set firewall.${new_rule}.proto='all'
+   set firewall.${new_rule}.family='ipv4'
+   EOI
+   uci commit firewall
+   /etc/init.d/firewall restart
+   ```
 
 ### Set up Nexus for image mirroring:
 
@@ -121,11 +121,11 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
-    ```bash
-    mirrorOkdRelease.sh
-    ```
+   ```bash
+   mirrorOkdRelease.sh
+   ```
 
-    The final output should look something like:
+   The final output should look something like:
 
    ```bash
    Success
