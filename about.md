@@ -15,3 +15,5 @@ Checkout my Projects on GitHub - (Some are still in development)
 * [Main GitHub Projects Page](https://github.com/cgruver)
 * [Opinionated Rewrite of erdemo.io, Demonstrating Quarkus, Kafka, Cassandra, and Tekton](https://github.com/cgruver-cajun-navy)
 * [Home Library Application, Demonstrating Quarkus, MariaDB Galera, Kafka, and Tekton](https://github.com/lab-monkeys)
+
+![Kublet](/images/Fiat.png)
