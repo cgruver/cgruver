@@ -9,7 +9,7 @@ title: Installing OpenShift
 1. Start the nodes:
 
    ```bash
-   StartCluster.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   startNodes.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
    ```
 
 1. Monitor the bootstrap process:
@@ -39,7 +39,7 @@ title: Installing OpenShift
 
    ```bash
    export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
-   DestroyBootstrap.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   destroyBootstrap.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
    ```
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
@@ -87,17 +87,103 @@ title: Installing OpenShift
 1. Delete all of the Completed pods:
 
    ```bash
-   oc delete pod –field-selector=status.phase==Succeeded
+   oc delete pod --field-selector=status.phase==Succeeded --all-namespaces
    ```
 
 1. Install is Complete!!!
 
 ### Log into your new cluster console
 
-Point your browser to the url listed at the completion of install: `https://console-openshift-console.apps.okd4.dc1.my.awesome.lab`
+1. Add the OKD Cluster cert to the trust store on your workstation:
 
-You will have to accept the TLS certs for your new cluster.
+   * Mac OS:
 
-Log in as `kubeadmin` with the password from the output at the completion of the install.
+     ```bash
+     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.dc1.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
+     ```
 
-__If you forget the password for this initial account, you can find it in the file:__ `${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password`
+     Open Keychain and mark the cert as trusted.
+
+   * Linux:
+
+     ```bash
+     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.dc1.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.dc1.${LAB_DOMAIN}.crt
+     update-ca-trust
+     ```
+
+1. Point your browser to the url listed at the completion of install: `https://console-openshift-console.apps.okd4.dc1.my.awesome.lab`
+
+   You will have to accept the TLS certs for your new cluster.
+
+   Log in as `kubeadmin` with the password from the output at the completion of the install.
+
+   __If you forget the password for this initial account, you can find it in the file:__ `${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password`
+
+### Create user accounts:
+
+Let's add some users to the cluster that we created.  We've been using the temporary `kubeadmin` account.  That's not a useful long term strategy.  So, we're going to add a couple of user accounts.
+
+OpenShift supports multiple authentication methods, from enterprise SSO to very basic auth.  We're going to start with something a little basic, using `htpasswd`.
+
+1. If you don't already have it available, install `htpasswd` on your workstation.
+1. Log into your cluster with the `kubeadmin` key:
+
+   ```bash
+   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
+   ```
+
+1. Create an `htpasswd` file for a couple of users:
+
+   ```bash
+   mkdir -p ${OKD_LAB_PATH}/okd-creds
+   htpasswd -B -c -b ${OKD_LAB_PATH}/okd-creds/htpasswd admin $(cat ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password)
+   htpasswd -b ${OKD_LAB_PATH}/okd-creds/htpasswd devuser devpwd
+   ```
+
+   This creates an `htpasswd` file with two users.  The admin user will have the same password that was created for the kubeadmin user.
+
+1. Create a Kubernetes Secret with the htpasswd file:
+
+   ```bash
+   oc create -n openshift-config secret generic htpasswd-secret --from-file=htpasswd=${OKD_LAB_PATH}/okd-creds/htpasswd
+   ```
+
+   We'll associate this secret with a new htpasswd based OAuth provider.  If you want to change passwords or add more users, recreate the file and replace the secret.
+
+1. Create the OAuth provider, associated with the secret that we just added.
+
+   ```bash
+   cat << EOF | oc apply -f -
+   apiVersion: config.openshift.io/v1
+   kind: OAuth
+   metadata:
+     name: cluster
+   spec:
+     identityProviders:
+     - name: okd4_htpasswd_idp
+       mappingMethod: claim 
+       type: HTPasswd
+       htpasswd:
+         fileData:
+           name: htpasswd-secret
+   EOF
+   ```
+
+1. Assign the `admin` user to be a cluster administrator:
+
+   ```bash
+   oc adm policy add-cluster-role-to-user cluster-admin admin
+   ```
+
+1. Now you can verify that the new user account works:
+
+   ```bash
+   oc login -u admin https://api.okd4.dc1.${LAB_DOMAIN}:6443
+   ```
+
+1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:
+
+   ```bash
+   oc delete secrets kubeadmin -n kube-system
+   ```

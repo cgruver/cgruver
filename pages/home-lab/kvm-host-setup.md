@@ -44,11 +44,11 @@ __Now, Take this opportunity to apply the latest BIOS to your NUC.__  You won't 
 
 Now we need to flip the NUC over and get the MAC address for the wired NIC.  You also need to know whether you have NVME or SATA SSDs in the NUC.
 
-I have provided a helper script, `DeployKvmHost.sh` that will configure the `iPXE` and `kickstart` files for you.
+I have provided a helper script, `deployKvmHost.sh` that will configure the `iPXE` and `kickstart` files for you.
 
    ```bash
-   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=nvme0n1 # Example with 1 NVME SSD
-   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
+   ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=nvme0n1 # Example with 1 NVME SSD
+   ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host01 -m=1c:69:7a:02:b6:c2 -d=sda,sdb # Example with 2 SATA SSD
    ```
 
 1. Read the MAC address off of the bottom of the NUC.  Make sure you get the address for the wired NIC not the WiFi.
@@ -56,7 +56,7 @@ I have provided a helper script, `DeployKvmHost.sh` that will configure the `iPX
 1. Create the `iPXE` and `kickstart` files:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/DeployKvmHost.sh -c=1 -h=kvm-host01 -m=<MAC Address Here> -d=nvme0n1
+   ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host01 -m=<MAC Address Here> -d=nvme0n1
    ```
 
    ```bash

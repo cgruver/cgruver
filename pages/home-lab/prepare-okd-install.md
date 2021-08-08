@@ -96,6 +96,8 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
      sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
      ```
 
+     Open Keychain and mark the cert as trusted.
+
    * Linux:
 
      ```bash
@@ -178,7 +180,7 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
    | 6 | DATA_VOL | The size in GB of the second HDD to provision; `0` for none |
    | 7 | ROLE | The OKD role that this VM will play: `bootstrap`, `master`, or `worker` |
 
-   Creste the inventory file:
+   Create the inventory file:
 
    ```bash
    cat << EOF > ${OKD_LAB_PATH}/node-inventory
@@ -193,7 +195,7 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
    ```bash
    cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/id_rsa.pub
-   ${OKD_LAB_PATH}/bin/DeployOkdNodes.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   ${OKD_LAB_PATH}/bin/initCluster.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
    ```
 
     This script does a whole lot of work for us.  Crack it open and take a look.

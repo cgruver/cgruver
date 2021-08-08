@@ -9,8 +9,9 @@ github_username:  cgruver
 theme: minima
 # theme: jekyll-theme-cayman
 header_pages:
- - about.md
- - videos.md
+ - pages/main/lab-projects.md
+ - pages/main/videos.md
+ - pages/main/about.md
 plugins:
   - jekyll-feed
 exclude:
