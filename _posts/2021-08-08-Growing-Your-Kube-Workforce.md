@@ -29,7 +29,7 @@ You will need another NUC like the one that you used to build the initial lab.  
    chmod 700 ${OKD_LAB_PATH}/bin/*.sh
    ```
 
-1. Read the MAC address off of the bottom of the NUC. Then, create the iPXE and kickstart files:
+1. Read the MAC address off of the bottom of the NUC. Then create the iPXE and kickstart files with the helper script:
 
    ```bash
    ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host02 -m=<MAC Address Here> -d=nvme0n1
@@ -74,7 +74,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Now, you need to monitor the cluster Certificate Signing Requests.  You are looking for requests in a `Pending` state.
 
    ```bash
-   oc get csr
+   watch oc get csr
    ```
 
 1. When you see Certificate Signing Requests in a `Pending` state, you need to approve them:
@@ -86,6 +86,8 @@ You will need another NUC like the one that you used to build the initial lab.  
    __There will be a total of 6 CSRs that you need to approve.__
 
 ## Designate Master nodes as Infrastructure nodes
+
+Since we now have three dedicated worker nodes for our applications, let's move the infrastructure functions to the control plane.
 
 1. Add a label to your master nodes:
 
@@ -114,6 +116,17 @@ You will need another NUC like the one that you used to build the initial lab.  
    oc get pod -n openshift-ingress -o wide
    ```
 
+1. Reset the Ingress Canary pods:
+
+   This will eliminate an annoying message about the ingress-canaries running on the wrong nodes.
+
+   ```bash
+   for i in $(oc get pods -n openshift-ingress-canary | grep -v NAME | cut -d" " -f1)
+   do
+     oc delete pod ${i} -n openshift-ingress-canary
+   done
+   ```
+
 1. Repeat for the ImageRegistry:
 
    ```bash
@@ -124,84 +137,90 @@ You will need another NUC like the one that you used to build the initial lab.  
 
    Create a file named `cluster-monitoring-config.yaml` with the following content:
 
-   ```yaml
+   ```bash
+   cat << EOF | oc apply -f -
    apiVersion: v1
    kind: ConfigMap
    metadata:
-   name: cluster-monitoring-config
-   namespace: openshift-monitoring
+     name: cluster-monitoring-config
+     namespace: openshift-monitoring
    data:
-   config.yaml: |
-      prometheusOperator:
+     config.yaml: |
+       prometheusOperator:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      prometheusK8s:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       prometheusK8s:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      alertmanagerMain:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       alertmanagerMain:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      kubeStateMetrics:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       kubeStateMetrics:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      grafana:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       grafana:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      telemeterClient:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       telemeterClient:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      k8sPrometheusAdapter:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       k8sPrometheusAdapter:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      openshiftStateMetrics:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       openshiftStateMetrics:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
-      thanosQuerier:
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+       thanosQuerier:
          nodeSelector:
-         node-role.kubernetes.io/infra: ""
+           node-role.kubernetes.io/infra: ""
          tolerations:
          - key: "node-role.kubernetes.io/master"
-         operator: "Equal"
-         value: ""
-         effect: "NoSchedule"
+           operator: "Equal"
+           value: ""
+           effect: "NoSchedule"
+   EOF
    ```
+
+### That's it!  We now have three more nodes in our cluster.
+
+Next week we'll add Ceph storage.

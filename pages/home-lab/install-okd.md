@@ -187,3 +187,5 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    ```bash
    oc delete secrets kubeadmin -n kube-system
    ```
+
+That's it!  You now have a three node OpenShift cluster.
