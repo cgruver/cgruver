@@ -35,6 +35,8 @@ __Here is a picture of the complete set up:__
 
 ![Home Lab Starter](/pages/home-lab/images/HomeLab.png)
 
+![Network topology](/pages/home-lab/images/NetworkTopology.png)
+
 By following this tutorial, you will set up the following capabilities for your OpenShift home lab:
 
 * OpenWRT Router #1 (GL.iNet GL-MV1000W Travel Router)
