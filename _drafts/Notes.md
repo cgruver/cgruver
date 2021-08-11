@@ -1,4 +1,8 @@
-# Notes
+---
+title: Notes
+layout: page
+sitemap: false
+---
 
 ```bash
 cat ~/.ssh/id_rsa.pub | ssh root@YOUR_OPENWRT_ROUTER "cat >> /etc/dropbear/authorized_keys"

@@ -2,6 +2,7 @@
 layout: page
 permalink: /home-lab/post-install/
 title: Add Users
+sitemap: false
 ---
 
 Let's add some users to the cluster that we created.
