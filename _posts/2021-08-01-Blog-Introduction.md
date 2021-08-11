@@ -66,6 +66,10 @@ By following this tutorial, you will set up the following capabilities for your 
   * CentOS Stream repository mirror
   * Nexus Registry service
 
+The network topology will look like this illustration:
+
+![Network topology](/pages/home-lab/images/NetworkTopology.png)
+
 Follow each of the guides below to create your lab:
 
 1. [Prepare your Workstation](/home-lab/workstation)
