@@ -445,6 +445,22 @@ __Remove card from router, put it in the Pi, and boot it up.__
    /etc/init.d/nexus start
    ```
 
+1. Finally, trust the new Nexus cert on your workstation:
+
+   * Mac OS:
+
+     ```bash
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
+     ```
+
+   * Linux:
+
+     ```bash
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     update-ca-trust
+     ```
+
 1. Next, set up the router for your OpenShift cluster:
 
    __[Internal Router](/home-lab/internal-router)__

@@ -35,7 +35,7 @@ Since we are simulating a secure data center environment, let's deny internet ac
 
 ### Set up Nexus for image mirroring:
 
-Now point your browser to `https://nexus.your.domain.com:8443`.  Login, and create a password for your admin user.
+Now point your browser to `https://nexus.${LAB_DOMAIN}:8443`.  Login, and create a password for your admin user.
 
 If prompted to allow anonymous access, select to allow.
 
@@ -93,10 +93,8 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
      ```bash
      openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
      ```
-
-     Open Keychain and mark the cert as trusted.
 
    * Linux:
 

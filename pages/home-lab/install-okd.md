@@ -100,10 +100,8 @@ title: Installing OpenShift
 
      ```bash
      openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.dc1.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
      ```
-
-     Open Keychain and mark the cert as trusted.
 
    * Linux:
 
