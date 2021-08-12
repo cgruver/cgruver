@@ -135,7 +135,7 @@ Since we now have three dedicated worker nodes for our applications, let's move 
 
 1. Finally for Cluster Monitoring:
 
-   Create a file named `cluster-monitoring-config.yaml` with the following content:
+   Create a config map for cluster monitoring:
 
    ```bash
    cat << EOF | oc apply -f -

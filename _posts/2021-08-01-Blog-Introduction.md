@@ -2,7 +2,14 @@
 layout: post
 title:  "Let's build an OpenShift Home Lab!"
 date:   2021-08-01 12:00:00 -0400
-categories: Blog Post
+categories:
+  - OpenShift
+  - Home Lab
+  - Kubernetes
+tags:
+  - OpenShift
+  - Home Lab
+  - Kubernetes
 ---
 ## Greetings, and Welcome to my Kube world
 

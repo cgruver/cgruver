@@ -4,7 +4,7 @@ title: Lab Projects
 permalink: /lab-projects/
 ---
 
-## Welcome
+## On this page you will find direct links to the tutorials that I post occasionally in my Blog
 
 1. [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
-1. [Add Worker Nodes to You Lab](/home-lab/worker-nodes/)
+1. [Add Worker Nodes to Your Lab](/home-lab/worker-nodes/)

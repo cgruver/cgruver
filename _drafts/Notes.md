@@ -2,6 +2,7 @@
 title: Notes
 layout: page
 sitemap: false
+published: false
 ---
 
 ```bash
@@ -114,4 +115,14 @@ Test Bind
 
 ```bash
 /usr/sbin/named -u bind -g -c /etc/bind/named.conf
+```
+
+Use `wan` port as `lan`
+
+```bash
+LAN=$(uci show network.lan.ifname | cut -d"=" -f2 | cut -d"'" -f2)
+uci set network.lan.ifname="${LAN} wan"
+uci delete network.wan.ifname
+uci commit network
+/etc/init.d/network restart
 ```
