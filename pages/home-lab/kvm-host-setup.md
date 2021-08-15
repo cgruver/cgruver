@@ -24,7 +24,7 @@ There are a couple of things that we need to put in place to get started.
 1. Copy the SSH public key from your workstation to the authorized_keys file hosted on the bastion pi:
 
    ```bash
-   cat ~/.ssh/id_rsa.pub | ssh root@${BASTION_HOST} "cat >> /www/install/postinstall/authorized_keys"
+   cat ~/.ssh/id_rsa.pub | ssh root@${BASTION_HOST} "cat >> /usr/local/www/install/postinstall/authorized_keys"
    ```
 
 1. Create an encrypted root password for your KVM hosts:

@@ -37,18 +37,23 @@ We are going to use the edge router that we set up in the previous step to confi
    rm openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img 
    ```
 
-1. Resize the root volume to use the whole SD Card
+1. Resize the Root volume to 20GB and create a `/usr/local` filesystem using the rest of the drive.
 
    ```bash
-   partinfo=$(sfdisk -l /dev/mmcblk1 | grep mmcblk1p2)
+   PART_INFO=$(sfdisk -l /dev/mmcblk1 | grep mmcblk1p2)
+   let ROOT_SIZE=41943040
+   let P2_START=$(echo ${PART_INFO} | cut -d" " -f2)
+   let P3_START=$(( ${P2_START}+${ROOT_SIZE}+8192 ))
    sfdisk --delete /dev/mmcblk1 2
    sfdisk -d /dev/mmcblk1 > /tmp/part.info
-   echo "/dev/mmcblk1p2 : start= $(echo ${partinfo} | cut -d" " -f2), type=83" >> /tmp/part.info
+   echo "/dev/mmcblk1p2 : start= ${P2_START}, size= ${ROOT_SIZE}, type=83" >> /tmp/part.info
+   echo "/dev/mmcblk1p3 : start= ${P3_START}, type=83" >> /tmp/part.info
    umount /dev/mmcblk1p1
    sfdisk /dev/mmcblk1 < /tmp/part.info
 
    e2fsck -f /dev/mmcblk1p2
    resize2fs /dev/mmcblk1p2
+   mkfs.ext4 /dev/mmcblk1p3
    ```
 
 1. Mount the new root filesystem to a temporary mount point
@@ -151,6 +156,8 @@ __Remove card from router, put it in the Pi, and boot it up.__
    ${OKD_LAB_PATH}/bin/createEnvScript.sh -e 
    cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@${BASTION_HOST} "cat >> /root/.profile"
    rm -rf ${OKD_LAB_PATH}/work-dir
+   ssh root@${BASTION_HOST} "echo \"export LOCAL_REGISTRY=${LOCAL_REGISTRY}\" >> /root/.profile"
+   ssh root@${BASTION_HOST} "echo \"export LOCAL_REPOSITORY=${LOCAL_REPOSITORY}\" >> /root/.profile"
    ssh root@${BASTION_HOST}
    ```
 
@@ -163,7 +170,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. Install the necessary packages
 
    ```bash
-   opkg update && opkg install ip-full uhttpd shadow bash wget git-http ca-bundle procps-ng-ps rsync curl libstdcpp6 libjpeg libnss lftp
+   opkg update && opkg install ip-full uhttpd shadow bash wget git-http ca-bundle procps-ng-ps rsync curl libstdcpp6 libjpeg libnss lftp block-mount
 
    opkg list | grep "^coreutils-" | while read i
    do
@@ -178,38 +185,40 @@ __Remove card from router, put it in the Pi, and boot it up.__
    dropbearkey -t rsa -s 4096 -f /root/.ssh/id_dropbear
    ```
 
-1. Setup uhttpd for hosting a CentOS Stream repo mirror and host installation files
+1. Mount the `/usr/local` filesystem:
 
    ```bash
-   uci del_list uhttpd.main.listen_http="[::]:80"
-   uci del_list uhttpd.main.listen_http="0.0.0.0:80"
-   uci del_list uhttpd.main.listen_https="[::]:443"
-   uci del_list uhttpd.main.listen_https="0.0.0.0:443"
-   uci del uhttpd.defaults
-   uci del uhttpd.main.cert
-   uci del uhttpd.main.key
-   uci del uhttpd.main.cgi_prefix
-   uci del uhttpd.main.lua_prefix
-   uci add_list uhttpd.main.listen_http="${BASTION_HOST}:80"
-   uci add_list uhttpd.main.listen_http="127.0.0.1:80"
-   uci commit uhttpd
-   /etc/init.d/uhttpd restart
+   let RC=0
+   while [[ ${RC} -eq 0 ]]
+   do
+     uci delete fstab.@mount[-1]
+     let RC=$?
+   done
+   PART_UUID=$(block info /dev/mmcblk0p3 | cut -d\" -f2)
+   MOUNT=$(uci add fstab mount)
+   uci batch << EOI
+   set fstab.${MOUNT}.target=/usr/local
+   set fstab.${MOUNT}.uuid=${PART_UUID}
+   set fstab.${MOUNT}.enabled=1
+   EOI
+   uci commit fstab
+   block mount
    ```
 
 1. Create folders for the installation files:
 
    ```bash
-   mkdir -p /www/install/kickstart
-   mkdir /www/install/postinstall
-   mkdir /www/install/fcos
+   mkdir -p /usr/local/www/install/kickstart
+   mkdir /usr/local/www/install/postinstall
+   mkdir /usr/local/www/install/fcos
    ```
 
 1. Download the Fedora CoreOS install files:
 
    ```bash
-   curl -o /www/install/fcos/vmlinuz https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-kernel-x86_64
-   curl -o /www/install/fcos/initrd https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-initramfs.x86_64.img
-   curl -o /www/install/fcos/rootfs.img https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-rootfs.x86_64.img
+   curl -o /usr/local/www/install/fcos/vmlinuz https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-kernel-x86_64
+   curl -o /usr/local/www/install/fcos/initrd https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-initramfs.x86_64.img
+   curl -o /usr/local/www/install/fcos/rootfs.img https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-rootfs.x86_64.img
    ```
 
 1. Create a script for synching a CentOS Stream repository mirror:
@@ -222,7 +231,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 
    for i in BaseOS AppStream PowerTools extras
    do 
-     rsync  -avSHP --delete \${REPO_MIRROR}8-stream/\${i}/x86_64/os/ /www/install/repos/\${i}/x86_64/os/ > /tmp/repo-mirror.\${i}.out 2>&1
+     rsync  -avSHP --delete \${REPO_MIRROR}8-stream/\${i}/x86_64/os/ /usr/local/www/install/repos/\${i}/x86_64/os/ > /tmp/repo-mirror.\${i}.out 2>&1
    done
    EOF
 
@@ -234,7 +243,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
    ```bash
    for i in BaseOS AppStream PowerTools extras
    do 
-     mkdir -p /www/install/repos/${i}/x86_64/os/
+     mkdir -p /usr/local/www/install/repos/${i}/x86_64/os/
    done
    ```
 
@@ -256,7 +265,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. Create a repo file for the mirror:
 
    ```bash
-   cat << EOF > /www/install/postinstall/local-repos.repo
+   cat << EOF > /usr/local/www/install/postinstall/local-repos.repo
    [local-appstream]
    name=AppStream
    baseurl=http://${BASTION_HOST}/install/repos/AppStream/x86_64/os/
@@ -283,6 +292,25 @@ __Remove card from router, put it in the Pi, and boot it up.__
    EOF
    ```
 
+1. Setup uhttpd for hosting a CentOS Stream repo mirror and host installation files
+
+   ```bash
+   uci del_list uhttpd.main.listen_http="[::]:80"
+   uci del_list uhttpd.main.listen_http="0.0.0.0:80"
+   uci del_list uhttpd.main.listen_https="[::]:443"
+   uci del_list uhttpd.main.listen_https="0.0.0.0:443"
+   uci del uhttpd.defaults
+   uci del uhttpd.main.cert
+   uci del uhttpd.main.key
+   uci del uhttpd.main.cgi_prefix
+   uci del uhttpd.main.lua_prefix
+   uci add_list uhttpd.main.listen_http="${BASTION_HOST}:80"
+   uci add_list uhttpd.main.listen_http="127.0.0.1:80"
+   uci set uhttpd.main.home='/usr/local/www'
+   uci commit uhttpd
+   /etc/init.d/uhttpd restart
+   ```
+
 1. Enable NTP server:
 
    ```bash
@@ -294,7 +322,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. Create a Chrony configuration file for KVM Hosts:
 
    ```bash
-   cat << EOF > /www/install/postinstall/chrony.conf
+   cat << EOF > /usr/local/www/install/postinstall/chrony.conf
    server ${BASTION_HOST} iburst
    driftfile /var/lib/chrony/drift
    makestep 1.0 3
@@ -306,7 +334,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. Create a script to trigger a host reinstall:
 
    ```bash
-   cat << EOF > /www/install/postinstall/rebuildhost.sh
+   cat << EOF > /usr/local/www/install/postinstall/rebuildhost.sh
    #!/bin/bash
 
    P1=\$(lsblk -l | grep /boot/efi | cut -d" " -f1)
@@ -326,7 +354,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. Copy the bastion host SSH public key to a file for host installation:
 
    ```bash
-   dropbearkey -y -f /root/.ssh/id_dropbear | grep "ssh-" > /www/install/postinstall/authorized_keys
+   dropbearkey -y -f /root/.ssh/id_dropbear | grep "ssh-" > /usr/local/www/install/postinstall/authorized_keys
    ```
 
 ### Install Nexus

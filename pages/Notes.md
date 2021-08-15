@@ -126,3 +126,45 @@ uci delete network.wan.ifname
 uci commit network
 /etc/init.d/network restart
 ```
+
+Upgrade
+
+```bash
+PKG_LIST=""
+opkg update
+opkg list-upgradable | while read i
+do
+   PKG_LIST=$(echo "${PKG_LIST} $(echo ${i} | cut -d' ' -f1)")
+done
+```
+
+Disk Part
+
+```bash
+partinfo=$(sfdisk -l /dev/mmcblk1 | grep mmcblk1p2)
+sfdisk --delete /dev/mmcblk1 2
+sfdisk -d /dev/mmcblk1 > /tmp/part.info
+echo "/dev/mmcblk1p2 : start= $(echo ${partinfo} | cut -d" " -f2), type=83" >> /tmp/part.info
+umount /dev/mmcblk1p1
+sfdisk /dev/mmcblk1 < /tmp/part.info
+
+e2fsck -f /dev/mmcblk1p2
+resize2fs /dev/mmcblk1p2
+
+sfdisk -l /dev/mmcblk1 
+
+let SECTORS=$(sfdisk -l /dev/mmcblk1 | grep "Disk" | grep "/dev/mmcblk1" | cut -d" " -f7)
+
+
+PART_INFO=$(sfdisk -l /dev/mmcblk1 | grep mmcblk1p2)
+let ROOT_SIZE=41943040
+let P2_START=$(echo ${PART_INFO} | cut -d" " -f2)
+let P3_START=$(( ${P2_START}+${ROOT_SIZE}+8192 ))
+sfdisk --delete /dev/mmcblk1 2
+sfdisk -d /dev/mmcblk1 > /tmp/part.info
+echo "/dev/mmcblk1p2 : start= ${P2_START}, size= ${ROOT_SIZE}, type=83" >> /tmp/part.info
+echo "/dev/mmcblk1p3 : start= ${P3_START}, type=83" >> /tmp/part.info
+umount /dev/mmcblk1p1
+sfdisk /dev/mmcblk1 < /tmp/part.info
+
+```
