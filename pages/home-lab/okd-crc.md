@@ -2,9 +2,11 @@
 title: Build Code Ready Containers - With OKD
 layout: page
 permalink: /home-lab/okd-crc/
-sitemap: false
-published: false
 ---
+## This Page Is A Work In Progress
+
+Stay tuned for full instructions
+
 ### One time setup
 
 ```bash
