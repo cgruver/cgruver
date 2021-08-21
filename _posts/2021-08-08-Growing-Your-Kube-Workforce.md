@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Growing Your Kube Workforce"
-date:   2021-08-07 00:00:00 -0400
+date:   2021-08-08 00:00:00 -0400
 categories: Home Lab
 ---
 

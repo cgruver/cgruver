@@ -1,8 +1,12 @@
 ---
-title:  Gitea - "Git with a cup of tea"... let's add a slice of Pi
+title:  Gitea - "Git with a cup of tea"... and a slice of Pi
 layout: page
 permalink: /home-lab/gitea-with-pi/
 ---
+
+### Let's install Gitea on our Bastion host
+
+This tutorial assumes that you have already configured your lab with the following guide: [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
 
 1. Create a DNS entry for gitea on the edge router:
 

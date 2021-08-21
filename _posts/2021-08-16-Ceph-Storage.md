@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Let's Add Some Storage to Our Cluster"
-date:   2021-08-07 00:00:00 -0400
+date:   2021-08-16 00:00:00 -0400
 categories: Home Lab
 ---
 
