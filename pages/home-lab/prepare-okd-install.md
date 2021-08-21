@@ -33,77 +33,9 @@ Since we are simulating a secure data center environment, let's deny internet ac
    /etc/init.d/firewall restart
    ```
 
-### Set up Nexus for image mirroring:
-
-Now point your browser to `https://nexus.${LAB_DOMAIN}:8443`.  Login, and create a password for your admin user.
-
-If prompted to allow anonymous access, select to allow.
-
-The `?` in the top right hand corner of the Nexus screen will take you to their documentation.
-
-We need to create a hosted Docker registry to hold the mirror of the OKD images that we will use to install our cluster.
-
-1. Login as your new admin user
-1. Select the gear icon from the top bar, in between a cube icon and the search dialog.
-1. Select `Repositories` from the left menu bar.
-
-    ![Nexus Admin](images/NexusAdmin.png)
-
-1. Select `+ Create repository`
-1. Select `docker (hosted)`
-1. Name your repository `origin`
-1. Check `HTTPS` and put `5001` in the port dialog entry
-1. Check `Allow anonymous docker pull`
-1. Check `Enable Docker V1 API`, you may need this for some older docker clients.
-
-    ![Nexus OKD Repo](images/CreateOriginRepo.png)
-
-1. Click `Create repository` at the bottom of the page.
-1. Now expand the `Security` menu on the left and select `Realms`
-1. Add `Docker Bearer Token Realm` to the list of active `Realms`
-
-    ![Realms](images/NexusRealms.png)
-
-1. Click `Save`
-1. Now, select `Roles` from the expanded `Security` menu on the left.
-1. Click `+ Create role` and select `Nexus role`
-1. Create the role as shown:
-
-    ![Nexus Role](images/NexusRole.png)
-
-1. Add the appropriate privileges as shown:
-
-    ![Role Privileges](images/RolePrivileges.png)
-
-1. Click `Create role`
-1. Now, select `Users` from the expanded `Security` menu on the left.
-
-    ![Create User](images/CreateUser.png)
-
-1. Click `Create local user`
-1. Create the user as shown:
-
-    ![Nexus User](images/NexusUser.png)
-
 ### Create OpenShift image mirror:
 
-1. Add the Nexus cert to the trust store on your workstation:
-
-   * Mac OS:
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
-     ```
-
-   * Linux:
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
-     update-ca-trust
-     ```
-
-1. Next, we need a couple of pull secrets:
+1. First, we need a couple of pull secrets:
 
    1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `origin` repository that we created.
 
