@@ -2,6 +2,12 @@
 layout: page
 permalink: /home-lab/kvm-host-setup/
 title: Setting Up Your KVM Hosts
+description: Using KVM on CentOS Stream for OpenShift with OKD
+tags:
+  - install kvm
+  - centos stream
+  - ipxe boot
+  - kickstart unattended install
 ---
 
 The installation on a bare metal host will work like this:

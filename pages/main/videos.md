@@ -2,6 +2,7 @@
 layout: page
 title: Videos
 permalink: /videos/
+description: OpenShift Home Lab Installation Videos with OKD
 ---
 
 [What Is OKD?](https://www.youtube.com/watch?v=fOKve11GOJg)

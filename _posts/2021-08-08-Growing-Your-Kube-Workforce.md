@@ -2,7 +2,14 @@
 layout: post
 title:  "Growing Your Kube Workforce"
 date:   2021-08-08 00:00:00 -0400
-categories: Home Lab
+description: "Add Worker Nodes to OpenShift and OKD"
+tags:
+  - openshift
+  - okd
+  - kubernetes
+  - worker node
+categories:
+  - Home Lab
 ---
 
 ## The Struggles of a Growing Business

@@ -2,6 +2,9 @@
 title: Build Code Ready Containers - With OKD
 layout: page
 permalink: /home-lab/okd-crc/
+description: How to build Code Ready Containers for OKD
+tags:
+  - crc for okd
 ---
 ## This Page Is A Work In Progress
 

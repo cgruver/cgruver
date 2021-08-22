@@ -2,6 +2,9 @@
 layout: page
 permalink: /home-lab/prepare-okd-install/
 title: Preparing to Install OpenShift
+description: Mirror OpenShift images for disconnected install with OKD
+tags:
+  - sonatype nexus
 ---
 ## Prepare to Install OKD 4
 

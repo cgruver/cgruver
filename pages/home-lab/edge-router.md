@@ -2,6 +2,14 @@
 layout: page
 permalink: /home-lab/edge-router/
 title: "Edge Network Router - GL-MV1000W"
+description: "Set up OpenWRT with Bind DNS"
+tags:
+  - openwrt
+  - bind
+  - dns
+  - glinet
+  - mv1000
+  - brume
 ---
 
 The operating system running your router is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)

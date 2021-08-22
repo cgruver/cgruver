@@ -2,6 +2,7 @@
 title: Recreate Your Cluster
 layout: page
 permalink: /home-lab/recreate-cluster/
+description: Tear down openshift cluster for reinstall
 ---
 
 There will be times when you want to wipe your whole environment and rebuild it fresh.  I have provided an easy way to accomplish that.

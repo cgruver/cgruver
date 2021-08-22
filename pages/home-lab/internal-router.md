@@ -2,6 +2,14 @@
 layout: page
 permalink: /home-lab/internal-router/
 title: Internal Network Router
+description: Configure OpenWRT as a router with HA Proxy and a Bind DNS Server
+tags:
+  - bind dns server
+  - openwrt router
+  - haproxy load balancer
+  - openshift dns
+  - openwrt ipxe boot
+  - openwrt dhcp configuration
 ---
 
 1. Copy your SSH public key to the router for login:

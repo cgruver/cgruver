@@ -2,6 +2,11 @@
 title:  Gitea - "Git with a cup of tea"... and a slice of Pi
 layout: page
 permalink: /home-lab/gitea-with-pi/
+description: Installing Gitea on a Raspberry Pi 4B with OpenWRT
+tags:
+  - git
+  - raspberry pi
+  - openwrt
 ---
 
 ### Let's install Gitea on our Bastion host

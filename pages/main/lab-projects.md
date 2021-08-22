@@ -2,6 +2,7 @@
 layout: page
 title: Lab Projects
 permalink: /lab-projects/
+description: Kubernetes Home Lab Projects with OpenShift and OKD
 ---
 
 ## On this page you will find direct links to the tutorials that I post occasionally in my Blog

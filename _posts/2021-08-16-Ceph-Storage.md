@@ -2,7 +2,16 @@
 layout: post
 title:  "Let's Add Some Storage to Our Cluster"
 date:   2021-08-16 00:00:00 -0400
-categories: Home Lab
+description: "Install Rook Ceph on OpenShift with a disconnected network"
+tags:
+  - openshift
+  - okd
+  - kubernetes
+  - ceph
+  - disconnected network
+  - rook
+categories:
+  - Home Lab
 ---
 
 In this week's post, I am going to show you how to add the Rook Operator for Ceph Storage to your cluster.

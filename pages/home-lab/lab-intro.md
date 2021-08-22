@@ -2,6 +2,16 @@
 layout: page
 permalink: /home-lab/lab-intro/
 title: Building a Portable Kubernetes Home Lab with OKD4
+description: "OpenShift and OKD Home Lab with Raspberry Pi, Intel NUC, CentOS Stream, and OpenWRT"
+tags:
+  - openshift
+  - okd
+  - kubernetes
+  - intel nuc
+  - openwrt
+  - centos stream
+  - raspberry pi
+  - nexus
 ---
 There are a lot of really good Kubernetes and OpenShift tutorials out there.  This one strives to be a little bit different in that it is going to simulate the network configuration found in a real data center environment.  This tutorial is targeted toward architects and engineers who are interested in both infrastructure and application development.  This is not Code Ready Containers, or MiniKube.  Both of those are excellent developer tools and can be used to learn Kubernetes basics.  No, what you will build from the following tutorial will be a production like OpenShift cluster.  Your new lab will be very expandable as well.  Add more KVM hosts, and you can build more sophisticated OpenShift environments.
 

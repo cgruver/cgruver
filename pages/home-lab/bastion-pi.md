@@ -2,6 +2,12 @@
 layout: page
 permalink: /home-lab/bastion-pi/
 title: OpenWRT With a Slice of Pi
+description: "Install OpenWRT on Raspberry Pi 4B"
+tags:
+  - openwrt
+  - raspberry pi
+  - centos stream
+  - fedora coreos
 ---
 ## Setting up a Raspberry Pi as your lab bastion host
 

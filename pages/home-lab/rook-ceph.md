@@ -2,6 +2,11 @@
 title: Install Ceph Storage with Rook
 layout: page
 permalink: /home-lab/rook-ceph/
+description: How to install Rook Ceph on OpenShift with OKD
+tags:
+  - rook ceph
+  - disconnected install
+  - podman on openwrt
 ---
 ## Prerequisites
 
