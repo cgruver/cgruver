@@ -358,4 +358,4 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
 
 1. Now it's time to set up your Bastion host:
 
-   __[Bastion Host](/home-lab/bastion-pi)__
+   __[Bastion Host](/home-lab/bastion-pi/)__

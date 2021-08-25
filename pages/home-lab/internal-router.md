@@ -622,4 +622,4 @@ If the output is clean, then you are ready to fire it up!
 
 1. Next, install CentOS Stream on your KVM host:
 
-   __[KVM Host Setup](/home-lab/kvm-host-setup)__
+   __[KVM Host Setup](/home-lab/kvm-host-setup/)__

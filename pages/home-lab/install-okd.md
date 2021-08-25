@@ -50,12 +50,6 @@ tags:
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
 
-1. Because our install is disconnected from the internet, we need to disable the Operator Marketplace:
-
-   ```bash
-   oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
-   ```
-
 1. Monitor the installation process:
 
    ```bash
@@ -94,6 +88,12 @@ tags:
 
    ```bash
    oc delete pod --field-selector=status.phase==Succeeded --all-namespaces
+   ```
+
+1. Because our install is disconnected from the internet, we need to disable the Operator Marketplace:
+
+   ```bash
+   oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
    ```
 
 1. Install is Complete!!!

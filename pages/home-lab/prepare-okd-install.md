@@ -40,7 +40,7 @@ Since we are simulating a secure data center environment, let's deny internet ac
 
 1. First, we need a couple of pull secrets:
 
-   1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `origin` repository that we created.
+   1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
 
       ```bash
       NEXUS_PWD=$(echo -n "openshift-mirror:your_password" | base64)
@@ -57,25 +57,25 @@ Since we are simulating a secure data center environment, let's deny internet ac
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
-   mirrorOkdRelease.sh
+   ${OKD_LAB_PATH}/bin/mirrorOkdRelease.sh
    ```
 
    The final output should look something like:
 
    ```bash
    Success
-   Update image:  nexus.my.awesome.lab:5001/origin:4.7.0-0.okd-2021-07-03-190901
-   Mirror prefix: nexus.my.awesome.lab:5001/origin
-   Mirror prefix: nexus.my.awesome.lab:5001/origin:4.7.0-0.okd-2021-07-03-190901
+   Update image:  nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901:4.7.0-0.okd-2021-07-03-190901
+   Mirror prefix: nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
+   Mirror prefix: nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901:4.7.0-0.okd-2021-07-03-190901
 
    To use the new mirrored repository to install, add the following section to the install-config.yaml:
 
    imageContentSources:
    - mirrors:
-     - nexus.my.awesome.lab:5001/origin
+     - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
      source: quay.io/openshift/okd
    - mirrors:
-     - nexus.my.awesome.lab:5001/origin
+     - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
      source: quay.io/openshift/okd-content
 
 
@@ -88,10 +88,10 @@ Since we are simulating a secure data center environment, let's deny internet ac
    spec:
      repositoryDigestMirrors:
      - mirrors:
-       - nexus.my.awesome.lab:5001/origin
+       - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
        source: quay.io/openshift/okd
      - mirrors:
-       - nexus.my.awesome.lab:5001/origin
+       - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
        source: quay.io/openshift/okd-content    
    ```
 
@@ -142,4 +142,4 @@ Since we are simulating a secure data center environment, let's deny internet ac
 
 1. Finaly, we are ready to install OpenShift!
 
-   [OpenShift Install](/home-lab/install-okd)
+   [OpenShift Install](/home-lab/install-okd/)

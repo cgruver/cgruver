@@ -162,7 +162,7 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
 1. Select `docker (hosted)`
 
-1. Name your repository `origin`
+1. Name your repository `okd`
 
 1. Check `HTTPS` and put `5001` in the port dialog entry
 
@@ -224,4 +224,4 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
 1. Next, set up the router for your OpenShift cluster:
 
-   __[Internal Router](/home-lab/internal-router)__
+   __[Internal Router](/home-lab/internal-router/)__

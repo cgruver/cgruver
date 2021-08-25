@@ -163,7 +163,6 @@ __Remove card from router, put it in the Pi, and boot it up.__
    cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@${BASTION_HOST} "cat >> /root/.profile"
    rm -rf ${OKD_LAB_PATH}/work-dir
    ssh root@${BASTION_HOST} "echo \"export LOCAL_REGISTRY=${LOCAL_REGISTRY}\" >> /root/.profile"
-   ssh root@${BASTION_HOST} "echo \"export LOCAL_REPOSITORY=${LOCAL_REPOSITORY}\" >> /root/.profile"
    ssh root@${BASTION_HOST}
    ```
 

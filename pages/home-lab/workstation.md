@@ -45,7 +45,6 @@ You need to choose two things to get started:
    export OKD_NIGHTLY_REGISTRY=registry.svc.ci.openshift.org/origin/release
    export OKD_STABLE_REGISTRY=quay.io/openshift/okd
    export LOCAL_REGISTRY=nexus.${LAB_DOMAIN}:5001
-   export LOCAL_REPOSITORY=origin
    export LOCAL_SECRET_JSON=${OKD_LAB_PATH}/pull_secret.json
    EOF
 
@@ -119,4 +118,4 @@ You need to choose two things to get started:
 
 1. Now, you are ready to configure your edge router.
 
-   [Edge Router](/home-lab/edge-router)
+   [Edge Router](/home-lab/edge-router/)
