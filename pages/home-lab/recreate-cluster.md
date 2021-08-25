@@ -23,7 +23,7 @@ There is a single script that will completely wipe the cluster and reset HA Prox
 1. Now, tear down the cluster and delete it's resources:
 
    ```bash
-   destroyCluster.sh -i=${OKD_LAB_PATH}/cluster-inventory -c=1 
+   destroyNodes.sh -r -i=${OKD_LAB_PATH}/cluster-inventory -c=1 
    ```
 
 In a matter of moments, the cluster will be completely gone.
