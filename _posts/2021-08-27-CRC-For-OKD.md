@@ -1,7 +1,7 @@
 ---
 layout: post
 title: And Now For Something Slightly Different... CodeReady Containers
-date:   2021-08-21 00:00:00 -0400
+date:   2021-08-27 00:00:00 -0400
 description: "How To Build CodeReady Containers with OKD"
 tags:
   - codeready
