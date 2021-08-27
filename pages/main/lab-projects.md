@@ -14,6 +14,6 @@ description: Kubernetes Home Lab Projects with OpenShift and OKD
 * [Deploy Ceph Storage](/home-lab/rook-ceph/)
 * [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
 
-### Build Code Ready Containers for OKD:
+### Build CodeReady Containers for OKD:
 
-* [CRC for OKD](/home-lab/okd-crc/)
+* [CodeReady Containers with OKD](/home-lab/okd-crc/)
