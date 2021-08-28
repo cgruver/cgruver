@@ -27,3 +27,7 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
+minima:
+  social_links:
+    github: cgruver
+    twitter: upstreampaddle
