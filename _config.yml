@@ -1,11 +1,13 @@
 title: Upstream - Without A Paddle
-description: >- 
+author: cgruver
+description: >
   This site is a chronicle of my home lab and Kubernetes hobby.  
   It includes periodic Blog posts about random topics, as well as tutorials focused on cloud native technologies.  
   Topics covered include Quarkus, OpenShift, OKD, Tekton, MariaDB, Cassandra, Infrastructure As Code, and much more.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://upstreamwithoutapaddle.com" 
 github_username:  cgruver
+twitter_username: upstreampaddle
 theme: minima
 # theme: jekyll-theme-cayman
 header_pages:
@@ -27,7 +29,3 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-minima:
-  social_links:
-    github: cgruver
-    twitter: upstreampaddle
