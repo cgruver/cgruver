@@ -13,6 +13,7 @@ description: Kubernetes Home Lab Projects with OpenShift and OKD
 * [Add Worker Nodes to Your Lab](/home-lab/worker-nodes/)
 * [Deploy Ceph Storage](/home-lab/rook-ceph/)
 * [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
+* [Install OpenShift Pipelines](/home-lab/tekton-install/)
 
 ### Build CodeReady Containers for OKD:
 

@@ -35,7 +35,6 @@ You need to choose two things to get started:
    EDGE_ROUTER=${i1}.${i2}.${i3}.1
 
    cat << EOF > ~/okd-lab/bin/setLabEnv.sh
-   export PATH=\$PATH:${OKD_LAB_PATH}/bin
    export LAB_DOMAIN=${LAB_DOMAIN}
    export EDGE_NETWORK=${EDGE_NETWORK}
    export BASTION_HOST=${BASTION_HOST}
@@ -46,6 +45,7 @@ You need to choose two things to get started:
    export OKD_STABLE_REGISTRY=quay.io/openshift/okd
    export LOCAL_REGISTRY=nexus.${LAB_DOMAIN}:5001
    export LOCAL_SECRET_JSON=${OKD_LAB_PATH}/pull_secret.json
+   export PATH=\$PATH:${OKD_LAB_PATH}/bin
    EOF
 
    chmod 750 ~/okd-lab/bin/setLabEnv.sh

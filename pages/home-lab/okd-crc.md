@@ -246,7 +246,7 @@ Now, let's build CodeReady Containers with OKD!
 
    If you see pods crash looping or otherwise not `Running`, then there may be issues with the cluster which will inhibit your crc build.
 
-1. Create the qcow2 Disk Image
+1. Create the `qcow2` Disk Image
 
    ```bash
    ./createdisk.sh crc-tmp-install-data
@@ -298,7 +298,7 @@ You now have your own, personal copy of CodeReady Containers.
 To get up and running quickly:
 
 1. Copy the appropriate binary to your workstation.
-1. Put the crc binary in your path.
+1. Put the `crc` binary in your path.
 1. execute:
 
    ```bash

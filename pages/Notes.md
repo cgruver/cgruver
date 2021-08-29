@@ -863,7 +863,7 @@ spec:
 EOF
 ```
 
-### CIDR magic:
+## CIDR magic:
 
 ```bash
 mask2cidr ()
@@ -882,7 +882,7 @@ cidr2mask ()
 }
 ```
 
-### Blog:
+## Blog:
 
 ```bash
 gem install jekyll bundler
@@ -894,4 +894,16 @@ gem update --system
 gem update
 rm Gemfile.lock
 bundle update --all
+```
+
+## Clean up local images
+
+Warning: This will delete all of the container images on your system. It will also likely free up a LOT of disk space.
+
+```bash
+podman system prune --all --force
+```
+
+```bash
+docker system prune --all --force
 ```

@@ -16,3 +16,5 @@ description: OpenShift Home Lab Installation Videos with OKD
 [KubeCon EU Office Hour: OKD Working Group - May 6, 2021](https://www.youtube.com/watch?v=2WV4jtTs9Bg)
 
 [OKD Community Office Hours - July 9, 2021](https://www.youtube.com/watch?v=_skMX0T-C70)
+
+[OKD Code Ready Containers](https://www.youtube.com/watch?v=jyGRaodl740)
