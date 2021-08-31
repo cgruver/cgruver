@@ -12,7 +12,7 @@ tags:
 1. First we need to install a couple of tools: (Assuming MacOS with HomeBrew here...)
 
    ```bash
-   brew install yq kustomize
+   brew install go yq kustomize
    ```
 
    For Fedora or other linux distributions, check out the project sites for install instructions:
