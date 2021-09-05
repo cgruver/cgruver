@@ -12,12 +12,14 @@ tags:
 1. First we need to install a couple of tools: (Assuming MacOS with HomeBrew here...)
 
    ```bash
-   brew install go yq kustomize
+   brew install go yq kustomize podman
    ```
 
    For Fedora or other linux distributions, check out the project sites for install instructions:
    * [YQ](https://github.com/mikefarah/yq)
    * [Kustomize](https://kustomize.io)
+   * [Podman](https://podman.io/getting-started/installation)
+   * [Go](https://golang.org)
 
 1. Prepare a space for the OpenShift Pipelines Install:
 
@@ -34,10 +36,17 @@ tags:
    git checkout release-v0.23
    ```
 
+1. __Mac OS:__ Start the Podman environment:
+
+   ```bash
+   podman machine init
+   podman machine start
+   ```
+
 1. Log into the lab Nexus registry:
 
    ```bash
-   docker login -u openshift-mirror ${LOCAL_REGISTRY}
+   podman login -u openshift-mirror ${LOCAL_REGISTRY}
    ```
 
 1. Log into the OpenShift cluster:
@@ -72,10 +81,10 @@ tags:
    ```bash
    for i in $(cat ${OKD_LAB_PATH}/work-dir/images.list)
    do
-   docker pull ${i}
+   podman pull ${i}
    IMAGE=$(echo ${i} | cut -d"/" -f2-)
-   docker tag ${i} ${LOCAL_REGISTRY}/tekton/${IMAGE}
-   docker push ${LOCAL_REGISTRY}/tekton/${IMAGE}
+   podman tag ${i} ${LOCAL_REGISTRY}/tekton/${IMAGE}
+   podman push ${LOCAL_REGISTRY}/tekton/${IMAGE}
    done
    ```
 
