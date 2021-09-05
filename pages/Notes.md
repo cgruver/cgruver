@@ -903,7 +903,3 @@ Warning: This will delete all of the container images on your system. It will al
 ```bash
 podman system prune --all --force
 ```
-
-```bash
-docker system prune --all --force
-```
