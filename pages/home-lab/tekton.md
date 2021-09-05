@@ -84,7 +84,7 @@ tags:
    podman pull ${i}
    IMAGE=$(echo ${i} | cut -d"/" -f2-)
    podman tag ${i} ${LOCAL_REGISTRY}/tekton/${IMAGE}
-   podman push ${LOCAL_REGISTRY}/tekton/${IMAGE}
+   podman push ${LOCAL_REGISTRY}/tekton/${IMAGE} --tls-verify=false
    done
    ```
 
