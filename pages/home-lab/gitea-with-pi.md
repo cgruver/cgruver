@@ -26,10 +26,10 @@ This tutorial assumes that you have already configured your lab with the followi
    ssh root@${BASTION_HOST}
    ```
 
-1. Install SQLite3
+1. Install SQLite3 and ssh-keygen
 
    ```bash
-   opkg update && opkg install sqlite3-cli
+   opkg update && opkg install sqlite3-cli openssh-keygen
    ```
 
 1. Install Gitea:
