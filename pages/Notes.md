@@ -903,3 +903,16 @@ Warning: This will delete all of the container images on your system. It will al
 ```bash
 podman system prune --all --force
 ```
+
+## Set up Gitea mirror
+
+```bash
+mkdir ${OKD_LAB_PATH}/work-dir
+cd ${OKD_LAB_PATH}/work-dir
+curl -s https://cgruver:@api.github.com/orgs/lab-monkeys/repos | jq ".[].clone_url" | xargs -n 1 git clone --mirror
+for i in $(ls)
+do
+  cd ${i}
+  git remote set-url --push origin https://gitlab.clg.lab:8181/cgruver/catalog.git
+  git push --mirror
+```

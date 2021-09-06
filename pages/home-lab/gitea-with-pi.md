@@ -20,6 +20,12 @@ This tutorial assumes that you have already configured your lab with the followi
    ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
    ```
 
+1. Log into the Bastion Pi server:
+
+   ```bash
+   ssh root@${BASTION_HOST}
+   ```
+
 1. Install SQLite3
 
    ```bash
