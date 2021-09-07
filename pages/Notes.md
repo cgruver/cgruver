@@ -913,6 +913,9 @@ curl -s https://cgruver:@api.github.com/orgs/lab-monkeys/repos | jq ".[].clone_u
 for i in $(ls)
 do
   cd ${i}
-  git remote set-url --push origin https://gitlab.clg.lab:8181/cgruver/catalog.git
+  git remote set-url --push origin https://gitea.${LAB_DOMAIN}:3000/cgruver/${i}
   git push --mirror
+done
+cd
+rm -rf ${OKD_LAB_PATH}/work-dir
 ```
