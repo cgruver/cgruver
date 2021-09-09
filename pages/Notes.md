@@ -919,3 +919,214 @@ done
 cd
 rm -rf ${OKD_LAB_PATH}/work-dir
 ```
+
+## Monitoring:
+
+```bash
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    enableUserWorkload: true
+EOF
+
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-workload-monitoring-config
+  namespace: openshift-user-workload-monitoring
+data:
+  config.yaml: |
+    prometheusOperator:
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        value: ""
+        effect: "NoSchedule"
+    prometheus:
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        value: ""
+        effect: "NoSchedule"
+    thanosRuler:
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        value: ""
+        effect: "NoSchedule"
+EOF
+
+oc patch AlertManager main --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
+
+oc new-project alpha-project
+
+cat << EOF | oc apply -n alpha-project -f -
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: pager-duty-apps
+  labels:
+    alertmanagerConfig: pager-duty-apps
+spec:
+  receivers:
+    - name: pager-duty-apps
+      pagerduty_configs:
+        - routing_key: ${PD_INTEGRATION_KEY}
+  route:
+    groupBy:
+      - namespace
+    groupInterval: 5m
+    groupWait: 30s
+    receiver: pager-duty-apps
+    repeatInterval: 12h
+EOF
+
+mkdir ${OKD_LAB_PATH}/metrics-dir
+cd ${OKD_LAB_PATH}/metrics-dir
+
+mvn io.quarkus:quarkus-maven-plugin:2.2.2.Final:create -DprojectGroupId=lab.awesome.my -DprojectArtifactId=alertme -DclassName="lab.awesome.my.Metrics" -Dpath="/count" -Dextensions="quarkus-resteasy-jackson,quarkus-micrometer-registry-prometheus,openshift"
+
+cd alertme
+
+cat << EOF > src/main/java/lab/awesome/my/Metrics.java
+package lab.awesome.my;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.inject.Inject;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+
+@Path("/count/{metric}")
+public class Metrics {
+
+    @Inject
+    MeterRegistry meter;
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String count(@PathParam(value = "metric") String metric) {
+        meter.counter("metrics_count", Tags.of("metric", metric)).increment();
+        return "Got It!";
+    }
+}
+EOF
+
+cat << EOF > src/test/java/lab/awesome/my/MetricsTest.java
+package lab.awesome.my;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
+
+@QuarkusTest
+public class MetricsTest {
+
+    @Test
+    public void testMetricsEndpoint() {
+        given()
+          .when().get("/count/metric")
+          .then()
+             .statusCode(200)
+             .body(is("Got It!"));
+    }
+}
+EOF
+
+oc project alpha-project
+
+mvn clean package -Dquarkus.kubernetes.deploy=true -Dquarkus.openshift.route.expose=true -Dquarkus.openshift.labels.app=alertme -Dquarkus.kubernetes-client.trust-certs=true
+
+cat << EOF oc apply -n alpha-project -f -
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: prometheus-app-monitor
+  name: prometheus-app-monitor
+spec:
+  endpoints:
+  - interval: 10s
+    targetPort: 8080
+    path: /q/metrics
+    scheme: http
+  selector:
+    matchLabels:
+      app: 'alertme'
+EOF
+
+```
+
+
+
+## Quarkus Example
+
+```bash
+mvn io.quarkus:quarkus-maven-plugin:2.2.2.Final:create -DprojectGroupId=lab.awesome.my -DprojectArtifactId=alertme -DclassName="lab.awesome.my.Metrics" -Dpath="/count" -Dextensions="quarkus-resteasy-jackson, quarkus-micrometer-registry-prometheus"
+
+cd alertme
+
+cat << EOF > src/main/java/org/stuff/my/api/Greeting.java
+package org.stuff.my.api;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.stuff.my.dto.GreetingDTO;
+
+@Path("/hello/{name}")
+public class Greeting {
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public GreetingDTO hello(@PathParam("name") String name) {
+        GreetingDTO greeting = new GreetingDTO("hello", name);
+        return greeting;
+    }
+}
+EOF
+
+cat << EOF > src/test/java/org/stuff/my/api/GreetingTest.java
+package org.stuff.my.api;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
+
+@QuarkusTest
+public class GreetingTest {
+
+    @Test
+    public void testHelloEndpoint() {
+        given()
+          .when().get("/hello/Sally")
+          .then()
+             .statusCode(200)
+             .body(is("Hello Sally"));
+    }
+
+}
+EOF
+```

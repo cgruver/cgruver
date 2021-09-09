@@ -23,7 +23,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Log into the bastion host:
 
    ```bash
-   ssh root@{BASTION_HOST}
+   ssh root@${BASTION_HOST}
    ```
 
 1. Install some additional packages:
@@ -156,7 +156,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    It is finished when you see all of the `rook-ceph-osd-prepare-okd4-...` pods in a `Completed` state.
 
    ```bash
-   oc get pods -n rook-ceph
+   oc get pods -n rook-ceph | grep rook-ceph-osd-prepare
    ```
 
 ### Now, let's create a PVC for the Image Registry.
@@ -173,20 +173,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    oc apply -f ${OKD_LAB_PATH}/okd-home-lab/rook-ceph/configure/registry-pvc.yml
    ```
 
-1. Make sure that the PVC gets bound to a new PV:
-
-   ```bash
-   oc get pvc -n openshift-image-registry
-   ```
-
-   You should see output similar to:
-
-   ```bash
-   NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
-   registry-pvc   Bound    pvc-bcee4ccd-aa6e-4c8c-89b0-3f8da1c17df0   100Gi      RWO            rook-ceph-block   4d17h
-   ```
-
-1. Finally, patch the `imageregistry` operator to use the PVC that you just created:
+1. Now, patch the `imageregistry` operator to use the PVC that you just created:
 
    If you previously added `emptyDir` as a storage type to the Registry, you need to remove it first:
 
@@ -198,6 +185,19 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 
    ```bash
    oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"rolloutStrategy":"Recreate","managementState":"Managed","storage":{"pvc":{"claim":"registry-pvc"}}}}'
+   ```
+
+1. Make sure that the PVC gets bound to a new PV:
+
+   ```bash
+   oc get pvc -n openshift-image-registry
+   ```
+
+   You should see output similar to:
+
+   ```bash
+   NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+   registry-pvc   Bound    pvc-bcee4ccd-aa6e-4c8c-89b0-3f8da1c17df0   100Gi      RWO            rook-ceph-block   4d17h
    ```
 
 1. If you want to designate your new storage class as the `default` storage class, the do the following:
