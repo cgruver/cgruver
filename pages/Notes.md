@@ -968,30 +968,9 @@ data:
         effect: "NoSchedule"
 EOF
 
-oc patch AlertManager main --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
+
 
 oc new-project alpha-project
-
-cat << EOF | oc apply -n alpha-project -f -
-apiVersion: monitoring.coreos.com/v1alpha1
-kind: AlertmanagerConfig
-metadata:
-  name: pager-duty-apps
-  labels:
-    alertmanagerConfig: pager-duty-apps
-spec:
-  receivers:
-    - name: pager-duty-apps
-      pagerduty_configs:
-        - routing_key: ${PD_INTEGRATION_KEY}
-  route:
-    groupBy:
-      - namespace
-    groupInterval: 5m
-    groupWait: 30s
-    receiver: pager-duty-apps
-    repeatInterval: 12h
-EOF
 
 mkdir ${OKD_LAB_PATH}/metrics-dir
 cd ${OKD_LAB_PATH}/metrics-dir
@@ -1054,7 +1033,7 @@ oc project alpha-project
 
 mvn clean package -Dquarkus.kubernetes.deploy=true -Dquarkus.openshift.route.expose=true -Dquarkus.openshift.labels.app=alertme -Dquarkus.kubernetes-client.trust-certs=true
 
-cat << EOF oc apply -n alpha-project -f -
+cat << EOF | oc apply -n alpha-project -f -
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -1072,9 +1051,51 @@ spec:
       app: 'alertme'
 EOF
 
+cat << EOF | oc apply -n alpha-project -f -
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alertme-alarm
+spec:
+  groups:
+  - name: alertme
+    rules:
+    - alert: FailureCount
+      expr: metrics_count_total{metric = "fail"} >= 5
+EOF
 ```
 
+```bash
+curl http://alertme-alpha-project.apps.okd4.dc1.my.awesome.lab/q/metrics
 
+metrics_count_total{metric = "fail"}
+
+curl http://alertme-alpha-project.apps.okd4.dc1.my.awesome.lab/count/fail
+
+oc patch AlertManager main --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
+
+cat << EOF | oc apply -n alpha-project -f -
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: pager-duty-apps
+  labels:
+    alertmanagerConfig: pager-duty-apps
+spec:
+  receivers:
+    - name: pager-duty-apps
+      pagerduty_configs:
+        - routing_key: ${PD_INTEGRATION_KEY}
+  route:
+    groupBy:
+      - namespace
+    groupInterval: 5m
+    groupWait: 30s
+    receiver: pager-duty-apps
+    repeatInterval: 12h
+EOF
+
+```
 
 ## Quarkus Example
 
