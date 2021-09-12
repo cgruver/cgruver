@@ -970,7 +970,7 @@ EOF
 
 
 
-oc new-project alpha-project
+oc new-project alertme
 
 mkdir ${OKD_LAB_PATH}/metrics-dir
 cd ${OKD_LAB_PATH}/metrics-dir
@@ -1029,11 +1029,11 @@ public class MetricsTest {
 }
 EOF
 
-oc project alpha-project
+oc project alertme
 
 mvn clean package -Dquarkus.kubernetes.deploy=true -Dquarkus.openshift.route.expose=true -Dquarkus.openshift.labels.app=alertme -Dquarkus.kubernetes-client.trust-certs=true
 
-cat << EOF | oc apply -n alpha-project -f -
+cat << EOF | oc apply -n alertme -f -
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -1051,7 +1051,7 @@ spec:
       app: 'alertme'
 EOF
 
-cat << EOF | oc apply -n alpha-project -f -
+cat << EOF | oc apply -n alertme -f -
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -1066,26 +1066,85 @@ EOF
 ```
 
 ```bash
-curl http://alertme-alpha-project.apps.okd4.dc1.my.awesome.lab/q/metrics
+curl http://alertme-alertme.apps.okd4.dc1.${LAB_DOMAIN}/q/metrics
 
 metrics_count_total{metric = "fail"}
 
-curl http://alertme-alpha-project.apps.okd4.dc1.my.awesome.lab/count/fail
+curl http://alertme-alertme.apps.okd4.dc1.${LAB_DOMAIN}/count/fail
+```
 
-oc patch AlertManager main --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
+```bash
+# oc patch AlertManager main --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
 
-cat << EOF | oc apply -n alpha-project -f -
+# oc patch ConfigMap cluster-monitoring-config --patch '{"spec":{"alertmanagerConfigSelector":{"matchLabels":{"alertmanagerConfig":"pager-duty-apps"}}}}' --type=merge -n openshift-monitoring
+
+cd ${OKD_LAB_PATH}/metrics-dir
+
+oc get ConfigMap cluster-monitoring-config -n openshift-monitoring -o jsonpath='{.data.config\.yaml}' > config.yaml
+
+cat << EOF > patch.yaml
+enableUserWorkload: true
+alertmanagerMain:
+  alertmanagerConfigNamespaceSelector:
+    matchLabels:
+      alertmanagerConfig: customAlerts
+  alertmanagerConfigSelector:
+    matchLabels:
+      alertmanagerConfig: customReceiver
+EOF
+
+yq eval-all -i 'select(fileIndex == 0) * select(filename == "patch.yaml")' config.yaml patch.yaml
+
+cat << EOF > monitoring-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+EOF
+
+IFS= read -rd '' CONFIG < <(cat config.yaml)
+config=${CONFIG} yq e -i '.data."config.yaml" = strenv(config)' monitoring-config.yaml
+
+oc patch ConfigMap cluster-monitoring-config -n openshift-monitoring --patch $(cat monitoring-config.yaml)
+
+export PD_INTEGRATION_KEY=<your pagerduty integration key>
+
+cat << EOF | oc apply -n alertme -f -
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
   name: pager-duty-apps
   labels:
-    alertmanagerConfig: pager-duty-apps
+    alertmanagerConfig: customReceiver
 spec:
   receivers:
-    - name: pager-duty-apps
-      pagerduty_configs:
-        - routing_key: ${PD_INTEGRATION_KEY}
+  - name: pager-duty-apps
+    pagerdutyConfigs:
+    - severity: info
+      routingKey:
+        name: pager-duty-routing-key
+        key: routingKey
+      client: "AlertMe"
+      description: "PagerDuty AlertMe App"
+      details:
+      - key: num_firing
+        {% raw %}value: '{{ .Alerts.Firing | len }}'{% endraw %}
+      - key: num_resolved
+        {% raw %}value: '{{ .Alerts.Resolved | len }}'{% endraw %}
+      - key: service
+        {% raw %}value: '{{ .CommonLabels.container }}'{% endraw %}
+      - key: alertname
+        {% raw %}value: '{{ .CommonLabels.alertname }}'{% endraw %}
+      - key: metric
+        {% raw %}value: '{{ .CommonLabels.metric }}'{% endraw %}
+      - key: namespace
+        {% raw %}value: '{{ .CommonLabels.namespace }}'{% endraw %}
+      - key: container
+        {% raw %}value: '{{ .CommonLabels.container }}'{% endraw %}
+      - key: pod
+        {% raw %}value: '{{ .CommonLabels.pod }}'{% endraw %}
   route:
     groupBy:
       - namespace
@@ -1093,61 +1152,62 @@ spec:
     groupWait: 30s
     receiver: pager-duty-apps
     repeatInterval: 12h
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pager-duty-routing-key
+data:
+  routingKey: ${PD_INTEGRATION_KEY}
 EOF
 
 ```
 
-## Quarkus Example
-
-```bash
-mvn io.quarkus:quarkus-maven-plugin:2.2.2.Final:create -DprojectGroupId=lab.awesome.my -DprojectArtifactId=alertme -DclassName="lab.awesome.my.Metrics" -Dpath="/count" -Dextensions="quarkus-resteasy-jackson, quarkus-micrometer-registry-prometheus"
-
-cd alertme
-
-cat << EOF > src/main/java/org/stuff/my/api/Greeting.java
-package org.stuff.my.api;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.stuff.my.dto.GreetingDTO;
-
-@Path("/hello/{name}")
-public class Greeting {
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public GreetingDTO hello(@PathParam("name") String name) {
-        GreetingDTO greeting = new GreetingDTO("hello", name);
-        return greeting;
-    }
-}
-EOF
-
-cat << EOF > src/test/java/org/stuff/my/api/GreetingTest.java
-package org.stuff.my.api;
-
-import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-
-@QuarkusTest
-public class GreetingTest {
-
-    @Test
-    public void testHelloEndpoint() {
-        given()
-          .when().get("/hello/Sally")
-          .then()
-             .statusCode(200)
-             .body(is("Hello Sally"));
-    }
-
-}
-EOF
+```yaml
+global:
+  resolve_timeout: 15s
+inhibit_rules:
+  - equal:
+      - namespace
+      - alertname
+    source_match:
+      severity: critical
+    target_match_re:
+      severity: warning|info
+  - equal:
+      - namespace
+      - alertname
+    source_match:
+      severity: warning
+    target_match_re:
+      severity: info
+receivers:
+  - name: Watchdog
+  - name: Default
+    pagerduty_configs:
+      - severity: info
+        routing_key: ${PD_INTEGRATION_KEY}
+        client: "PagerDuty Default"
+        description: "PagerDuty Default Alert"
+        details:
+          num_firing: '{{ .Alerts.Firing | len }}'
+          num_resolved: '{{ .Alerts.Resolved | len }}'
+          service: '{{ .CommonLabels.service }}'
+          alertname: '{{ .CommonLabels.alertname }}'
+          metric: '{{ .CommonLabels.metric }}'
+          namespace: '{{ .CommonLabels.namespace }}'
+          container: '{{ .CommonLabels.container }}'
+          pod: '{{ .CommonLabels.pod }}'
+route:
+  group_by:
+    - namespace
+  group_interval: 15s
+  group_wait: 20s
+  receiver: Default
+  repeat_interval: 12h
+  routes:
+    - match:
+        alertname: Watchdog
+      receiver: Watchdog
 ```
