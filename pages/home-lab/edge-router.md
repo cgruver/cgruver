@@ -81,7 +81,7 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
    uci set dhcp.lan.leasetime='5m'
    uci set dhcp.lan.start='11'
    uci set dhcp.lan.limit='19'
-   uci add_list dhcp.lan.dhcp_option="6,${ROUTER},8.8.8.8,8.8.4.4"
+   uci add_list dhcp.lan.dhcp_option="6,${ROUTER}"
    uci delete dhcp.guest
 
    uci commit dhcp
