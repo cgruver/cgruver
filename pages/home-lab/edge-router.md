@@ -20,9 +20,11 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
     ssh-keygen -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
     ```
 
-1. Connect to your new router:
+1. Connect to your edge router:
 
     For the `GL-MV1000W` you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
+
+    Otherwise, connect from your workstation with a network cable.
 
 1. Copy your SSH public key to the router for login:
 

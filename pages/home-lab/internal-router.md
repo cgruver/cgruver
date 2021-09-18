@@ -12,6 +12,10 @@ tags:
   - openwrt dhcp configuration
 ---
 
+1. Connect to your edge router:
+
+    Connect from your workstation with a network cable.
+
 1. Copy your SSH public key to the router for login:
 
     ```bash
