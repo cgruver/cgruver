@@ -173,6 +173,7 @@ tags:
    uci set network.${ROUTE}.gateway=${DC1_ROUTER}
    uci commit network
    /etc/init.d/network restart
+   /etc/init.d/named restart
    exit
    ```
 
