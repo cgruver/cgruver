@@ -342,6 +342,27 @@ __Remove card from router, put it in the Pi, and boot it up.__
    cat << EOF > /usr/local/www/install/postinstall/rebuildhost.sh
    #!/bin/bash
 
+   for i in "$@"
+   do
+   case ${i} in
+      -r|--reboot)
+      EDGE=true
+      shift
+      ;;
+      -s|--shutdown)
+      REBOOT=FALSE
+      shift
+      ;;
+      *)
+         echo "USAGE:"
+         echo "\nTo initiate an immediate rebuild:"
+         echo "rebuildhost.sh -r"
+         echo "\nTo shutdown and rebuild on the next boot:"
+         echo "rebuildhost.sh -s"
+      ;;
+   esac
+   done
+
    P1=\$(lsblk -l | grep /boot/efi | cut -d" " -f1)
    P2=\$(lsblk -l | grep /boot | grep -v efi | cut -d" " -f1)
    MAJ=\$(lsblk -l | grep \${P1} | tr -s " " | cut -d" " -f2 | cut -d: -f1)

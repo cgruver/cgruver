@@ -471,7 +471,7 @@ If the output is clean, then you are ready to fire it up!
 1. First, tell `dnsmasq` not to hanlde DNS:
 
    ```bash
-   uci set dhcp.@dnsmasq[0].domain='${DOMAIN}'
+   uci set dhcp.@dnsmasq[0].domain=${DOMAIN}
    uci set dhcp.@dnsmasq[0].localuse=0
    uci set dhcp.@dnsmasq[0].cachelocal=0
    uci set dhcp.@dnsmasq[0].port=0
