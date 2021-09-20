@@ -26,6 +26,12 @@ tags:
 
    __Note:__ This command does not affect to install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
 
+   If you want to watch logs for issues:
+
+   ```bash
+   ssh core@okd4-bootstrap.dc1.clg.lab "journalctl -b -f -u release-image.service -u bootkube.service"
+   ```
+
 1. You will see the following, when the bootstrap is complete:
 
    ```bash
@@ -90,10 +96,11 @@ tags:
    oc delete pod --field-selector=status.phase==Succeeded --all-namespaces
    ```
 
-1. Because our install is disconnected from the internet, we need to disable the Operator Marketplace:
+1. Because our install is disconnected from the internet, we need to disable the Operator Marketplace, and the Samples Operator:
 
    ```bash
    oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
+   oc patch configs.samples.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Removed"}}'
    ```
 
 1. Install is Complete!!!
