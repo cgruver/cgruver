@@ -256,6 +256,9 @@ Now, let's build CodeReady Containers with OKD!
 
    ```bash
    cd ../crc
+   git fetch
+   git pull
+   git checkout crc-okd
    make clean
    make embed_bundle
    ```
