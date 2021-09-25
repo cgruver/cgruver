@@ -21,12 +21,13 @@ You need to choose two things to get started:
    ```bash
    export LAB_DOMAIN="my.awesome.lab"
    export EDGE_NETWORK="10.11.12.0"
+   export OKD_LAB_PATH=${HOME}/okd-lab
    ```
 
 1. Create a script to setup your lab network environment variables
 
    ```bash
-   mkdir -p ~/okd-lab/bin
+   mkdir -p ${OKD_LAB_PATH}/bin
 
    IFS=. read -r i1 i2 i3 i4 << EOI
    ${EDGE_NETWORK}
@@ -34,7 +35,7 @@ You need to choose two things to get started:
    BASTION_HOST=${i1}.${i2}.${i3}.10
    EDGE_ROUTER=${i1}.${i2}.${i3}.1
 
-   cat << EOF > ~/okd-lab/bin/setLabEnv.sh
+   cat << EOF > ${OKD_LAB_PATH}/bin/setLabEnv.sh
    export LAB_DOMAIN=${LAB_DOMAIN}
    export EDGE_NETWORK=${EDGE_NETWORK}
    export BASTION_HOST=${BASTION_HOST}

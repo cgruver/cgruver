@@ -36,7 +36,15 @@ Since we are simulating a secure data center environment, let's deny internet ac
    /etc/init.d/firewall restart
    ```
 
+1. Now, go back to your workstation.
+
+   ```bash
+   exit
+   ```
+
 ### Create OpenShift image mirror:
+
+From your workstation, do the following:
 
 1. First, we need a couple of pull secrets:
 

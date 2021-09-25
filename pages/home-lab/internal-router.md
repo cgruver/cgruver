@@ -12,6 +12,10 @@ tags:
   - openwrt dhcp configuration
 ---
 
+1. Connect to your edge router:
+
+    Connect from your workstation with a network cable.
+
 1. Copy your SSH public key to the router for login:
 
     ```bash
@@ -169,6 +173,7 @@ tags:
    uci set network.${ROUTE}.gateway=${DC1_ROUTER}
    uci commit network
    /etc/init.d/network restart
+   /etc/init.d/named restart
    exit
    ```
 
@@ -466,7 +471,7 @@ If the output is clean, then you are ready to fire it up!
 1. First, tell `dnsmasq` not to hanlde DNS:
 
    ```bash
-   uci set dhcp.@dnsmasq[0].domain='${DOMAIN}'
+   uci set dhcp.@dnsmasq[0].domain=${DOMAIN}
    uci set dhcp.@dnsmasq[0].localuse=0
    uci set dhcp.@dnsmasq[0].cachelocal=0
    uci set dhcp.@dnsmasq[0].port=0
