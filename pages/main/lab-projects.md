@@ -9,11 +9,19 @@ description: Kubernetes Home Lab Projects with OpenShift and OKD
 
 ### OpenShift Home Lab:
 
-* [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
-* [Add Worker Nodes to Your Lab](/home-lab/worker-nodes/)
-* [Deploy Ceph Storage](/home-lab/rook-ceph/)
-* [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
-* [Install OpenShift Pipelines](/home-lab/tekton-install/)
+1. [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
+    1. [Prepare your Workstation](/home-lab/workstation/)
+    1. [Edge Router Setup](/home-lab/edge-router/)
+    1. [Bastion Host Setup](/home-lab/bastion-pi/)
+    1. [Sonatype Nexus OSS](/home-lab/nexus-pi/)
+    1. [Internal Router Setup](/home-lab/internal-router/)
+    1. [KVM Host Setup](/home-lab/kvm-host-setup/)
+    1. [Prepare for OpenShift Install](/home-lab/prepare-okd-install/)
+    1. [OpenShift Install](/home-lab/install-okd/)
+1. [Add Worker Nodes to Your Lab](/home-lab/worker-nodes/)
+1. [Deploy Ceph Storage](/home-lab/rook-ceph/)
+1. [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
+1. [Install OpenShift Pipelines](/home-lab/tekton-install/)
 
 ### Build CodeReady Containers for OKD:
 
