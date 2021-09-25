@@ -1211,3 +1211,111 @@ route:
         alertname: Watchdog
       receiver: Watchdog
 ```
+
+## Project Provisioning
+
+```bash
+mkdir ${OKD_LAB_PATH}/project-dir
+cd ${OKD_LAB_PATH}/project-dir
+
+oc adm create-bootstrap-project-template -o yaml > project-template.yaml
+
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: null
+    name: ${PROJECT_NAME}-tekton-monitor-edit
+    namespace: developer-monitoring
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: monitor-edit
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: pipeline
+    namespace: ${PROJECT_NAME}
+
+
+
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: project-provisioning
+objects:
+- apiVersion: project.openshift.io/v1
+  kind: Project
+  metadata:
+    annotations:
+      openshift.io/description: ${PROJECT_DESCRIPTION}
+      openshift.io/display-name: ${PROJECT_DISPLAYNAME}
+      openshift.io/requester: ${PROJECT_REQUESTING_USER}
+    creationTimestamp: null
+    name: ${PROJECT_NAME}
+  spec: {}
+  status: {}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: null
+    name: admin
+    namespace: ${PROJECT_NAME}
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: admin
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: ${PROJECT_ADMIN_USER}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: null
+    name: ${PROJECT_NAME}-tekton-monitoring-edit
+    namespace: developer-monitoring
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: monitoring-edit
+  subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ${PROJECT_NAME}
+parameters:
+- name: PROJECT_NAME
+- name: PROJECT_DISPLAYNAME
+- name: PROJECT_DESCRIPTION
+- name: PROJECT_ADMIN_USER
+- name: PROJECT_REQUESTING_USER
+
+```
+
+### Force Rotation of the initial certs
+
+1. Check for cert expiration:
+
+   ```bash
+   ssh core@okd4-master-0.dc1.${LAB_DOMAIN} "sudo openssl x509 -checkend 2160000 -noout -in /var/lib/kubelet/pki/kubelet-client-current.pem"
+   ```
+
+   Output will look like:
+
+   ```bash
+   Certificate will expire
+   ```
+
+1. Delete the current cert, forcing a new Certificate Signing Request
+
+   ```bash
+   oc delete secrets/csr-signer-signer secrets/csr-signer -n openshift-kube-controller-manager-operator
+   for i in 0 1 2
+   do
+     ssh core@okd4-master-${i}.dc1.${LAB_DOMAIN} "sudo rm -fr /var/lib/kubelet/pki && sudo rm -fr /var/lib/kubelet/kubeconfig && sudo systemctl restart kubelet"
+   done
+   oc get csr
+   oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs oc adm certificate approve
+
+   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i id_ecdsa_crc core@api.crc.testing -- sudo openssl x509 -checkend 2160000 -noout -in /var/lib/kubelet/pki/kubelet-client-current.pem
+   ```

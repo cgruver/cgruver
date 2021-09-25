@@ -96,6 +96,14 @@ tags:
    oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
    ```
 
+1. Before we do anything else, let's save the emergency keys to our cluster:
+
+   ```bash
+   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}/
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}/
+   ```
+
 1. Install is Complete!!!
 
 ### Log into your new cluster console
