@@ -22,10 +22,54 @@ tags:
     cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
     ```
 
+1. Create a YAML file for the cluster network configuration:
+
+   First, we're going to be opinionated about your network configuration.  Let's set the cluster network by adding one to the third octet of your lab network.  So, if your lab network is `10.11.12.0`, then your cluster network will be `10.11.13.0`.  Likewise, your internal router will be `10.11.13.1`, and your ha-proxy load balancer will be `10.11.13.2`
+
+   I am being prescriptive, because later on it will make it easier to add additional clusters to your lab.  I periodically reconfigure my lab to simulate either multiple data centers, or dev/qa/prod environments.  Later, I will show you how to do this.
+
+   ```bash
+   IFS=. read -r i1 i2 i3 i4 << EOI
+   ${EDGE_NETWORK}
+   EOI
+
+   export EDGE_IP=$(echo "${i1}.${i2}.${i3}.$(( 1 + ${i4} ))")
+   export ROUTER=${i1}.${i2}.$(( ${i3} + ${CLUSTER} )).1
+   export LB_IP=${i1}.${i2}.$(( ${i3} + ${CLUSTER} )).2
+   export NETWORK=${i1}.${i2}.$(( ${i3} + 1 )).0
+   ```
+
+   Now create the YAML file:
+
+   ```bash
+   cat << EOF  > ${OKD_LAB_PATH}/dev-cluster.yaml
+   EOF
+   cluster-sub-domain: dev
+   cluster-name: okd4
+   edge-ip: ${EDGE_IP}
+   router: ${ROUTER}
+   lb-ip: ${LB_IP}
+   network: ${NETWORK}
+   netmask: 255.255.255.0
+   bootstrap:
+     kvm-host: kvm-host01
+     memory: 12288
+     cpu: 4
+     root_vol: 50
+   control-plane:
+     memory: 20480
+     cpu: 6
+     root_vol: 100
+     kvm-hosts:
+     - kvm-host01
+     - kvm-host01
+     - kvm-host01
+   ```
+
 1. Create an environment script to help configure the router:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/createEnvScript.sh -c=1
+   ${OKD_LAB_PATH}/bin/createEnvScript.sh -c=${OKD_LAB_PATH}/dev-cluster.yaml
    cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
    ```
 
@@ -168,9 +212,9 @@ tags:
    unset ROUTE
    ROUTE=$(uci add network route)
    uci set network.${ROUTE}.interface=lan
-   uci set network.${ROUTE}.target=${DC1_NETWORK}
+   uci set network.${ROUTE}.target=${DEV_NETWORK}
    uci set network.${ROUTE}.netmask=${NETMASK}
-   uci set network.${ROUTE}.gateway=${DC1_ROUTER}
+   uci set network.${ROUTE}.gateway=${DEV_ROUTER}
    uci commit network
    /etc/init.d/network restart
    /etc/init.d/named restart
@@ -180,8 +224,8 @@ tags:
 1. Now, we should be able to log into our new internal network router:
 
    ```bash
-   DC1_ROUTER=$(ssh root@${EDGE_ROUTER} ". /root/.profile ; echo \${DC1_ROUTER}")
-   ssh root@${DC1_ROUTER}
+   DEV_ROUTER=$(ssh root@${EDGE_ROUTER} ". /root/.profile ; echo \${DEV_ROUTER}")
+   ssh root@${DEV_ROUTER}
    ```
 
 1. Install some additional packages on your router:
@@ -360,24 +404,6 @@ tags:
    kvm-host01.${DOMAIN}.      IN      A      ${NET_PREFIX}.200
    kvm-host02.${DOMAIN}.      IN      A      ${NET_PREFIX}.201
    kvm-host03.${DOMAIN}.      IN      A      ${NET_PREFIX}.202
-   okd4-bootstrap.${DOMAIN}.  IN      A      ${NET_PREFIX}.49
-   okd4-lb01.${DOMAIN}.       IN      A      ${LB_IP}
-   *.apps.okd4.${DOMAIN}.     IN      A      ${LB_IP}
-   api.okd4.${DOMAIN}.        IN      A      ${LB_IP}
-   api-int.okd4.${DOMAIN}.    IN      A      ${LB_IP}
-   okd4-master-0.${DOMAIN}.   IN      A      ${NET_PREFIX}.60
-   etcd-0.${DOMAIN}.          IN      A      ${NET_PREFIX}.60
-   okd4-master-1.${DOMAIN}.   IN      A      ${NET_PREFIX}.61
-   etcd-1.${DOMAIN}.          IN      A      ${NET_PREFIX}.61
-   okd4-master-2.${DOMAIN}.   IN      A      ${NET_PREFIX}.62
-   etcd-2.${DOMAIN}.          IN      A      ${NET_PREFIX}.62
-   okd4-worker-0.${DOMAIN}.   IN      A      ${NET_PREFIX}.70
-   okd4-worker-1.${DOMAIN}.   IN      A      ${NET_PREFIX}.71
-   okd4-worker-2.${DOMAIN}.   IN      A      ${NET_PREFIX}.72
-
-   _etcd-server-ssl._tcp.okd4.${DOMAIN}    86400     IN    SRV     0    10    2380    etcd-0.okd4.${DOMAIN}.
-   _etcd-server-ssl._tcp.okd4.${DOMAIN}    86400     IN    SRV     0    10    2380    etcd-1.okd4.${DOMAIN}.
-   _etcd-server-ssl._tcp.okd4.${DOMAIN}    86400     IN    SRV     0    10    2380    etcd-2.okd4.${DOMAIN}.
    EOF
    ```
 
@@ -400,13 +426,6 @@ tags:
    200.${NET_PREFIX_ARPA}   IN      PTR     kvm-host01.${DOMAIN}. 
    201.${NET_PREFIX_ARPA}   IN      PTR     kvm-host02.${DOMAIN}. 
    202.${NET_PREFIX_ARPA}   IN      PTR     kvm-host03.${DOMAIN}. 
-   49.${NET_PREFIX_ARPA}    IN      PTR     okd4-bootstrap.${DOMAIN}.  
-   60.${NET_PREFIX_ARPA}    IN      PTR     okd4-master-0.${DOMAIN}. 
-   61.${NET_PREFIX_ARPA}    IN      PTR     okd4-master-1.${DOMAIN}. 
-   62.${NET_PREFIX_ARPA}    IN      PTR     okd4-master-2.${DOMAIN}. 
-   70.${NET_PREFIX_ARPA}    IN      PTR     okd4-worker-0.${DOMAIN}. 
-   71.${NET_PREFIX_ARPA}    IN      PTR     okd4-worker-1.${DOMAIN}. 
-   72.${NET_PREFIX_ARPA}    IN      PTR     okd4-worker-2.${DOMAIN}. 
    EOF
    ```
 

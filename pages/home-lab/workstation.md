@@ -3,8 +3,9 @@ layout: page
 permalink: /home-lab/workstation/
 title: Configuring Your Workstation
 ---
+This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux disto.  If you are running Windows, you might try the Windows Subsystem For Linux.
 
-You need to choose two things to get started:
+1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
 
 1. Select a domain to use for your lab.  This can be a fake domain, it is just for your internal lab network.
 
@@ -21,43 +22,40 @@ You need to choose two things to get started:
    ```bash
    export LAB_DOMAIN="my.awesome.lab"
    export EDGE_NETWORK="10.11.12.0"
-   export OKD_LAB_PATH=${HOME}/okd-lab
    ```
 
-1. Create a script to setup your lab network environment variables
+1. Create a config file to setup your lab network environment variables
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/bin
+   mkdir -p ${HOME}/okd-lab/bin
 
-   IFS=. read -r i1 i2 i3 i4 << EOI
-   ${EDGE_NETWORK}
-   EOI
-   BASTION_HOST=${i1}.${i2}.${i3}.10
-   EDGE_ROUTER=${i1}.${i2}.${i3}.1
-
-   cat << EOF > ${OKD_LAB_PATH}/bin/setLabEnv.sh
+   cat << EOF > ${HOME}/okd-lab/bin/setLabEnv.sh
+   export OKD_LAB_PATH=\${HOME}/okd-lab
    export LAB_DOMAIN=${LAB_DOMAIN}
    export EDGE_NETWORK=${EDGE_NETWORK}
-   export BASTION_HOST=${BASTION_HOST}
-   export EDGE_ROUTER=${EDGE_ROUTER}
+   IFS=. read -r i1 i2 i3 i4 << EOI
+   \${EDGE_NETWORK}
+   EOI
+   export BASTION_HOST=\${i1}.\${i2}.\${i3}.10
+   export EDGE_ROUTER=\${i1}.\${i2}.\${i3}.1
    export NETMASK=255.255.255.0
-   export OKD_LAB_PATH=${HOME}/okd-lab
+   export OKD_LAB_PATH=\${HOME}/okd-lab
    export OKD_NIGHTLY_REGISTRY=registry.svc.ci.openshift.org/origin/release
    export OKD_STABLE_REGISTRY=quay.io/openshift/okd
-   export LOCAL_REGISTRY=nexus.${LAB_DOMAIN}:5001
-   export LOCAL_SECRET_JSON=${OKD_LAB_PATH}/pull_secret.json
+   export LOCAL_REGISTRY=nexus.\${LAB_DOMAIN}:5001
+   export LOCAL_SECRET_JSON=\${OKD_LAB_PATH}/pull_secret.json
    export PATH=\$PATH:${OKD_LAB_PATH}/bin
    EOF
 
-   chmod 750 ~/okd-lab/bin/setLabEnv.sh
+   chmod 750 ${HOME}/okd-lab/bin/setLabEnv.sh
    ```
 
-1. If you like, add `~/okd-lab/bin/setLabEnv.sh` to be included in your shell profile on login.
+1. If you like, add `${HOME}/okd-lab/bin/setLabEnv.sh` to be included in your shell profile on login.
 
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   . ~/okd-lab/bin/setLabEnv.sh
+   . ${HOME}/okd-lab/bin/setLabEnv.sh
    cd ${OKD_LAB_PATH}
    git clone https://github.com/cgruver/okd-home-lab.git
    ```

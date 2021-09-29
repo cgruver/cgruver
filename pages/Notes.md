@@ -1319,3 +1319,12 @@ parameters:
 
    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i id_ecdsa_crc core@api.crc.testing -- sudo openssl x509 -checkend 2160000 -noout -in /var/lib/kubelet/pki/kubelet-client-current.pem
    ```
+
+### YAML manipulation
+
+```bash
+yq e .master-nodes inventory.yaml | yq e '.[0]' -
+yq e .master-nodes inventory.yaml | yq e 'length' -
+yq e .master-nodes inventory.yaml | yq e '.[0].hostname' -
+
+```
