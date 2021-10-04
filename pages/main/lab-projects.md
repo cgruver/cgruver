@@ -14,6 +14,7 @@ description: Kubernetes Home Lab Projects with OpenShift and OKD
     1. [Edge Router Setup](/home-lab/edge-router/)
     1. [Bastion Host Setup](/home-lab/bastion-pi/)
     1. [Sonatype Nexus OSS](/home-lab/nexus-pi/)
+    1. [Dev Cluster Router](/home-lab/dev-router-prep/)
     1. [Internal Router Setup](/home-lab/internal-router/)
     1. [KVM Host Setup](/home-lab/kvm-host-setup/)
     1. [Prepare for OpenShift Install](/home-lab/prepare-okd-install/)

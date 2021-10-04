@@ -224,4 +224,4 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 
 1. Next, set up the router for your OpenShift cluster:
 
-   __[Internal Router](/home-lab/internal-router/)__
+   __[Dev Cluster Router](/home-lab/dev-router-prep/)__

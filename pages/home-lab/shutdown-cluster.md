@@ -14,35 +14,35 @@ published: false
 1. Cordon, and Drain the `worker` nodes:  (This will take a while, be patient)
 
    ```bash
-   for i in 0 1 2 ; do oc adm cordon okd4-worker-${i}.dc1.${LAB_DOMAIN} ; done
+   for i in 0 1 2 ; do oc adm cordon okd4-worker-${i}.dev.${LAB_DOMAIN} ; done
 
-   for i in 0 1 2 ; do oc adm drain okd4-worker-${i}.dc1.${LAB_DOMAIN} --ignore-daemonsets --force --grace-period=60 --delete-emptydir-data; done
+   for i in 0 1 2 ; do oc adm drain okd4-worker-${i}.dev.${LAB_DOMAIN} --ignore-daemonsets --force --grace-period=60 --delete-emptydir-data; done
    ```
 
 1. Shut down the worker nodes: (Wait for them to all shut down before proceeding)
 
    ```bash
-   for i in 0 1 2 ; do ssh core@okd4-worker-${i}.dc1.${LAB_DOMAIN} "sudo shutdown -h now"; done
-   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dc1.${LAB_DOMAIN} "virsh list --all" ; done
+   for i in 0 1 2 ; do ssh core@okd4-worker-${i}.dev.${LAB_DOMAIN} "sudo shutdown -h now"; done
+   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dev.${LAB_DOMAIN} "virsh list --all" ; done
    ```
 
 Shut down the master nodes: (Wait for them to all shut down before proceeding)
 
    ```bash
-   for i in 0 1 2 ; do ssh core@okd4-master-${i}.dc1.${LAB_DOMAIN} "sudo shutdown -h now"; done
-   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dc1.${LAB_DOMAIN} "virsh list --all" ; done
+   for i in 0 1 2 ; do ssh core@okd4-master-${i}.dev.${LAB_DOMAIN} "sudo shutdown -h now"; done
+   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dev.${LAB_DOMAIN} "virsh list --all" ; done
    ```
 
 Shut down the kvm-hosts:
 
    ```bash
-   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dc1.${LAB_DOMAIN} "shutdown -h now" ; done
+   for i in 1 2 3 ; do ssh root@kvm-host0${i}.dev.${LAB_DOMAIN} "shutdown -h now" ; done
    ```
 
 Shutdown the internal router and bastion:
 
    ```bash
-   ssh root@router.dc1.${LAB_DOMAIN} "poweroff"
+   ssh root@router.dev.${LAB_DOMAIN} "poweroff"
    ssh root@bastion.${LAB_DOMAIN} "poweroff"
    ```
 
@@ -88,7 +88,7 @@ Finally, shutdown your edge router: (Note, this will disconnect you from the int
     okd4-worker-2.your.domain.org   Ready    worker         21d   v1.17.1
 
 
-    for i in 0 1 2 ; do oc adm uncordon okd4-worker-${i}.dc1.${LAB_DOMAIN} ; done
+    for i in 0 1 2 ; do oc adm uncordon okd4-worker-${i}.dev.${LAB_DOMAIN} ; done
 
     oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed"}}'
    ```

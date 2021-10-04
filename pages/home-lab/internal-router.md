@@ -11,125 +11,13 @@ tags:
   - openwrt ipxe boot
   - openwrt dhcp configuration
 ---
-
-1. Connect to your edge router:
-
-    Connect from your workstation with a network cable.
-
-1. Copy your SSH public key to the router for login:
-
-    ```bash
-    cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
-    ```
-
-1. Create a YAML file for the cluster network configuration:
-
-   First, we're going to be opinionated about your network configuration.  Let's set the cluster network by adding one to the third octet of your lab network.  So, if your lab network is `10.11.12.0`, then your cluster network will be `10.11.13.0`.  Likewise, your internal router will be `10.11.13.1`, and your ha-proxy load balancer will be `10.11.13.2`
-
-   I am being prescriptive, because later on it will make it easier to add additional clusters to your lab.  I periodically reconfigure my lab to simulate either multiple data centers, or dev/qa/prod environments.  Later, I will show you how to do this.
+1. Install some additional packages on your router:
 
    ```bash
-   IFS=. read -r i1 i2 i3 i4 << EOI
-   ${EDGE_NETWORK}
-   EOI
-
-   export EDGE_IP=$(echo "${i1}.${i2}.${i3}.$(( 1 + ${i4} ))")
-   export ROUTER=${i1}.${i2}.$(( ${i3} + ${CLUSTER} )).1
-   export LB_IP=${i1}.${i2}.$(( ${i3} + ${CLUSTER} )).2
-   export NETWORK=${i1}.${i2}.$(( ${i3} + 1 )).0
+   opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools wget haproxy bash shadow uhttpd
    ```
 
-   Now create the YAML file:
-
-   ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/dev-cluster.yaml
-   EOF
-   cluster-sub-domain: dev
-   cluster-name: okd4
-   edge-ip: ${EDGE_IP}
-   router: ${ROUTER}
-   lb-ip: ${LB_IP}
-   network: ${NETWORK}
-   netmask: 255.255.255.0
-   bootstrap:
-     kvm-host: kvm-host01
-     memory: 12288
-     cpu: 4
-     root_vol: 50
-   control-plane:
-     memory: 20480
-     cpu: 6
-     root_vol: 100
-     kvm-hosts:
-     - kvm-host01
-     - kvm-host01
-     - kvm-host01
-   ```
-
-1. Create an environment script to help configure the router:
-
-   ```bash
-   ${OKD_LAB_PATH}/bin/createEnvScript.sh -c=${OKD_LAB_PATH}/dev-cluster.yaml
-   cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
-   ```
-
-1. Add env vars to the edge router for additional configuration:
-
-   ```bash
-   cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@${EDGE_ROUTER} "cat >> /root/.profile"
-   ```
-
-1. Add a forwarding zone to the edge router DNS:
-
-   ```bash
-   cat ${OKD_LAB_PATH}/work-dir/edge-zone | ssh root@${EDGE_ROUTER} "cat >> /etc/bind/named.conf"
-   ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
-   rm -rf ${OKD_LAB_PATH}/work-dir
-   ```
-
-1. Log into the router:
-
-    ```bash
-    ssh root@192.168.8.1
-    ```
-
-1. Set a root password:
-
-    ```bash
-    passwd
-    ```
-
-1. Create an SSH key pair:
-
-   ```bash
-   mkdir -p /root/.ssh
-   dropbearkey -t rsa -s 4096 -f /root/.ssh/id_dropbear
-   ```
-
-1. Disable password login:
-
-   ```bash
-   uci set dropbear.@dropbear[0].PasswordAuth='off'
-   uci set dropbear.@dropbear[0].RootPasswordAuth='off'
-   uci commit dropbear
-   ```
-
-1. Configure the IP address:
-
-   ```bash
-   uci set network.wan.proto='static'
-   uci set network.wan.ipaddr=${EDGE_IP}
-   uci set network.wan.netmask=${NETMASK}
-   uci set network.wan.gateway=${EDGE_ROUTER}
-   uci set network.wan.hostname=router.${DOMAIN}
-   uci set network.wan.dns=${EDGE_ROUTER}
-   uci set network.lan.ipaddr=${ROUTER}
-   uci set network.lan.netmask=${NETMASK}
-   uci set network.lan.hostname=router.${DOMAIN}
-   uci delete network.guest
-   uci delete network.wan6
-   uci commit network
-   ```
+## Configure TFTP and PXE Booting
 
 1. Configure DHCP and enable TFTP for PXE boot:
 
@@ -159,82 +47,6 @@ tags:
    uci set dhcp.ipxe.force='1'
    uci commit dhcp
    ```
-
-1. Configure the `wan` firewall zone to accept traffic and disable NAT:
-
-   ```bash
-   unset zone
-   let i=0
-   let j=1
-   while [[ ${j} -eq 1 ]]
-   do
-     zone=$(uci get firewall.@zone[${i}].name)
-     let rc=${?}
-     if [[ ${rc} -ne 0 ]]
-     then
-       let j=2
-      elif [[ ${zone} == "wan" ]]
-      then
-        let j=0
-      else
-        let i=${i}+1
-      fi
-   done
-   if [[ ${j} -eq 0 ]]
-   then
-     uci set firewall.@zone[${i}].input='ACCEPT'
-     uci set firewall.@zone[${i}].output='ACCEPT'
-     uci set firewall.@zone[${i}].forward='ACCEPT'
-     uci set firewall.@zone[${i}].masq='0'
-     uci commit firewall
-   else
-     echo "FIREWALL ZONE NOT FOUND, CCONFIGURE MANUALLY WITH LUCI"
-   fi
-
-   unset ENTRY
-   ENTRY=$(uci add firewall forwarding)
-   uci set firewall.${ENTRY}.src=wan
-   uci set firewall.${ENTRY}.dest=lan
-   uci commit firewall
-   /etc/init.d/firewall restart
-   ```
-
-1. Now power off the router, connect to the uplink port on the router to one of the LAN ports on your edge router:
-
-   ```bash
-   poweroff
-   ```
-
-1. Before we can log into the internal network router, we need to create a static route in the edge router:
-
-   ```bash
-   ssh root@${EDGE_ROUTER}
-   unset ROUTE
-   ROUTE=$(uci add network route)
-   uci set network.${ROUTE}.interface=lan
-   uci set network.${ROUTE}.target=${DEV_NETWORK}
-   uci set network.${ROUTE}.netmask=${NETMASK}
-   uci set network.${ROUTE}.gateway=${DEV_ROUTER}
-   uci commit network
-   /etc/init.d/network restart
-   /etc/init.d/named restart
-   exit
-   ```
-
-1. Now, we should be able to log into our new internal network router:
-
-   ```bash
-   DEV_ROUTER=$(ssh root@${EDGE_ROUTER} ". /root/.profile ; echo \${DEV_ROUTER}")
-   ssh root@${DEV_ROUTER}
-   ```
-
-1. Install some additional packages on your router:
-
-   ```bash
-   opkg update && opkg install ip-full procps-ng-ps bind-server bind-tools wget haproxy bash shadow
-   ```
-
-## Configure TFTP and PXE Booting
 
 1. Download the UEFI iPXE boot image:
 
@@ -325,7 +137,6 @@ tags:
 
     forwarders { ${EDGE_ROUTER}; };
 
-    dnssec-enable yes;
     dnssec-validation yes;
 
     /* Path to ISC DLV key */
@@ -401,9 +212,6 @@ tags:
    router.${DOMAIN}.         IN      A      ${ROUTER}
 
    ; ${NETWORK}/${CIDR} - A records
-   kvm-host01.${DOMAIN}.      IN      A      ${NET_PREFIX}.200
-   kvm-host02.${DOMAIN}.      IN      A      ${NET_PREFIX}.201
-   kvm-host03.${DOMAIN}.      IN      A      ${NET_PREFIX}.202
    EOF
    ```
 
@@ -423,9 +231,6 @@ tags:
 
    ; PTR Records
    1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
-   200.${NET_PREFIX_ARPA}   IN      PTR     kvm-host01.${DOMAIN}. 
-   201.${NET_PREFIX_ARPA}   IN      PTR     kvm-host02.${DOMAIN}. 
-   202.${NET_PREFIX_ARPA}   IN      PTR     kvm-host03.${DOMAIN}. 
    EOF
    ```
 
@@ -438,56 +243,15 @@ tags:
    chown -R bind:bind /etc/bind
    ```
 
-## Let's talk about what we just set up:
-
-The DNS configuration, starting with the A records, (forward lookup zone).
-
-In the example file, there are some entries to take note of:
-
-1. The KVM hosts are named `kvm-host01`, `kvm-host02`, etc...  Modify this to reflect the number of KVM hosts that your lab setup with have.  The example allows for three hosts.
-  
-1. The Bastion Host is `bastion`.
-  
-1. The Sonatype Nexus server gets it's own alias A record, `nexus.your.domain.org`.  This is not strictly necessary, but I find it useful.  For your lab, make sure that this A record reflects the IP address of the server where you have installed Nexus.  In this example, it is installed on the bastion host.
-  
-1. These example files contain references for a full OpenShift cluster with an haproxy load balancer.  The OKD cluster has three each of master, and worker (compute) nodes.  In this tutorial, you will build a minimal cluster with three master nodes which are also schedulable as workers.
-
-     __Remove or add entries to these files as needed for your setup.__
-  
-1. There is one wildcard record that OKD needs: __`okd4` is the name of the cluster.__
-  
-   ```bash
-   *.apps.okd4.your.domain.org`
-   ```
-
-   The "apps" record will be for all of the applications that you deploy into your OKD cluster.
-
-   This wildcard A record needs to point to the entry point for your OKD cluster.  If you build a cluster with three master nodes like we are doing here, you will need a load balancer in front of the cluster.  In this case, your wildcard A records will point to the IP address of your load balancer.  Never fear, I will show you how to deploy an HA-Proxy load balancer.  
-
-1. There are two A records for the Kubernetes API, internal & external.  In this case, the same load balancer is handling both.  So, they both point to the IP address of the load balancer.  __Again, `okd4` is the name of the cluster.__
-
-   ```bash
-   api.okd4.your.domain.org.        IN      A      10.10.11.50
-   api-int.okd4.your.domain.org.    IN      A      10.10.11.50
-   ```
-
-1. There are three SRV records for the etcd hosts.
-
-   ```bash
-   _etcd-server-ssl._tcp.okd4.your.domain.org    86400     IN    SRV     0    10    2380    etcd-0.okd4.your.domain.org.
-   _etcd-server-ssl._tcp.okd4.your.domain.org    86400     IN    SRV     0    10    2380    etcd-1.okd4.your.domain.org.
-   _etcd-server-ssl._tcp.okd4.your.domain.org    86400     IN    SRV     0    10    2380    etcd-2.okd4.your.domain.org.
-   ```
-
-When you have completed all of your configuration changes, you can test the configuration with the following command:
+1. Test the Bind configuration with the following command:
 
    ```bash
    named-checkconf
    ```
 
-If the output is clean, then you are ready to fire it up!
+   If the output is clean, then you are ready to fire it up!
 
-1. First, tell `dnsmasq` not to hanlde DNS:
+1. Now, tell `dnsmasq` not to hanlde DNS:
 
    ```bash
    uci set dhcp.@dnsmasq[0].domain=${DOMAIN}
@@ -535,6 +299,7 @@ If the output is clean, then you are ready to fire it up!
    uci add_list uhttpd.main.listen_https="127.0.0.1:443"
    uci commit uhttpd
    /etc/init.d/uhttpd enable
+   /etc/init.d/uhttpd stop
    /etc/init.d/uhttpd start
    ```
 

@@ -7,8 +7,6 @@ description: Add worker nodes to OpenShift cluster with OKD
 
 You will need another NUC like the one that you used to build the initial lab.  Like before, it will need at least 4 cores, 1TB NVMe, and 64GB of RAM.
 
-1. First, make sure that you have DNS A and PTR records for the new host. The DNS configuration that we set up previously included three KVM hosts, kvm-host01, kvm-host02, and kvm-host03.  So, let's assume that this host is going to be `kvm-host02`.
-
 1. Update the helper scripts for this project:
 
    ```bash
@@ -19,7 +17,21 @@ You will need another NUC like the one that you used to build the initial lab.  
    chmod 700 ${OKD_LAB_PATH}/bin/*.sh
    ```
 
-1. Read the MAC address off of the bottom of the NUC. Then create the iPXE and kickstart files with the helper script:
+1. Add another `kvm-hosts` entry to your lab config file:
+
+   ```bash
+   cat << EOF >> ${OKD_LAB_PATH}/lab-config/kustomize.yaml
+   kvm-hosts:
+   - host-name: kvm-host02
+     mac-addr: <mac_addr>
+     ip-octet: 201
+     disks:
+       disk1: nvme0n1
+       disk2: NA
+   EOF
+   ```
+
+1. Read the `MAC` address off of the bottom of the NUC and then edit `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` replacing `<mac_addr>` with the `MAC` address of your new NUC:
 
    ```bash
    ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host02 -m=<MAC Address Here> -d=nvme0n1
@@ -30,7 +42,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Verify that everything looks good on the new host:
 
    ```bash
-   ssh root@kvm-host02.dc1.${LAB_DOMAIN}
+   ssh root@kvm-host02.dev.${LAB_DOMAIN}
    # Take a look around
    exit
    ```
@@ -84,7 +96,7 @@ Since we now have three dedicated worker nodes for our applications, let's move 
    ```bash
    for i in 0 1 2
    do
-   oc label nodes okd4-master-${i}.dc1.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
+   oc label nodes okd4-master-${i}.dev.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
    done
    ```
 

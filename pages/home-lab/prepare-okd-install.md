@@ -26,9 +26,9 @@ Since we are simulating a secure data center environment, let's deny internet ac
    set firewall.${new_rule}.enabled='1'
    set firewall.${new_rule}.target='REJECT'
    set firewall.${new_rule}.src='lan'
-   set firewall.${new_rule}.src_ip='${DC1_NETWORK}/24'
+   set firewall.${new_rule}.src_ip='${DEV_NETWORK}/24'
    set firewall.${new_rule}.dest='wan'
-   set firewall.${new_rule}.name='DC1_BLOCK'
+   set firewall.${new_rule}.name='DEV_BLOCK'
    set firewall.${new_rule}.proto='all'
    set firewall.${new_rule}.family='ipv4'
    EOI
@@ -107,36 +107,11 @@ From your workstation, do the following:
 
 1. First, let's prepare to deploy the VMs for our OKD cluster by preparing the Cluster VM inventory file:
 
-   This is not an ansible inventory like you might have encountered with OKD 3.11.  This is something I made up for my lab that allows me to quickly create, manage, and destroy virtual machines.
-
-   The file is structured in such a way that it can be parsed by the utility scripts provided in this project.  The columns in the comma delimited file are used for the following purposes:
-
-   | Column | Name | Description |
-   |-|-|-|
-   | 1 | HOST_NODE  | The hypervisor host that this VM will be provisioned on |
-   | 2 | GUEST_HOSTNAME | The hostname of this VM, must be in DNS with `A` and `PTR` records |
-   | 3 | MEMORY | The amount of RAM in MB to allocate to this VM |
-   | 4 | CPU | The number of vCPUs to allocate to this VM |
-   | 5 | ROOT_VOL | The size in GB of the first HDD to provision |
-   | 6 | DATA_VOL | The size in GB of the second HDD to provision; `0` for none |
-   | 7 | ROLE | The OKD role that this VM will play: `bootstrap`, `master`, or `worker` |
-
-   Create the inventory file:
-
-   ```bash
-   cat << EOF > ${OKD_LAB_PATH}/node-inventory
-   kvm-host01,okd4-bootstrap,12288,4,50,0,bootstrap
-   kvm-host01,okd4-master-0,20480,6,100,0,master
-   kvm-host01,okd4-master-1,20480,6,100,0,master
-   kvm-host01,okd4-master-2,20480,6,100,0,master
-   EOF
-   ```
-
 1. Create the manifests and VMs:
 
    ```bash
    cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/id_rsa.pub
-   ${OKD_LAB_PATH}/bin/initCluster.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   ${OKD_LAB_PATH}/bin/deployOkdNodes.sh -i -c=${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
    ```
 
     This script does a whole lot of work for us.  Crack it open and take a look.

@@ -52,7 +52,7 @@ tags:
 1. Log into the OpenShift cluster:
 
    ```bash
-   oc login -u admin https://api.okd4.dc1.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
    ```
 
 1. Create a list of the images needed for Tekton Pipelines and Triggers:
@@ -213,7 +213,7 @@ tags:
    git clone https://github.com/tektoncd/operator.git
    cd operator
    git checkout release-v0.23
-   oc login -u admin https://api.okd4.dc1.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
    make TARGET=openshift CR=config/default clean
    cd
    rm -rf ${OKD_LAB_PATH}/work-dir

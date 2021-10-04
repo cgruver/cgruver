@@ -1328,3 +1328,8 @@ yq e .master-nodes inventory.yaml | yq e 'length' -
 yq e .master-nodes inventory.yaml | yq e '.[0].hostname' -
 
 ```
+
+### Mac OS DNS
+```bash
+sudo killall -HUP mDNSResponder
+```

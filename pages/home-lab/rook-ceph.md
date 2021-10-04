@@ -125,7 +125,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    ```bash
    for i in 0 1 2
    do
-         oc label nodes okd4-${CEPH_NODE}-${i}.dc1.${LAB_DOMAIN} role=storage-node
+         oc label nodes okd4-${CEPH_NODE}-${i}.dev.${LAB_DOMAIN} role=storage-node
    done
    ```
 

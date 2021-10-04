@@ -383,6 +383,18 @@ __Remove card from router, put it in the Pi, and boot it up.__
    dropbearkey -y -f /root/.ssh/id_dropbear | grep "ssh-" > /usr/local/www/install/postinstall/authorized_keys
    ```
 
+1. Log off of the bastion host:
+
+   ```bash
+   exit
+   ```
+
+1. Copy the SSH public key from your workstation to the authorized_keys file hosted on the bastion pi:
+
+   ```bash
+   cat ~/.ssh/id_rsa.pub | ssh root@${BASTION_HOST} "cat >> /usr/local/www/install/postinstall/authorized_keys"
+   ```
+
 1. Next, set up Nexus for your lab's image registry:
 
    __[Sonatype Nexus OSS](/home-lab/nexus-pi/)__

@@ -15,7 +15,8 @@ tags:
 1. Start the nodes:
 
    ```bash
-   startNodes.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   startNodes.sh -b -c=${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   startNodes.sh -m -c=${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
    ```
 
 1. Monitor the bootstrap process:
@@ -29,13 +30,13 @@ tags:
    If you want to watch logs for issues:
 
    ```bash
-   ssh core@okd4-bootstrap.dc1.clg.lab "journalctl -b -f -u release-image.service -u bootkube.service"
+   ssh core@okd4-bootstrap.dev.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
 1. You will see the following, when the bootstrap is complete:
 
    ```bash
-   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4.dc1.my.awesome.lab:6443... 
+   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4.dev.my.awesome.lab:6443... 
    DEBUG Still waiting for the Kubernetes API: an error on the server ("") has prevented the request from succeeding 
    INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
    INFO Waiting up to 30m0s for bootstrapping to complete... 
@@ -50,8 +51,7 @@ tags:
 1. When the bootstrap process is complete, remove the bootstrap node:
 
    ```bash
-   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
-   destroyBootstrap.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   destroyNodes.sh -b -c=${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
    ```
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
@@ -71,7 +71,7 @@ tags:
    DEBUG OpenShift console route is admitted          
    INFO Install complete!                            
    INFO To access the cluster as the system:admin user when using 'oc', run 'export KUBECONFIG=/Users/yourhome/okd-lab/okd-install-dir/auth/kubeconfig' 
-   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4.dc1.my.awesome.lab 
+   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4.dev.my.awesome.lab 
    INFO Login to the console with user: "kubeadmin", and password: "AhnsQ-CGRqg-gHu2h-rYZw3" 
    DEBUG Time elapsed per stage:                      
    DEBUG Cluster Operators: 13m49s                    
@@ -81,6 +81,7 @@ tags:
 1. Create an empty volume for the internal registry:
 
    ```bash
+   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
    oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed","storage":{"emptyDir":{}}}}'
    ```
 
@@ -106,9 +107,9 @@ tags:
 1. Before we do anything else, let's save the emergency keys to our cluster:
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}/
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.dc1.${LAB_DOMAIN}/
+   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/
    ```
 
 1. Install is Complete!!!
@@ -120,18 +121,18 @@ tags:
    * Mac OS:
 
      ```bash
-     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.dc1.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dc1.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.dev.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dev.${LAB_DOMAIN}.crt
      ```
 
    * Linux:
 
      ```bash
-     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.dc1.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.dc1.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.dev.${LAB_DOMAIN}.crt
      update-ca-trust
      ```
 
-1. Point your browser to the url listed at the completion of install: `https://console-openshift-console.apps.okd4.dc1.my.awesome.lab`
+1. Point your browser to the url listed at the completion of install: `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
 
    You will have to accept the TLS certs for your new cluster.
 
@@ -198,7 +199,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Now you can verify that the new user account works:
 
    ```bash
-   oc login -u admin https://api.okd4.dc1.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
    ```
 
 1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:

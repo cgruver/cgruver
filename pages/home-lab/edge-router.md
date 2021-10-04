@@ -72,6 +72,7 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
    ```bash
    uci set network.lan.ipaddr="${ROUTER}"
    uci set network.lan.netmask=${NETMASK}
+   uci set network.lan.hostname=router.${DOMAIN}
    uci delete network.guest
    uci delete network.wan6
    uci commit network
@@ -351,7 +352,14 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
    /etc/init.d/dnsmasq restart
    ```
 
-1. Then, enable Bind and reboot the router:
+1. Then, tell the router to use itself for DNS.
+
+   ```bash
+   uci set network.wan.dns=${ROUTER}
+   uci commit network
+   ```
+
+1. Finally, enable Bind and reboot the router:
 
    ```bash
    /etc/init.d/named enable
