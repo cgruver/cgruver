@@ -17,10 +17,14 @@ You will need another NUC like the one that you used to build the initial lab.  
    chmod 700 ${OKD_LAB_PATH}/bin/*.sh
    ```
 
+1. Let's install another excellent tool for manipulating YAML manifests: Kustomize - [https://kustomize.io](https://kustomize.io)
+
 1. Add another `kvm-hosts` entry to your lab config file:
 
    ```bash
    cat << EOF >> ${OKD_LAB_PATH}/lab-config/kustomize.yaml
+   resources:
+   - ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
    kvm-hosts:
    - host-name: kvm-host02
      mac-addr: <mac_addr>
