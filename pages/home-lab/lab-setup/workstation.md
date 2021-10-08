@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: single
 permalink: /home-lab/workstation/
 title: Configuring Your Workstation
 ---

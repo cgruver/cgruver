@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/internal-router/
 title: Internal Network Router
 description: Configure OpenWRT as a router with HA Proxy and a Bind DNS Server

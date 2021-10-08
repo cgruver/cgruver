@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 title: Add Worker Nodes
 permalink: /home-lab/worker-nodes/
 description: Add worker nodes to OpenShift cluster with OKD

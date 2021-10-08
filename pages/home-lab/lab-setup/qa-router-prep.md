@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/qa-router-prep/
 title: QA Cluster Network Router - Prep
 description: Configure OpenWRT as a router with HA Proxy and a Bind DNS Server

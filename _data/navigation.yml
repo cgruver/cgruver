@@ -1,0 +1,9 @@
+# main links
+main:
+  - title: "About Me"
+    url: /about/
+  - title: "Lab Projects"
+    url: /lab-projects/
+  - title: "Videos"
+    url: /videos/
+

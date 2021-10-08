@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/nexus-pi/
 title: Sonatype Nexus, With a Slice of Pi
 description: Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT

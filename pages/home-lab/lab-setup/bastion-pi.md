@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/bastion-pi/
 title: OpenWRT With a Slice of Pi
 description: "Install OpenWRT on Raspberry Pi 4B"

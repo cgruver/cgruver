@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: single
 permalink: /home-lab/lab-intro/
 title: Building a Portable Kubernetes Home Lab with OKD4
 description: "OpenShift and OKD Home Lab with Raspberry Pi, Intel NUC, CentOS Stream, and OpenWRT"

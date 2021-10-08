@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/prepare-okd-install/
 title: Preparing to Install OpenShift
 description: Mirror OpenShift images for disconnected install with OKD

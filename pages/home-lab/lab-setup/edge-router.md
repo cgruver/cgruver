@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/edge-router/
 title: "Edge Network Router - GL-MV1000W"
 description: "Set up OpenWRT with Bind DNS"

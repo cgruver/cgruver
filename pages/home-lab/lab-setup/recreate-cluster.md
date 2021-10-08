@@ -1,6 +1,6 @@
 ---
 title: Recreate Your Cluster
-layout: page
+layout: pages
 permalink: /home-lab/recreate-cluster/
 description: Tear down openshift cluster for reinstall
 ---

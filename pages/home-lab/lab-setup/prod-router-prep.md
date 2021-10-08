@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/prod-router-prep/
 title: Prod Cluster Network Router - Prep
 description: Configure OpenWRT as a router with HA Proxy and a Bind DNS Server

@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: single
 title: Videos
 permalink: /videos/
 description: OpenShift Home Lab Installation Videos with OKD

@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: pages
 permalink: /home-lab/kvm-host-setup/
 title: Setting Up Your KVM Hosts
 description: Using KVM on CentOS Stream for OpenShift with OKD
