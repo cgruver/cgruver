@@ -25,9 +25,6 @@ description: Kubernetes Home Lab Projects with OpenShift and OKD
 1. [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
 1. [Install OpenShift Pipelines](/home-lab/tekton-install/)
 
-1. [Build QA Cluster, or Second Data Center](/home-lab/qa-router-prep/)
-    1. [Setup Your Router](/home-lab/qa-router-prep/)
-    
 ### Build CodeReady Containers for OKD:
 
 * [CodeReady Containers with OKD](/home-lab/okd-crc/)
