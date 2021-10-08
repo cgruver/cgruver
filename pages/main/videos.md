@@ -17,4 +17,4 @@ description: OpenShift Home Lab Installation Videos with OKD
 
 [OKD Community Office Hours - July 9, 2021](https://www.youtube.com/watch?v=_skMX0T-C70)
 
-[OKD Code Ready Containers](https://www.youtube.com/watch?v=jyGRaodl740)
+[OKD Code Ready Containers - Aug 27, 2021](https://www.youtube.com/watch?v=jyGRaodl740)
