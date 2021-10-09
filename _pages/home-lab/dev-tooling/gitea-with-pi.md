@@ -2,6 +2,8 @@
 title:  Gitea - "Git with a cup of tea"... and a slice of Pi
 permalink: /home-lab/gitea-with-pi/
 description: Installing Gitea on a Raspberry Pi 4B with OpenWRT
+sidebar:
+  nav: lab-setup
 tags:
   - git
   - raspberry pi

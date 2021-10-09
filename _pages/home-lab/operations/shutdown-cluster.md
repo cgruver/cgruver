@@ -1,5 +1,7 @@
 ---
 title: Gracefully Shut Down Your Cluster
+sidebar:
+  nav: lab-setup
 sitemap: false
 published: false
 ---

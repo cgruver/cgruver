@@ -1,6 +1,8 @@
 ---
 permalink: /home-lab/workstation/
 title: Configuring Your Workstation
+sidebar:
+  nav: lab-setup
 ---
 This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux disto.  If you are running Windows, you might try the Windows Subsystem For Linux.
 

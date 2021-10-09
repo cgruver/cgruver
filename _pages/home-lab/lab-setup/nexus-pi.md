@@ -2,6 +2,8 @@
 permalink: /home-lab/nexus-pi/
 title: Sonatype Nexus, With a Slice of Pi
 description: Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT
+sidebar:
+  nav: lab-setup
 tags:
   - nexus https
   - java on openwrt

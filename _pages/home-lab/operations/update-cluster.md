@@ -1,5 +1,7 @@
 ---
 title: Update Cluster
+sidebar:
+  nav: lab-setup
 sitemap: false
 published: false
 description: "How to Update your OpenShift/OKD cluster on a Disconnected Network"

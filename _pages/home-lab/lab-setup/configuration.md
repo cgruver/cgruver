@@ -2,6 +2,8 @@
 permalink: /home-lab/configuration/
 title: Configuration Files & Deployment Automation for Your Lab
 description: YAML configuration files for home lab automation
+sidebar:
+  nav: lab-setup
 tags:
   - yaml
   - home lab

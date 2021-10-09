@@ -1,6 +1,5 @@
 ---
 title: Notes
-layout: page
 sitemap: false
 published: false
 ---

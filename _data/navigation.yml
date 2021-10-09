@@ -6,4 +6,30 @@ main:
     url: /lab-projects/
   - title: "Videos"
     url: /videos/
-
+lab-setup:
+  - title: "Lab Guide"
+    children:
+    - title: "Introduction"
+      url: /home-lab/lab-intro/
+    - title: "Workstation Setup"
+      url: /home-lab/workstation/
+    - title: "Lab Config Reference"
+      url: /home-lab/configuration/
+  - title: "Network & Tooling"
+    children:
+    - title: "Edge LAN Router"
+      url: /home-lab/edge-router/
+    - title: "Bastion Pi 4B"
+      url: /home-lab/bastion-pi/
+    - title: "Sonatype Nexus on Pi"
+      url: /home-lab/nexus-pi/
+    - title: "Internal Region LAN Router"
+      url: /home-lab/internal-router/
+  - title: "OpenShift Install"
+    children:
+    - title: "KVM Host Install"
+      url: /home-lab/kvm-host-setup/
+    - title: "Prepare OKD Install"
+      url: /home-lab/prepare-okd-install/
+    - title: "Install OKD"
+      url: /home-lab/install-okd/

@@ -2,6 +2,8 @@
 permalink: /home-lab/install-okd/
 title: Installing OpenShift
 description: Installing UPI OpenShift on Intel NUC with OKD
+sidebar:
+  nav: lab-setup
 tags:
   - openshift install
   - okd install

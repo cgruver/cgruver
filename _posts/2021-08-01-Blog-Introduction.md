@@ -57,7 +57,7 @@ Below is the complete bill of materials for your started lab.  I've included Ama
 
 __Here is a picture of the complete set up:__
 
-![Home Lab Starter](/pages/home-lab/images/HomeLab.png)
+![Home Lab Starter](/_pages/home-lab/images/HomeLab.png)
 
 By following this tutorial, you will set up the following capabilities for your OpenShift home lab:
 
@@ -77,7 +77,7 @@ By following this tutorial, you will set up the following capabilities for your 
 
 The network topology will look like this illustration:
 
-![Network topology](/pages/home-lab/images/NetworkTopology.png)
+![Network topology](/_pages/home-lab/images/NetworkTopology.png)
 
 Follow each of the guides below to create your lab:
 
