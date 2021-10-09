@@ -1,8 +1,8 @@
 theme: minimal-mistakes-jekyll
 minimal_mistakes_skin: "dirt"
 locale: "en-US"
-title: Upstream - Without A Paddle
-subtitle: OpenShift is Kubernetes + Fun
+title: "Upstream - Without A Paddle:"
+subtitle: "OpenShift is Kubernetes + Fun"
 name: cgruver
 description: >
   This site is a chronicle of my home lab and Kubernetes hobby.  
@@ -16,6 +16,17 @@ twitter:
 author:
   name: "cgruver"
   avatar: /assets/images/Avatar.jpeg
+  links:
+    - label: "Blog"
+      icon: "fas fa-fw fa-link"
+      url: "https://upstreamwithoutapaddle.com"
+    - label: "Twitter"
+      icon: "fab fa-fw fa-twitter-square"
+      url: "https://twitter.com/upstreampaddle"
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/cgruver"
+footer:
   links:
     - label: "Blog"
       icon: "fas fa-fw fa-link"
@@ -57,6 +68,8 @@ defaults:
       classes: wide
       sidebar:
         nav: lab-projects
+paginate: 10
+paginate_path: /page:num/
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
@@ -75,4 +88,3 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-

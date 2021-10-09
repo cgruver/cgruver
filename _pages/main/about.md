@@ -1,5 +1,4 @@
 ---
-title: About Me
 permalink: /about/
 classes: wide
 ---
@@ -8,7 +7,7 @@ Greetings!
 
 I am a Kubernetes junkie, and a home lab enthusiast.
 
-Watch this space for Blog posts, and home lab tutorials.
+I was trained as a theoretical physicist, but ended up as an IT professional...  20+ years later, I still love it.
 
 Checkout my Projects on GitHub - (Some are still in development)
 
