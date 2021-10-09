@@ -1,7 +1,6 @@
-theme: minimal-mistakes-jekyll
 minimal_mistakes_skin: "dirt"
 locale: "en-US"
-title: "Upstream - Without A Paddle:"
+title: "Upstream - Without A Paddle"
 subtitle: "OpenShift is Kubernetes + Fun"
 name: cgruver
 description: >

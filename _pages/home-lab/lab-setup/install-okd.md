@@ -111,6 +111,12 @@ tags:
    cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/
    ```
 
+   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/kubeconfig`
+
+   ```bash
+   export KUBECONFIG="${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/kubeconfig"
+   ```
+
 1. Install is Complete!!!
 
 ### Log into your new cluster console
@@ -137,20 +143,13 @@ tags:
 
    Log in as `kubeadmin` with the password from the output at the completion of the install.
 
-   __If you forget the password for this initial account, you can find it in the file:__ `${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password`
-
 ### Create user accounts:
 
-Let's add some users to the cluster that we created.  We've been using the temporary `kubeadmin` account.  That's not a useful long term strategy.  So, we're going to add a couple of user accounts.
+Let's add some users to the cluster that we created.  The temporary `kubeadmin` account is not a useful long term strategy for access to your cluster.  So, we're going to add a couple of user accounts.
 
 OpenShift supports multiple authentication methods, from enterprise SSO to very basic auth.  We're going to start with something a little basic, using `htpasswd`.
 
 1. If you don't already have it available, install `htpasswd` on your workstation.
-1. Log into your cluster with the `kubeadmin` key:
-
-   ```bash
-   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
-   ```
 
 1. Create an `htpasswd` file for a couple of users:
 
