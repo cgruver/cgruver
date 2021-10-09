@@ -2,8 +2,6 @@
 permalink: /home-lab/internal-router/
 title: Internal Network Router
 description: Configure OpenWRT as a router with HA Proxy and a Bind DNS Server
-sidebar:
-  nav: lab-setup
 tags:
   - bind dns server
   - openwrt router

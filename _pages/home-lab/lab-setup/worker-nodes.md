@@ -2,8 +2,6 @@
 title: Add Worker Nodes
 permalink: /home-lab/worker-nodes/
 description: Add worker nodes to OpenShift cluster with OKD
-sidebar:
-  nav: lab-setup
 ---
 
 You will need another NUC like the one that you used to build the initial lab.  Like before, it will need at least 4 cores, 1TB NVMe, and 64GB of RAM.

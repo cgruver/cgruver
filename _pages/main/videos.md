@@ -2,6 +2,7 @@
 title: Videos
 permalink: /videos/
 description: OpenShift Home Lab Installation Videos with OKD
+classes: wide
 ---
 
 [What Is OKD?](https://www.youtube.com/watch?v=fOKve11GOJg)

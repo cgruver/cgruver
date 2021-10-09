@@ -43,6 +43,9 @@ defaults:
       comments: false
       share: false
       related: true
+      classes: wide
+      sidebar:
+        nav: lab-projects
   # _pages
   - scope:
       path: ""
@@ -51,6 +54,9 @@ defaults:
       layout: single
       author_profile: true
       share: false
+      classes: wide
+      sidebar:
+        nav: lab-projects
 plugins:
   - jekyll-feed
   - jekyll-seo-tag

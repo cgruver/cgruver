@@ -1,6 +1,7 @@
 ---
 title: About Me
 permalink: /about/
+classes: wide
 ---
 
 Greetings!

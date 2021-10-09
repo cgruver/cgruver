@@ -2,8 +2,6 @@
 title: Install Ceph Storage with Rook
 permalink: /home-lab/rook-ceph/
 description: How to install Rook Ceph on OpenShift with OKD
-sidebar:
-  nav: lab-setup
 tags:
   - rook ceph
   - disconnected install

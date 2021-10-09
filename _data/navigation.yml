@@ -6,8 +6,8 @@ main:
     url: /lab-projects/
   - title: "Videos"
     url: /videos/
-lab-setup:
-  - title: "Lab Guide"
+lab-projects:
+  - title: "Home Lab Installation Guide"
     children:
     - title: "Introduction"
       url: /home-lab/lab-intro/
@@ -15,8 +15,6 @@ lab-setup:
       url: /home-lab/workstation/
     - title: "Lab Config Reference"
       url: /home-lab/configuration/
-  - title: "Network & Tooling"
-    children:
     - title: "Edge LAN Router"
       url: /home-lab/edge-router/
     - title: "Bastion Pi 4B"
@@ -25,11 +23,23 @@ lab-setup:
       url: /home-lab/nexus-pi/
     - title: "Internal Region LAN Router"
       url: /home-lab/internal-router/
-  - title: "OpenShift Install"
-    children:
     - title: "KVM Host Install"
       url: /home-lab/kvm-host-setup/
     - title: "Prepare OKD Install"
       url: /home-lab/prepare-okd-install/
     - title: "Install OKD"
       url: /home-lab/install-okd/
+  - title: "Additional Infrastructure"
+    children:
+    - title: "Add Worker Nodes"
+      url: /home-lab/worker-nodes/
+    - title: "Add Ceph Storage Provider"
+      url: /home-lab/rook-ceph/
+  - title: "Developer Tooling"
+    children:
+    - title: "GitTea"
+      url: /home-lab/gitea-with-pi/
+    - title: "Install Tekton Pipelines"
+      url: /home-lab/tekton-install/
+    - title: "CodeReady Containers for OKD"
+      url: /home-lab/okd-crc/
