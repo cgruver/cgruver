@@ -1,5 +1,4 @@
 ---
-layout: post
 title: We're Almost Ready to Write Some Code...  But First - Tekton!
 date:   2021-08-30 00:00:00 -0400
 description: "How To Build CodeReady Containers with OKD"

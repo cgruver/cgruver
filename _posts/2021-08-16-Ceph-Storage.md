@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Let's Add Some Storage to Our Cluster"
 date:   2021-08-16 00:00:00 -0400
 description: "Install Rook Ceph on OpenShift with a disconnected network"

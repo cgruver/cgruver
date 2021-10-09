@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Where Did September Go?!
 date:   2021-10-07 00:00:00 -0400
 description: "Lab refactored to support multiple clusters"

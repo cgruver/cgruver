@@ -1,32 +1,17 @@
 ---
-title:  "Let's build an OpenShift Home Lab!"
-date:   2021-08-01 12:00:00 -0400
-description: "Build an OpenShift Home Lab with OKD, OpenWrt, and Raspberry Pi"
-categories:
-  - OpenShift
-  - Home Lab
-  - Kubernetes
+permalink: /home-lab/lab-intro/
+title: Building a Portable Kubernetes Home Lab with OKD4
+description: "OpenShift and OKD Home Lab with Raspberry Pi, Intel NUC, CentOS Stream, and OpenWRT"
 tags:
   - openshift
   - okd
-  - home lab
   - kubernetes
+  - intel nuc
   - openwrt
+  - centos stream
+  - raspberry pi
+  - nexus
 ---
-## Greetings, and Welcome to my Kube world
-
-It has taken me a year to get to this point.  ...and what a CRAZY year this has been.  Right?!?!?
-
-Like many people, I changed careers in the middle of a global pandemic.  The massive reset switch that this thing has placed on our lives has upended everything for so many.  They have lost loved ones, they have lost economic security, they have lost direction.  But in the midst of all of this chaos, some new paradigms have emerged as well.  Time will tell how we look back on the last couple of years.  For me and my wife, it became a time to focus on the things that are most important to us and make some changes.  So, we simplified.
-
-But enough of that.
-
-__Without further ado...  Welcome to my new Blog:__
-
-Technology is one of my many hobbies.  I write code and learn new things for fun and relaxation, which naturally led me to seek out ways to take my tech toys with me when travelling.
-
-So...  For my inaugural blog post, I am going to show you how to build an OpenShift lab that you can pack in a small bag.  We'll be using [OKD](https://www.okd.io).  OKD is the Kubernetes distribution that [Red Hat OpenShift](https://cloud.redhat.com/learn/what-is-openshift) is built on.  The main difference is that OKD sits on top of [Fedora CoreOS](https://getfedora.org/en/coreos?stream=stable), the upstream of [Red Hat CoreOS](https://cloud.redhat.com/learn/coreos/).
-
 There are a lot of really good Kubernetes and OpenShift tutorials out there.  This one strives to be a little bit different in that it is going to simulate the network configuration found in a real data center environment.  This tutorial is targeted toward architects and engineers who are interested in both infrastructure and application development.  This is not Code Ready Containers, or MiniKube.  Both of those are excellent developer tools and can be used to learn Kubernetes basics.  No, what you will build from the following tutorial will be a production like OpenShift cluster.  Your new lab will be very expandable as well.  Add more KVM hosts, and you can build more sophisticated OpenShift environments.
 
 I have broken this tutorial up into multiple pages to help reduce the TL;DR that can result from really long pages.  Each section will guide you through the setup of a lab capability.  After the OpenShift cluster is up and running, future blog posts will show you how to add some capabilities to it, and get it setup to support application delivery.

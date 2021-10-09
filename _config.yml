@@ -1,8 +1,5 @@
-
-github_username:  cgruver
-# theme: minima
 theme: minimal-mistakes-jekyll
-minimal_mistakes_skin: "default"
+minimal_mistakes_skin: "dirt"
 locale: "en-US"
 title: Upstream - Without A Paddle
 subtitle: OpenShift is Kubernetes + Fun
@@ -12,16 +9,17 @@ description: >
   It includes periodic Blog posts about random topics, as well as tutorials focused on cloud native technologies.  
   Topics covered include Quarkus, OpenShift, OKD, Tekton, MariaDB, Cassandra, Infrastructure As Code, and much more.
 url: "https://upstreamwithoutapaddle.com"
-baseurl: "" 
+baseurl: ""
+repository: "cgruver/cgruver"
 twitter:
   username: upstreampaddle
 author:
   name: "cgruver"
-  avatar: # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar: /assets/images/Avatar.jpeg
   links:
     - label: "Blog"
       icon: "fas fa-fw fa-link"
-      # url: "https://upstreamwithoutapaddle.com"
+      url: "https://upstreamwithoutapaddle.com"
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
       url: "https://twitter.com/upstreampaddle"
@@ -31,6 +29,8 @@ author:
 sass:
   sass_dir: _sass
   style: compressed
+include:
+ - _pages
 defaults:
   # _posts
   - scope:
@@ -40,7 +40,7 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: true
+      # comments: true
       share: true
       related: true
   # _pages
@@ -50,10 +50,6 @@ defaults:
     values:
       layout: single
       author_profile: true
-header_pages:
- - pages/main/lab-projects.md
- - pages/main/videos.md
- - pages/main/about.md
 plugins:
   - jekyll-feed
   - jekyll-seo-tag

@@ -1,29 +1,10 @@
 ---
-title:  "Growing Your Kube Workforce"
-date:   2021-08-08 00:00:00 -0400
-description: "Add Worker Nodes to OpenShift and OKD"
-tags:
-  - openshift
-  - okd
-  - kubernetes
-  - worker node
-categories:
-  - Home Lab
+title: Add Worker Nodes
+permalink: /home-lab/worker-nodes/
+description: Add worker nodes to OpenShift cluster with OKD
 ---
 
-## The Struggles of a Growing Business
-
-__Note:__ If this is your first visit, then you need to see the tutorial at: [Kubernetes Home Lab](https://upstreamwithoutapaddle.com/home-lab/lab-intro/) to get started.
-
-So, business is booming.  The three of you just can't seem to keep up with the load and have a life outside of work...
-
-Time to hire some help...
-
-Today we are going to add three more nodes to our Kubernetes cluster.
-
 You will need another NUC like the one that you used to build the initial lab.  Like before, it will need at least 4 cores, 1TB NVMe, and 64GB of RAM.
-
-1. First, make sure that you have DNS A and PTR records for the new host. The DNS configuration that we set up previously included three KVM hosts, kvm-host01, kvm-host02, and kvm-host03.  So, let's assume that this host is going to be `kvm-host02`.
 
 1. Update the helper scripts for this project:
 
@@ -35,10 +16,89 @@ You will need another NUC like the one that you used to build the initial lab.  
    chmod 700 ${OKD_LAB_PATH}/bin/*.sh
    ```
 
-1. Read the MAC address off of the bottom of the NUC. Then create the iPXE and kickstart files with the helper script:
+1. Read the `MAC` address off of the bottom of the NUC and create an environment variable:
+
+  ```bash
+  MAC_ADDR=1c:69:7a:6f:ab:12  # Substiture your NUC's MAC Address
+  ```
+
+1. Add another `kvm-hosts` entry to your lab config file, and add records for the new worker nodes:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/deployKvmHost.sh -c=1 -h=kvm-host02 -m=<MAC Address Here> -d=nvme0n1
+   cat << EOF > ${OKD_LAB_PATH}/lab-config/add-workers.yaml
+   kvm-hosts:
+   - host-name: kvm-host02
+     mac-addr: ${MAC_ADDR}
+     ip-octet: 201
+     disks:
+       disk1: nvme0n1
+       disk2: NA
+   compute-nodes:
+     memory: 20480
+     cpu: 4
+     root_vol: 50
+     ceph_vol: 200
+     kvm-hosts:
+     - kvm-host02
+     - kvm-host02
+     - kvm-host02
+   EOF
+   ```
+
+1. Use `yq` to merge the new records into your lab configuration YAML file:
+
+   ```bash
+   yq eval-all --inplace 'select(fileIndex == 0) *+ select(fileIndex == 1)' ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml ${OKD_LAB_PATH}/lab-config/add-workers.yaml
+   rm ${OKD_LAB_PATH}/lab-config/add-workers.yaml
+   ```
+
+1. Take a look at the config file now:
+
+   `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` should now look something like:
+
+   ```yaml
+   cluster-name: okd4
+   bootstrap:
+     kvm-host: kvm-host01
+     memory: 12288
+     cpu: 4
+     root_vol: 50
+   control-plane:
+     memory: 20480
+     cpu: 6
+     root_vol: 100
+     kvm-hosts:
+     - kvm-host01
+     - kvm-host01
+     - kvm-host01
+   kvm-hosts:
+   - host-name: kvm-host01
+     mac-addr: 1c:69:7a:6f:cd:23
+     ip-octet: 200
+     disks:
+       disk1: nvme0n1
+       disk2: NA
+   - host-name: kvm-host02
+     mac-addr: 1c:69:7a:6f:ab:12
+     ip-octet: 201
+     disks:
+       disk1: nvme0n1
+       disk2: NA
+   compute-nodes:
+     memory: 20480
+     cpu: 4
+     root_vol: 50
+     ceph_vol: 200
+     kvm-hosts:
+     - kvm-host02
+     - kvm-host02
+     - kvm-host02
+   ```
+
+1. Create the KVM host install config:
+
+   ```bash
+   ${OKD_LAB_PATH}/bin/deployKvmHosts.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -h=kvm-host02 -d=dev
    ```
 
 1. Now, connect the NUC to the remaining LAN port on the internal router and power it on. After a few minutes, it should be up and running.
@@ -46,35 +106,23 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Verify that everything looks good on the new host:
 
    ```bash
-   ssh root@kvm-host02.dc1.${LAB_DOMAIN}
+   ssh root@kvm-host02.dev.${LAB_DOMAIN}
    # Take a look around
    exit
    ```
 
 1. Now, back to the business of doubling our workforce.
 
-   Create the inventory file for the new worker nodes:
+   Initialize the ignition files and iPXE boot files for the new worker nodes:
 
    ```bash
-   cat << EOF > ${OKD_LAB_PATH}/worker-inventory
-   kvm-host02,okd4-worker-0,20480,6,100,200,worker
-   kvm-host02,okd4-worker-1,20480,6,100,200,worker
-   kvm-host02,okd4-worker-2,20480,6,100,200,worker
-   EOF
-   ```
-
-   __Note:__ We added an extra disk to these nodes.  Next week we'll install Ceph cloud storage using those disks.
-
-1. Initialize the ignition files and iPXE boot files for the new worker nodes:
-
-   ```bash
-   ${OKD_LAB_PATH}/bin/initWorker.sh -i=${OKD_LAB_PATH}/worker-inventory -c=1
+   ${OKD_LAB_PATH}/bin/deployOkdNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
    ```
 
 1. Start the nodes:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/startNodes.sh -i=${OKD_LAB_PATH}/worker-inventory -c=1
+   ${OKD_LAB_PATH}/bin/startNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
    ```
 
 1. Now, you need to monitor the cluster Certificate Signing Requests.  You are looking for requests in a `Pending` state.
@@ -90,6 +138,9 @@ You will need another NUC like the one that you used to build the initial lab.  
    ```
 
    __There will be a total of 6 CSRs that you need to approve.__
+   3 CSRs appear first for the node bootstrap.
+   The final three will be for each worker node.
+
 
 ## Designate Master nodes as Infrastructure nodes
 
@@ -100,7 +151,7 @@ Since we now have three dedicated worker nodes for our applications, let's move 
    ```bash
    for i in 0 1 2
    do
-   oc label nodes okd4-master-${i}.dc1.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
+   oc label nodes okd4-master-${i}.dev.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
    done
    ```
 
@@ -228,5 +279,3 @@ Since we now have three dedicated worker nodes for our applications, let's move 
    ```
 
 ### That's it!  We now have three more nodes in our cluster.
-
-Next week we'll add Ceph storage.
