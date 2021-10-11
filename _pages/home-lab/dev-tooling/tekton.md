@@ -49,6 +49,12 @@ tags:
    podman login -u openshift-mirror ${LOCAL_REGISTRY}
    ```
 
+1. Create a `.docker/config.json` file.  KO does not use the podman auth.json file.
+
+   ```bash
+   cp .config/containers/auth.json ~/.docker/config.json
+   ```
+
 1. Log into the OpenShift cluster:
 
    ```bash
@@ -201,6 +207,8 @@ tags:
 1. Finally, clean up after yourself:
 
     ```bash
+    podman image rm -a
+    podman machine stop
     cd
     rm -rf ${OKD_LAB_PATH}/work-dir
     ```
