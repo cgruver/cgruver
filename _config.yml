@@ -11,6 +11,7 @@ description: >
 url: "https://upstreamwithoutapaddle.com"
 baseurl: ""
 repository: "cgruver/cgruver"
+logo: "/assets/images/logo.jpg"
 twitter:
   username: upstreampaddle
 author:
