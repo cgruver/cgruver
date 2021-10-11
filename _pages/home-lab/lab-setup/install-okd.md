@@ -137,9 +137,13 @@ tags:
      update-ca-trust
      ```
 
-1. Point your browser to the url listed at the completion of install: `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
+1. Point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
 
-   You will have to accept the TLS certs for your new cluster.
+   On Mac OS:
+
+   ```bash
+   open -a Safari https://console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}
+   ```
 
    Log in as `kubeadmin` with the password from the output at the completion of the install.
 

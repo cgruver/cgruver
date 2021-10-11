@@ -8,42 +8,55 @@ There will be times when you want to wipe your whole environment and rebuild it 
 
 There is a single script that will completely wipe the cluster and reset HA Proxy on the router for a new cluster.
 
-1. You will need to have all of your nodes listed in a single inventory file.  For example, if you have followed this guide and built a cluster with 3 master and 3 worker nodes.  Then you have two node inventory files.  `node-inventory`, and `worker-inventory`.
-
-   Let's consolidate them into a single file.
-
-   ```bash
-   cat ${OKD_LAB_PATH}/node-inventory | grep -v bootstrap > ${OKD_LAB_PATH}/cluster-inventory
-   cat ${OKD_LAB_PATH}/worker-inventory >> ${OKD_LAB_PATH}/cluster-inventory
-   ```
+1. Tear down the cluster and delete it's resources:
 
    Remember, we already destroyed the Bootstrap node.
 
-1. Now, tear down the cluster and delete it's resources:
-
    ```bash
-   destroyNodes.sh -r -i=${OKD_LAB_PATH}/cluster-inventory -c=1 
+   destroyNodes.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -r -d=dev
    ```
 
 In a matter of moments, the cluster will be completely gone.
 
-Now, to recreate the cluster, first make any changes that you want to your node-inventory file.
+Now, to recreate the cluster, first make any changes that you want to your cluster configuration YAML file.
 
-1. For example, if you are build a 3 node cluster and want to add storage for Rook/Ceph, then your inventory might look like:
+1. For example, if you are building a 3 node cluster and want to add storage for Rook/Ceph, then your cluster configuration might look like:
 
-   ```bash
-   cat << EOF > ${OKD_LAB_PATH}/node-inventory
-   kvm-host01,okd4-bootstrap,12288,4,50,0,bootstrap
-   kvm-host01,okd4-master-0,20480,6,100,200,master
-   kvm-host01,okd4-master-1,20480,6,100,200,master
-   kvm-host01,okd4-master-2,20480,6,100,200,master
-   EOF
+   ```yaml
+   cluster-name: okd4
+   secret-file: ${OKD_LAB_PATH}/pull_secret.json
+   local-registry: nexus.${LAB_DOMAIN}:5001
+   remote-registry: quay.io/openshift/okd
+   # KVM Hosts provisioned in the region
+   kvm-hosts:
+     - host-name: kvm-host01
+       mac-addr: 1c:69:7a:6f:ef:56
+       ip-octet: 200
+       disks:
+         disk1: nvme0n1
+         disk2: NA
+   # Bootstrap Node configuration
+   bootstrap:
+       kvm-host: kvm-host01
+       memory: 12288
+       cpu: 4
+       root_vol: 50
+   # Master Node configuraion
+   control-plane:
+       memory: 20480
+       cpu: 6
+       root_vol: 100
+       ceph_vol: 200
+       kvm-hosts:
+       - kvm-host01
+       - kvm-host01
+       - kvm-host01
    ```
 
 1. Now, create the OpenShift manifests and create the Virtual Machines:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/initCluster.sh -i=${OKD_LAB_PATH}/node-inventory -c=1
+   deployOkdNodes.sh -i -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
    ```
 
 1. Finally, follow the directions here: [Installing OpenShift](/home-lab/install-okd/).

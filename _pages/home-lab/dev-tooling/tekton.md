@@ -45,6 +45,7 @@ tags:
 1. Log into the lab Nexus registry:
 
    ```bash
+   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
    podman login -u openshift-mirror ${LOCAL_REGISTRY}
    ```
 

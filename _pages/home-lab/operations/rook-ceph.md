@@ -22,7 +22,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Log into the bastion host:
 
    ```bash
-   ssh root@${BASTION_HOST}
+   ssh root@bastion.${LAB_DOMAIN}
    ```
 
 1. Install some additional packages:
@@ -139,6 +139,8 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Deploy the Ceph Operator:
 
    ```bash
+   export REGION=dev
+   export LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
    envsubst < ${OKD_LAB_PATH}/okd-home-lab/rook-ceph/install/operator-openshift.yaml | oc apply -f -
    ```
 

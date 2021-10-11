@@ -7,14 +7,18 @@ tags:
   - raspberry pi
   - openwrt
 ---
-
 ### Let's install Gitea on our Bastion host
 
 This tutorial assumes that you have already configured your lab with the following guide: [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
 
+We're going to install Gitea on the Raspberry Pi that we previously installed Nexus on.
+
 1. Create a DNS entry for gitea on the edge router:
 
    ```bash
+   BASTION_HOST=$(yq e ".bastion-ip" ${OKD_LAB_PATH}/lab-config/lab.yaml)
+   EDGE_ROUTER=$(yq e ".router" ${OKD_LAB_PATH}/lab-config/lab.yaml)
+
    echo "gitea.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}" | ssh root@${EDGE_ROUTER} "cat >> /etc/bind/db.${LAB_DOMAIN}"
    ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
    ```
@@ -70,9 +74,9 @@ This tutorial assumes that you have already configured your lab with the followi
 1. Create the Gitea configuration file:
 
    ```bash
-   INTERNAL_TOKEN=$(gitea generate secret INTERNAL_TOKEN)
-   SECRET_KEY=$(gitea generate secret SECRET_KEY)
-   JWT_SECRET=$(gitea generate secret JWT_SECRET)
+   INTERNAL_TOKEN=$(/usr/local/gitea/bin/gitea generate secret INTERNAL_TOKEN)
+   SECRET_KEY=$(/usr/local/gitea/bin/gitea generate secret SECRET_KEY)
+   JWT_SECRET=$(/usr/local/gitea/bin/gitea generate secret JWT_SECRET)
 
    cat << EOF > /usr/local/gitea/etc/app.ini
    RUN_USER = gitea
