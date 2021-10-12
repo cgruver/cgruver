@@ -27,3 +27,36 @@ $base0f: #cc6633;
 
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+
+.nav__list .nav__items {
+    margin: 0;
+    font-size: 1.25rem;
+  
+    a {
+      color: inherit;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  
+    .active {
+      margin-left: -0.5em;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      font-weight: bold;
+    }
+  
+    @include breakpoint(max-width $large - 1px) {
+      position: relative;
+      max-height: 0;
+      opacity: 0%;
+      overflow: hidden;
+      z-index: 10;
+      -webkit-transition: 0.3s ease-in-out;
+      transition: 0.3s ease-in-out;
+      -webkit-transform: translate(0, 10%);
+      -ms-transform: translate(0, 10%);
+      transform: translate(0, 10%);
+  }
+}
