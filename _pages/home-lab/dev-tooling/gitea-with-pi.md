@@ -85,6 +85,10 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
    [repository]
    ROOT = /usr/local/gitea/git
    SCRIPT_TYPE = sh
+   DEFAULT_BRANCH = main
+   DEFAULT_PUSH_CREATE_PRIVATE = true
+   ENABLE_PUSH_CREATE_USER = true
+   ENABLE_PUSH_CREATE_ORG = true
 
    [server]
    PROTOCOL = https
