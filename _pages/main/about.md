@@ -1,6 +1,8 @@
 ---
 permalink: /about/
 classes: wide
+header:
+  image: /assets/images/Fiat-Wide.jpg
 ---
 
 Greetings!
@@ -13,6 +15,9 @@ Checkout my Projects on GitHub - (Some are still in development)
 
 * [Main GitHub Projects Page](https://github.com/cgruver)
 * [Opinionated Rewrite of erdemo.io, Demonstrating Quarkus, Kafka, Cassandra, and Tekton](https://github.com/cgruver-cajun-navy)
+
+  This is a work in progress.  Actually, it is a work in pause...  I've been distracted by my home lab infra work.
+
 * [Home Library Application, Demonstrating Quarkus, MariaDB Galera, Kafka, and Tekton](https://github.com/lab-monkeys)
 
-![Kublet](/images/Fiat.png)
+  Also a work in pause...  I'll get back to it soon.
