@@ -35,7 +35,7 @@ You will need another NUC like the one that you used to build the initial lab.  
        disk2: NA
    compute-nodes:
      memory: 20480
-     cpu: 4
+     cpu: 6
      root_vol: 50
      ceph_vol: 200
      kvm-hosts:
