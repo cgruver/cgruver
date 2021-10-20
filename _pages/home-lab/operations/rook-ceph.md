@@ -160,6 +160,18 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    oc get pods -n rook-ceph | grep rook-ceph-osd-prepare
    ```
 
+1. __If you have worker nodes and designated the control plane as Infra nodes:__
+
+   If you followed this guide here: [Add Worker Nodes](/home-lab/worker-nodes/)
+
+   Then we also need to allow pods that run on the control plane nodes to access Ceph volumes.
+
+   Add the following patch to your Ceph cluster:
+
+   ```bash
+   oc patch configmap rook-ceph-operator-config -n rook-ceph --type merge --patch '"data": {"CSI_PLUGIN_TOLERATIONS": "- key: \"node-role.kubernetes.io/master\"\n  operator: \"Exists\"\n  effect: \"NoSchedule\"\n"}'
+   ```
+
 ### Now, let's create a PVC for the Image Registry.
 
 1. First, we need a Storage Class:
