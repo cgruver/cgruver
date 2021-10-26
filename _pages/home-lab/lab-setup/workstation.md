@@ -6,6 +6,15 @@ This tutorial assumes that you are running a Unix like operating system on your 
 
 1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
 
+   * MacOS:
+     
+     YQ_VER=$(curl https://github.com/mikefarah/yq/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
+     wget -O ${OKD_LAB_PATH}/oc.tar.gz https://github.com/mikefarah/yq/releases/download/${YQ_VER}/yq_linux_amd64.tar.gz
+
+     https://github.com/mikefarah/yq/releases/download/v4.13.5/yq_linux_amd64.tar.gz
+
+   Linux:
+
 1. Select a domain to use for your lab.  This can be a fake domain, it is just for your internal lab network.
 
    For example: `my.awesome.lab`
@@ -137,6 +146,10 @@ This tutorial assumes that you are running a Unix like operating system on your 
    ```
 
 1. Add the following to your shell environment:
+
+   Your default shell will be something like `bash` or `zsh`.  Although you might have changed it.
+
+   You need to add the following lines to the appropriate shell file in your home directory: `.bashrc`, or `.zshrc`, etc...
 
    ```bash
    export OKD_LAB_PATH=${HOME}/okd-lab
