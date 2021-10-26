@@ -1359,3 +1359,54 @@ qemu-img create -f qcow2 bootstrap-node.qcow2 50G
 
 qemu-system-x86_64 -accel accel=hvf -m 12G -smp 2 -display none -nographic -drive file=bootstrap-node.qcow2,if=virtio -boot n -netdev vde,id=nic0,sock=/var/run/vde.bridged.en13.ctl -device virtio-net-pci,netdev=nic0
 ```
+
+### Gitea webhooks
+
+```bash
+curl --location --request POST 'http://git-tea-host/api/v1/repos/test-user/test-repo/hooks' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Basic <someBase64Str>' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "active": true,
+  "branch_filter": "main",
+  "config": {
+    "content_type": "json",
+    "url": "http://repositories/2222",
+    "http_method": "post"
+  },
+  "events": [
+    "push_only"
+  ],
+  "type": "gitea"
+}'
+```
+
+```golang
+type HookEvents struct {
+	Create               bool `json:"create"`
+	Delete               bool `json:"delete"`
+	Fork                 bool `json:"fork"`
+	Issues               bool `json:"issues"`
+	IssueAssign          bool `json:"issue_assign"`
+	IssueLabel           bool `json:"issue_label"`
+	IssueMilestone       bool `json:"issue_milestone"`
+	IssueComment         bool `json:"issue_comment"`
+	Push                 bool `json:"push"`
+	PullRequest          bool `json:"pull_request"`
+	PullRequestAssign    bool `json:"pull_request_assign"`
+	PullRequestLabel     bool `json:"pull_request_label"`
+	PullRequestMilestone bool `json:"pull_request_milestone"`
+	PullRequestComment   bool `json:"pull_request_comment"`
+	PullRequestReview    bool `json:"pull_request_review"`
+	PullRequestSync      bool `json:"pull_request_sync"`
+	Repository           bool `json:"repository"`
+	Release              bool `json:"release"`
+}
+```
+
+```bash
+
+
+KEY=$(curl -XPOST -H "Content-Type: application/json"  -k -d '{"name":"test"}' -u ${GITEA_CREDS} https://gitea.${LAB_DOMAIN}:3000/api/v1/users/library-sa/tokens | jq -r '.sha1')
+```
