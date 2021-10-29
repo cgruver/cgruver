@@ -115,12 +115,12 @@ Now, let's build CodeReady Containers with OKD!
    . sncSetup.sh
    ```
 
-1. Ensure that you have the latest code, and switch to the okd-4.7 branch:
+1. Ensure that you have the latest code, and switch to the okd-4.8 branch:
 
    ```bash
    cd ${CRC_DIR}/snc
    git fetch
-   git checkout okd-4.7
+   git checkout okd-4.8
    git pull
    ```
 
