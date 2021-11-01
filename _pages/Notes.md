@@ -534,6 +534,79 @@ spec:
 EOF
 ```
 
+## Add Certs to Nodes:
+
+1. The next thing that we are going to do, is add a couple of certificates to our OpenShift cluster nodes:
+
+   Our Gitea server and our Nexus server are both using self-signed certificates.  It's a bad practice to disable TLS verification in all of our pipelines.  So, I am going to show you how to add additional trusted certs to your OpenShift cluster.
+
+   We do this by creating MachineConfig objects which will add files to our control-plane and worker nodes:
+
+   1. First, we need the Gitea and Nexus certificates in PEM format, then base64 encoded for the MachineConfig objects.
+
+      ```bash
+      GITEA_CERT=$(openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM | base64)
+      NEXUS_CERT=$(openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM | base64)
+      ```
+
+   1. Now, create the MachineConfig for the worker nodes: (Note that this will cause a rolling reboot of the nodes)
+
+      ```bash
+      cat << EOF | oc apply -f -
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: worker
+        name: 50-developer-ca-certs-worker
+      spec:
+        config:
+          ignition:
+            version: 3.2.0
+          storage:
+            files:
+            - contents:
+                source: data:text/plain;charset=utf-8;base64,${GITEA_CERT}
+              filesystem: root
+              mode: 0644
+              path: /etc/pki/ca-trust/source/anchors/gitea-ca.crt
+            - contents:
+                source: data:text/plain;charset=utf-8;base64,${NEXUS_CERT}
+              filesystem: root
+              mode: 0644
+              path: /etc/pki/ca-trust/source/anchors/nexus-ca.crt
+      EOF
+      ```
+
+   1. Repeat for the control-plane nodes:
+
+      ```bash
+      cat << EOF | oc apply -f -
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: master
+        name: 50-developer-ca-certs-master
+      spec:
+        config:
+          ignition:
+            version: 3.2.0
+          storage:
+            files:
+            - contents:
+                source: data:text/plain;charset=utf-8;base64,${GITEA_CERT}
+              filesystem: root
+              mode: 0644
+              path: /etc/pki/ca-trust/source/anchors/gitea-ca.crt
+            - contents:
+                source: data:text/plain;charset=utf-8;base64,${NEXUS_CERT}
+              filesystem: root
+              mode: 0644
+              path: /etc/pki/ca-trust/source/anchors/nexus-ca.crt
+      EOF
+      ```
+
 ## CRC for OKD:
 
 ### One time setup
@@ -1409,4 +1482,64 @@ type HookEvents struct {
 
 
 KEY=$(curl -XPOST -H "Content-Type: application/json"  -k -d '{"name":"test"}' -u ${GITEA_CREDS} https://gitea.${LAB_DOMAIN}:3000/api/v1/users/library-sa/tokens | jq -r '.sha1')
+```
+
+### Tekton Task Test
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-test
+spec:
+  stepTemplate:
+    volumeMounts:
+    - name: varlibc
+      mountPath: /var/lib/containers
+  steps:
+  - name: task-test
+    image: image-registry.openshift-image-registry.svc:5000/openshift/jdk-11-builder:latest
+    imagePullPolicy: IfNotPresent
+    script: |
+      echo sa
+      ls -l /var/run/secrets/kubernetes.io/serviceaccount
+      echo creds
+      ls -l /tekton/creds-secrets
+      echo home
+      ls -l $HOME
+      ls -l /tekton/creds-secrets/gitea-secret
+      cat /tekton/creds-secrets/gitea-secret/username
+      cat /tekton/creds-secrets/gitea-secret/password
+    env:
+    - name: user.home
+      value: /tekton/home
+    workingDir: "/workspace/source"
+  volumes:
+  - name: varlibc
+    emptyDir: {}
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: task-test-run
+spec:
+  taskRef:
+    name: task-test
+  params: []
+
+
+```
+
+### ConfigMap to add certs to pod
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab-ca
+  labels:
+    config.openshift.io/inject-trusted-cabundle: "true"
+data: {}
 ```

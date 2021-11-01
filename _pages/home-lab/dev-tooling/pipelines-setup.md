@@ -48,13 +48,13 @@ tags:
 
 1. Build the two container images that I created for this project:
 
-   | `jdk-11-app-runner` | Image for running Java 11 based fat jar applications |
+   | `java-11-app-runner` | Image for running Java 11 based fat jar applications |
    | `java-11-builder` | Image containing the tooling for building Maven based Java 11 fat jar, and Quarkus Native applications |
 
    ```bash
    cd ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
 
-   podman build -t ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 -f jdk-11-app-runner.Dockerfile .
+   podman build -t ${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 -f java-11-app-runner.Dockerfile .
    podman build -t ${IMAGE_REGISTRY}/openshift/java-11-builder:latest -f java-11-builder.Dockerfile .
    ```
 
@@ -65,7 +65,7 @@ tags:
 
    podman push ${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --tls-verify=false
    podman push ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4 --tls-verify=false
-   podman push ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 --tls-verify=false
+   podman push ${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --tls-verify=false
    podman push ${IMAGE_REGISTRY}/openshift/java-11-builder:latest --tls-verify=false
    podman push ${IMAGE_REGISTRY}/openshift/buildah:latest --tls-verify=false
    ```
@@ -100,7 +100,7 @@ tags:
    1. Patch the configuration for the Image Registry Operator:
 
       ```bash
-      oc patch image.config.openshift.io/cluster --patch '{"spec":{"additionalTrustedCA":{"name":"nexus-registry"}}}' --type=merge
+      oc patch image.config.openshift.io/cluster --type=merge --patch '{"spec":{"additionalTrustedCA":{"name":"nexus-registry"}}}' 
       ```
 
    1. Now you need to wait a bit for the operator to apply the configuration.  
@@ -114,78 +114,45 @@ tags:
    ```bash
    oc import-image origin-cli:latest --from=${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --confirm -n openshift
    oc import-image ubi-minimal:8.4 --from=${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4 --confirm -n openshift
-   oc import-image jdk-11-app-runner:1.3.8 --from=${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 --confirm -n openshift
+   oc import-image java-11-app-runner:1.3.8 --from=${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --confirm -n openshift
    oc import-image java-11-builder:latest --from=${IMAGE_REGISTRY}/openshift/java-11-builder:latest --confirm -n openshift
    oc import-image buildah:latest --from=${IMAGE_REGISTRY}/openshift/buildah:latest --confirm -n openshift
    ```
 
-1. The next thing that we are going to do, is add a couple of certificates to our OpenShift cluster nodes:
+1. The next thing that we are going to do, is add a couple of certificates to our OpenShift cluster:
 
    Our Gitea server and our Nexus server are both using self-signed certificates.  It's a bad practice to disable TLS verification in all of our pipelines.  So, I am going to show you how to add additional trusted certs to your OpenShift cluster.
 
-   We do this by creating MachineConfig objects which will add files to our control-plane and worker nodes:
+   We do this by creating a ConfigMap that we will add to the openshift-config namespace, and then patching the default cluster proxy object.
 
-   1. First, we need the Gitea and Nexus certificates in PEM format, then base64 encoded for the MachineConfig objects.
+   1. First, we need the Gitea and Nexus certificates in PEM format.
 
       ```bash
-      GITEA_CERT=$(openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM | base64)
-      NEXUS_CERT=$(openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM | base64)
+      GITEA_CERT=$(openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM | while read line; do echo "    $line"; done)
+      NEXUS_CERT=$(openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM | while read line; do echo "    $line"; done)
       ```
 
-   1. Now, create the MachineConfig for the worker nodes: (Note that this will cause a rolling reboot of the nodes)
+   1. Create the ConfigMap:
 
       ```bash
-      cat << EOF | oc apply -f -
-      apiVersion: machineconfiguration.openshift.io/v1
-      kind: MachineConfig
+      cat << EOF | oc apply -n openshift-config -f -
+      apiVersion: v1
+      kind: ConfigMap
       metadata:
-        labels:
-          machineconfiguration.openshift.io/role: worker
-        name: 50-developer-ca-certs-worker
-      spec:
-        config:
-          ignition:
-            version: 3.2.0
-          storage:
-            files:
-            - contents:
-                source: data:text/plain;charset=utf-8;base64,${GITEA_CERT}
-              filesystem: root
-              mode: 0644
-              path: /etc/pki/ca-trust/source/anchors/gitea-ca.crt
-            - contents:
-                source: data:text/plain;charset=utf-8;base64,${NEXUS_CERT}
-              filesystem: root
-              mode: 0644
-              path: /etc/pki/ca-trust/source/anchors/nexus-ca.crt
+        name: lab-ca
+      data:
+        ca-bundle.crt: |
+          # Gitea Cert
+      ${GITEA_CERT}
+
+          # Nexus Cert
+      ${NEXUS_CERT}
+
       EOF
       ```
 
-   1. Repeat for the control-plane nodes:
+   1. Patch the default cluster proxy to use the configmap:
 
       ```bash
-      cat << EOF | oc apply -f -
-      apiVersion: machineconfiguration.openshift.io/v1
-      kind: MachineConfig
-      metadata:
-        labels:
-          machineconfiguration.openshift.io/role: master
-        name: 50-developer-ca-certs-master
-      spec:
-        config:
-          ignition:
-            version: 3.2.0
-          storage:
-            files:
-            - contents:
-                source: data:text/plain;charset=utf-8;base64,${GITEA_CERT}
-              filesystem: root
-              mode: 0644
-              path: /etc/pki/ca-trust/source/anchors/gitea-ca.crt
-            - contents:
-                source: data:text/plain;charset=utf-8;base64,${NEXUS_CERT}
-              filesystem: root
-              mode: 0644
-              path: /etc/pki/ca-trust/source/anchors/nexus-ca.crt
-      EOF
+      oc patch proxy cluster --type=merge --patch '{"spec":{"trustedCA":{"name":"lab-ca"}}}'
       ```

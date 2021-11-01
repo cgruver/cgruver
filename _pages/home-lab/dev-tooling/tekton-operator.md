@@ -52,7 +52,7 @@ tags:
 1. Create a `.docker/config.json` file.  KO does not use the podman auth.json file.
 
    ```bash
-   cp .config/containers/auth.json ~/.docker/config.json
+   cp ~/.config/containers/auth.json ~/.docker/config.json
    ```
 
 1. Log into the OpenShift cluster:
@@ -119,14 +119,14 @@ tags:
            path: /spec/template/spec/containers/0/args
            value: [
              "-version", "v0.22.0",
-             "-kubeconfig-writer-image", "quay.io/openshift-pipeline/tektoncd-pipeline-kubeconfigwriter:v0.22.0",
-             "-git-image", "quay.io/openshift-pipeline/tektoncd-pipeline-git-init:v0.22.0",
-             "-entrypoint-image", "quay.io/openshift-pipeline/tektoncd-pipeline-entrypoint:v0.22.0",
-             "-nop-image", "quay.io/openshift-pipeline/tektoncd-pipeline-nop:v0.22.0",
-             "-imagedigest-exporter-image", "quay.io/openshift-pipeline/tektoncd-pipeline-imagedigestexporter:v0.22.0",
-             "-pr-image", "quay.io/openshift-pipeline/tektoncd-pipeline-pullrequest-init:v0.22.0",
-             "-gsutil-image", "gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:27b2c22bf259d9bc1a291e99c63791ba0c27a04d2db0a43241ba0f1f20f4067f",
-             "-shell-image", "registry.access.redhat.com/ubi8/ubi-minimal:latest"
+             "-kubeconfig-writer-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-kubeconfigwriter:v0.22.0",
+             "-git-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-git-init:v0.22.0",
+             "-entrypoint-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-entrypoint:v0.22.0",
+             "-nop-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-nop:v0.22.0",
+             "-imagedigest-exporter-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-imagedigestexporter:v0.22.0",
+             "-pr-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-pipeline-pullrequest-init:v0.22.0",
+             "-gsutil-image", "${LOCAL_REGISTRY}/tekton/google.com/cloudsdktool/cloud-sdk@sha256:27b2c22bf259d9bc1a291e99c63791ba0c27a04d2db0a43241ba0f1f20f4067f",
+             "-shell-image", "${LOCAL_REGISTRY}/tekton/ubi8/ubi-minimal:latest"
            ]
      - target:
          kind: Deployment
@@ -177,7 +177,7 @@ tags:
            value: [
              "-logtostderr",
              "-stderrthreshold", "INFO",
-             "-el-image", "quay.io/openshift-pipeline/tektoncd-triggers-eventlistenersink:v0.12.1",
+             "-el-image", "${LOCAL_REGISTRY}/tekton/openshift-pipeline/tektoncd-triggers-eventlistenersink:v0.12.1",
              "-el-port", "8080",
              "-el-readtimeout", "5",
              "-el-writetimeout", "40",

@@ -67,7 +67,7 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
 1. Create the pipelines resources:
 
    ```bash
-   oc apply -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/manifests/
+   oc apply -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/manifests/ -n app-demo
    ```
 
 ### Set up a Gitea organization and service account for the demo application:
@@ -148,6 +148,48 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
    ```bash
    git remote add origin https://gitea.${LAB_DOMAIN}:3000/demo/app-demo
    git push --mirror
+   ```
+
+1. Create an authentication secret so that the pipeline service account can access gitea with the credentials we created above:
+
+   Place the credentials into environment variables.  We're using the `read` shell command so that the username and password are not stored in the shell history.
+
+   ```bash
+   read -s GITEA_USER
+   ```
+
+   Type the service account user name that we created above and hit `retrun`:
+
+   ```bash
+   read -s GITEA_PASSWD
+   ```
+
+   Type the service account password that we created above and hit `retrun`:
+
+   Now create a Kubernetes Secret with this information:
+
+   ```bash
+   cat << EOF | oc apply -n app-demo -f -
+   apiVersion: v1
+   kind: Secret
+   metadata:
+       name: gitea-secret
+       annotations:
+         tekton.dev/git-0: gitea.${LAB_DOMAIN}
+   type: kubernetes.io/basic-auth
+   data:
+     username: $(echo -n ${GITEA_USER} | base64)
+     password: $(echo -n ${GITEA_PASSWD} | base64)
+   EOF
+
+   oc patch sa pipeline --type json --patch '[{"op": "add", "path": "/secrets/-", "value": {"name":"gitea-secret"}}]' -n app-demo
+   ```
+
+   Clear the environment variables:
+
+   ```bash
+   GITEA_USER=""
+   GITEA_PASSWD=""
    ```
 
 ### Now, let's create the pipelines!
