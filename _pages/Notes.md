@@ -1529,6 +1529,72 @@ spec:
     name: task-test
   params: []
 
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah-test
+spec:
+  stepTemplate:
+    volumeMounts:
+    - name: varlibc
+      mountPath: /var/lib/containers
+  steps:
+  - name: prep-workingdir
+    image: image-registry.openshift-image-registry.svc:5000/openshift/buildah:latest
+    imagePullPolicy: IfNotPresent
+    script: |
+      chmod 777 /workspace/source
+      cp -r /tekton/creds/.docker /workspace/source
+      chown -R 1000:1000 /workspace/source/.docker
+    env:
+    - name: user.home
+      value: /workspace/source
+    workingDir: "/workspace/source"
+  - name: build-image
+    image: image-registry.openshift-image-registry.svc:5000/openshift/buildah:latest
+    securityContext:
+      runAsUser: 1000
+    imagePullPolicy: Always
+    script: |
+      export HOME=/workspace/source
+      export BUILDAH_ISOLATION=chroot
+      APP_NAME=test
+      DESTINATION_IMAGE="image-registry.openshift-image-registry.svc:5000/$(context.taskRun.namespace)/${APP_NAME}:latest"
+      buildah --version
+      BUILDAH_ARGS="--storage-driver vfs"
+      CONTAINER=$(buildah ${BUILDAH_ARGS} from image-registry.openshift-image-registry.svc:5000/openshift/buildah:latest )
+      # CONTAINER=$(buildah --storage-driver vfs --log-level trace --userns-uid-map $(id -u):$(( $(id -u) + 1 )):65536 --userns-gid-map $(id -u):$(( $(id -u) + 1 )):65536 --tls-verify=false from image-registry.openshift-image-registry.svc:5000/openshift/buildah:latest )
+      cat << EOF > ./test.sh
+      #!/bin/bash
+      echo "hello"
+      EOF
+      chmod 750 ./test.sh
+      buildah ${BUILDAH_ARGS} copy ${CONTAINER} ./test.sh /application.sh
+      buildah ${BUILDAH_ARGS} config --entrypoint '["/application.sh"]' --port 8080 ${CONTAINER}
+      buildah ${BUILDAH_ARGS} config --label GIT_COMMIT="Hello" --author="Tekton" ${CONTAINER}
+      buildah ${BUILDAH_ARGS} commit ${CONTAINER} ${DESTINATION_IMAGE}
+      buildah ${BUILDAH_ARGS} unmount ${CONTAINER}
+      buildah ${BUILDAH_ARGS} push ${DESTINATION_IMAGE} docker://${DESTINATION_IMAGE}
+    env:
+    - name: user.home
+      value: /workspace/source
+    workingDir: "/workspace/source"
+  volumes:
+  - name: varlibc
+    emptyDir: {}
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: buildah-test
+spec:
+  taskRef:
+    name: buildah-test
+  params: []
 
 ```
 
@@ -1542,4 +1608,56 @@ metadata:
   labels:
     config.openshift.io/inject-trusted-cabundle: "true"
 data: {}
+```
+
+### CronJob to clean up pipeline runs
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: tekton-pipelinerun-cleaner
+  labels:
+    app: tekton-pipelinerun-cleaner
+    app.kubernetes.io/name: tekton-pipelinerun-cleaner
+    app.kubernetes.io/component: pipelinerun-cleaner
+    app.kubernetes.io/part-of: tekton
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccount: tekton-pipelinerun-cleaner
+          containers:
+            - name: oc
+              image: image-registry.openshift-image-registry.svc:5000/openshift/origin-cli:latest
+              env:
+                - name: NUM_TO_KEEP
+                  value: "3"
+              command:
+                - /bin/bash
+                - -c
+                - >
+                  for pipeline in $(oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | sort -u)
+                  do
+                    for pipelinerun in $()
+
+                  while read -r PIPELINE; do
+                    while read -r PIPELINE_TO_REMOVE; do
+                      test -n "${PIPELINE_TO_REMOVE}" || continue;
+                      kubectl delete ${PIPELINE_TO_REMOVE} \
+                          && echo "$(date -Is) PipelineRun ${PIPELINE_TO_REMOVE} deleted." \
+                          || echo "$(date -Is) Unable to delete PipelineRun ${PIPELINE_TO_REMOVE}.";
+                    done < <(kubectl get pipelinerun -l tekton.dev/pipeline=${PIPELINE} --sort-by=.metadata.creationTimestamp -o name | head -n -${NUM_TO_KEEP});
+                  done < <(kubectl get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | uniq);
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
 ```

@@ -175,7 +175,7 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
    metadata:
        name: gitea-secret
        annotations:
-         tekton.dev/git-0: gitea.${LAB_DOMAIN}
+         tekton.dev/git-0: https://gitea.${LAB_DOMAIN}:3000
    type: kubernetes.io/basic-auth
    data:
      username: $(echo -n ${GITEA_USER} | base64)

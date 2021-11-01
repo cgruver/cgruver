@@ -114,7 +114,7 @@ tags:
    ```bash
    oc import-image origin-cli:latest --from=${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --confirm -n openshift
    oc import-image ubi-minimal:8.4 --from=${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4 --confirm -n openshift
-   oc import-image java-11-app-runner:1.3.8 --from=${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --confirm -n openshift
+   oc import-image java-11-app-runner:latest --from=${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --confirm -n openshift
    oc import-image java-11-builder:latest --from=${IMAGE_REGISTRY}/openshift/java-11-builder:latest --confirm -n openshift
    oc import-image buildah:latest --from=${IMAGE_REGISTRY}/openshift/buildah:latest --confirm -n openshift
    ```
