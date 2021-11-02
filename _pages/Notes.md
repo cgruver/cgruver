@@ -1617,7 +1617,26 @@ oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app
 
 oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' 
 
+oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.name}}{{"\n"}}{{end}}' 
+
+oc get pipelinerun -o jsonpath={.items[*].metadata.name}
+
 oc get pipelinerun -l app-name=app-demo --sort-by=.metadata.creationTimestamp -o name
+
+CURRENT_TIME=$(date +%s); for PIPELINE_RUN in $(oc get pipelinerun -o jsonpath='{.items[*].metadata.name}'); do CREATE_TIME=$(date -d$(oc get pipelinerun ${PIPELINE_RUN} -o jsonpath='{.metadata.creationTimestamp}') +%s); TIME_DELTA=$(( ${CURRENT_TIME} - ${CREATE_TIME} )); if [[ ${TIME_DELTA} -gt  ${RETAIN_TIME} ]]; then echo \"Removing PipelineRun: ${PIPELINE_RUN}\"; oc delete pipelinerun ${PIPELINE_RUN}; fi; done
+
+CURRENT_TIME=$(date +%s)
+RETAIN_TIME=86400
+for PIPELINE_RUN in $(oc get pipelinerun -o jsonpath='{.items[*].metadata.name}')
+do
+  CREATE_TIME=$(date -d$(oc get pipelinerun ${PIPELINE_RUN} -o jsonpath='{.metadata.creationTimestamp}') +%s)
+  TIME_DELTA=$(( ${CURRENT_TIME} - ${CREATE_TIME} ))
+  if [[ ${TIME_DELTA} -gt  ${RETAIN_TIME} ]]
+  then
+    echo "Removing PipelineRun: ${PIPELINE_RUN}"
+    oc delete pipelinerun ${PIPELINE_RUN}
+  fi
+done
 
 oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app-name"}}{{"\n"}}{{end}}' | sort -u | grep -v "<no value>" | while read appName
 do
@@ -1634,9 +1653,9 @@ done
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: tekton-object-cleaner
+  name: tekton-pipelinerun-pruner
 spec:
-  schedule: "*/15 * * * *"
+  schedule: "0 0 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -1645,22 +1664,25 @@ spec:
           restartPolicy: OnFailure
           serviceAccount: pipeline
           containers:
-            - name: oc
+            - name: openshift-cli
               image: image-registry.openshift-image-registry.svc:5000/openshift/origin-cli:latest
               env:
-                - name: RETAIN
-                  value: "2"
+                - name: RETAIN_TIME
+                  value: "86400"
               command:
                 - /bin/bash
                 - -c
                 - >
-                  for appName in $(oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app-name"}}{{"\n"}}{{end}}' | sort -u | grep -v "<no value>") # Get list of apps
+                  CURRENT_TIME=$(date +%s)
+                  for PIPELINE_RUN in $(oc get pipelinerun -o jsonpath='{.items[*].metadata.name}')
                   do
-                    for pipelineRun in $(oc get pipelinerun -l app-name=${appName} --sort-by=.metadata.creationTimestamp -o name | head -n -${RETAIN})
-                    do
-                      echo "$(date -Is) Removing PipelineRun: ${pipelineRun}"
-                      oc delete ${pipelineRun}
-                    done
+                    CREATE_TIME=$(date -d$(oc get pipelinerun ${PIPELINE_RUN} -o jsonpath='{.metadata.creationTimestamp}') +%s)
+                    TIME_DELTA=$(( ${CURRENT_TIME} - ${CREATE_TIME} ))
+                    if [[ ${TIME_DELTA} -gt  ${RETAIN_TIME} ]]
+                    then
+                      echo "Removing PipelineRun: ${PIPELINE_RUN}"
+                      oc delete pipelinerun ${PIPELINE_RUN}
+                    fi
                   done
               resources:
                 requests:
