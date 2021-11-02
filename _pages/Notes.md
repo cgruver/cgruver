@@ -1612,16 +1612,29 @@ data: {}
 
 ### CronJob to clean up pipeline runs
 
+```bash
+oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app-name"}}{{"\n"}}{{end}}' | sort -u | grep -v "<no value>"
+
+oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' 
+
+oc get pipelinerun -l app-name=app-demo --sort-by=.metadata.creationTimestamp -o name
+
+oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app-name"}}{{"\n"}}{{end}}' | sort -u | grep -v "<no value>" | while read appName
+do
+  oc get pipelinerun -l app-name=${appName} --sort-by=.metadata.creationTimestamp -o name | head -n -${RETAIN} | while read pipelineRun
+  do
+    echo "$(date -Is) Removing PipelineRun: ${pipelineRun}"
+    oc delete ${pipelineRun}
+  done
+done
+
+```
+
 ```yaml
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: tekton-pipelinerun-cleaner
-  labels:
-    app: tekton-pipelinerun-cleaner
-    app.kubernetes.io/name: tekton-pipelinerun-cleaner
-    app.kubernetes.io/component: pipelinerun-cleaner
-    app.kubernetes.io/part-of: tekton
+  name: tekton-object-cleaner
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -1630,33 +1643,29 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
-          serviceAccount: tekton-pipelinerun-cleaner
+          serviceAccount: pipeline
           containers:
             - name: oc
               image: image-registry.openshift-image-registry.svc:5000/openshift/origin-cli:latest
               env:
-                - name: NUM_TO_KEEP
-                  value: "3"
+                - name: RETAIN
+                  value: "2"
               command:
                 - /bin/bash
                 - -c
                 - >
-                  for pipeline in $(oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | sort -u)
+                  for appName in $(oc get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "app-name"}}{{"\n"}}{{end}}' | sort -u | grep -v "<no value>") # Get list of apps
                   do
-                    for pipelinerun in $()
-
-                  while read -r PIPELINE; do
-                    while read -r PIPELINE_TO_REMOVE; do
-                      test -n "${PIPELINE_TO_REMOVE}" || continue;
-                      kubectl delete ${PIPELINE_TO_REMOVE} \
-                          && echo "$(date -Is) PipelineRun ${PIPELINE_TO_REMOVE} deleted." \
-                          || echo "$(date -Is) Unable to delete PipelineRun ${PIPELINE_TO_REMOVE}.";
-                    done < <(kubectl get pipelinerun -l tekton.dev/pipeline=${PIPELINE} --sort-by=.metadata.creationTimestamp -o name | head -n -${NUM_TO_KEEP});
-                  done < <(kubectl get pipelinerun -o go-template='{{range .items}}{{index .metadata.labels "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | uniq);
+                    for pipelineRun in $(oc get pipelinerun -l app-name=${appName} --sort-by=.metadata.creationTimestamp -o name | head -n -${RETAIN})
+                    do
+                      echo "$(date -Is) Removing PipelineRun: ${pipelineRun}"
+                      oc delete ${pipelineRun}
+                    done
+                  done
               resources:
                 requests:
-                  cpu: 50m
-                  memory: 32Mi
+                  cpu: 100m
+                  memory: 64Mi
                 limits:
                   cpu: 100m
                   memory: 64Mi
