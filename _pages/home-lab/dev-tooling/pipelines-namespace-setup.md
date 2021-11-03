@@ -1,9 +1,9 @@
 ---
-title: "Tekton Pipelines Demo"
-description: "Demo of Quarkus Build & Deploy with Tekton Triggers and Gitea Webhooks"
+title: "Tekton Pipelines Project Setup"
+description: "Setting up an OpenShift namespace and Gitea organization for Tekton Triggers with Gitea Webhooks"
 sitemap: false
 published: false
-permalink: /home-lab/quarkus-gitea-webhook-demo/
+permalink: /home-lab/pipelines-namespace-setup/
 tags:
   - openshift pipelines
   - tekton
@@ -64,98 +64,10 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
    EOF
    ```
 
-1. Create the pipelines resources:
+1. Install the pipelines resources:
 
    ```bash
    oc apply -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/manifests/ -n app-demo
-   ```
-
-### Set up a Gitea organization and service account for the demo application:
-
-1. Log into gitea as your admin user:
-
-   ![Gitea Login](images/gitea-login.png)
-
-1. Select `Site Administration` from the drop down menu in the top right corner:
-
-   ![Gitea Admin](images/gitea-site-admin.png)
-
-1. Select User Accounts:
-
-   ![Gitea Users](images/gitea-user-accounts.png)
-
-1. Create a Service Account for our demo:
-
-    ![Service Account](images/gitea-create-service-account.png)
-
-1. Update the service account by unchecking `May Create Organizations`
-
-   ![Update Service Account](images/gitea-update-service-account.png)
-
-1. Go back to `Site Administration` and select `Organizations`:
-
-   ![Organizations](images/gitea-organizations.png)
-
-1. Create an Organization for the demo code:
-
-   ![Create Organization](images/gitea-create-organization.png)
-
-1. From the new Organization, select the `Owners` Team from the `Teams` menu on the right hand of the screen:
-
-   ![](images/gitea-demo-organization.png)
-
-1. Add your `devuser` account as a Team member:
-
-   ![](images/gitea-add-devuser-to-team.png)
-
-1. Go back to the `demo` Organization and this time select `New Team` from the right hand menu:
-
-   Create a team as shown for the demo service account:
-
-   ![](images/gitea-create-team-page1.png)
-   ![](images/gitea-create-team-page2.png)
-
-1. Go back to the `demo` Organization and select the new `demo-sa` Team from the right hand menu:
-
-   ![](images/gitea-owners-team.png)
-
-1. Add the `demo-sa` user to the Team:
-
-   ![](images/gitea-add-team-member.png)
-
-### Enable Nexus to act as a proxy for Maven Central:
-
-1. Log into your Nexus server on the bastion Pi:
-
-   `https://nexus.${LAB_DOMAIN}:8443`
-
-1. Navigate to `Administration`, `Repository`, and `Repositories`:
-
-
-### Create the demo application:
-
-1. Initialize the demo application:
-
-   ```bash
-   cd ${OKD_LAB_PATH}
-   mvn io.quarkus:quarkus-maven-plugin:2.2.2.Final:create -DprojectGroupId=fun.is.quarkus -DprojectArtifactId=app-demo -DclassName="fun.is.quarkus.AppDemo" -Dpath="/hello" -Dextensions="quarkus-resteasy-jackson"
-   ```
-
-1. Initialize git tracking for the application:
-
-   ```bash
-   cd ${OKD_LAB_PATH}/app-demo
-   git init
-   git branch -m trunk
-   git add .
-   git commit -m "init"
-   ```
-
-1. Create the `app-demo` git repository on the gitea server:
-
-   ```bash
-   git remote add origin https://gitea.${LAB_DOMAIN}:3000/demo/app-demo
-   git push --mirror
    ```
 
 1. Create an authentication secret so that the pipeline service account can access gitea with the credentials we created above:
@@ -200,8 +112,79 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
    GITEA_PASSWD=""
    ```
 
-### Now, let's create the pipelines!
+### Set up a Gitea organization and service account for the demo application:
 
-```bash
-oc process app-demo//create-rolling-replace-quarkus-fast-jar-app -p GIT_REPOSITORY=https://gitea.${LAB_DOMAIN}:3000/demo/app-demo -p GIT_BRANCH=trunk | oc apply -n app-demo -f -
-```
+1. Log into gitea as your admin user:
+
+   ![Gitea Login](images/gitea-login.png)
+
+1. Select `Site Administration` from the drop down menu in the top right corner:
+
+   ![Gitea Admin](images/gitea-site-admin.png)
+
+1. Select User Accounts:
+
+   ![Gitea Users](images/gitea-user-accounts.png)
+
+1. Create a Service Account for our demo:
+
+    ![Service Account](images/gitea-create-service-account.png)
+
+1. Update the service account by unchecking `May Create Organizations`
+
+   ![Update Service Account](images/gitea-update-service-account.png)
+
+1. Go back to `Site Administration` and select `Organizations`:
+
+   ![Organizations](images/gitea-organizations.png)
+
+1. Create an Organization for the demo code:
+
+   ![Create Organization](images/gitea-create-organization.png)
+
+1. From the new Organization, select the `Owners` Team from the `Teams` menu on the right hand of the screen:
+
+   ![Owners Team](images/gitea-demo-organization.png)
+
+1. Add your `devuser` account as a Team member:
+
+   ![Add Dev User](images/gitea-add-devuser-to-team.png)
+
+1. Go back to the `demo` Organization and this time select `New Team` from the right hand menu:
+
+   Create a team as shown for the demo service account:
+
+   ![Create Team - 1](images/gitea-create-team-page1.png)
+   ![Create Team -2](images/gitea-create-team-page2.png)
+
+1. Go back to the `demo` Organization and select the new `demo-sa` Team from the right hand menu:
+
+   ![Add User to Team](images/gitea-owners-team.png)
+
+1. Add the `demo-sa` user to the Team:
+
+   ![Add User to Team](images/gitea-add-team-member.png)
+
+### Enable Nexus to act as a proxy for Maven Central:
+
+1. Log into your Nexus server on the bastion Pi as your `admin` user:
+
+   `https://nexus.${LAB_DOMAIN}:8443`
+
+1. Select the `Gear` icon to enter the `Administration` menu:
+
+   ![Administration](images/nexus-admin.png)
+
+1. Navigate to `Repository` -> `Repositories`:
+
+   ![Repositories](images/nexus-repositories.png)
+
+1. Select the `maven-central` repository:
+
+   Check `Use Nexus Trust Store`:
+
+   ![Nexus Trust](images/nexus-maven-cert.png)
+
+1. Click on `View certificate` and then click on `Add certificate to truststore`
+
+1. Click `Save` at the bottom of the page.

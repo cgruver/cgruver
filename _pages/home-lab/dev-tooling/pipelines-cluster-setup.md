@@ -2,7 +2,7 @@
 title: Cluster Setup - Tekton Pipelines for Java apps
 sitemap: false
 published: false
-permalink: /home-lab/pipelines-setup/
+permalink: /home-lab/pipelines-cluster-setup/
 tags:
   - openshift pipelines
   - tekton

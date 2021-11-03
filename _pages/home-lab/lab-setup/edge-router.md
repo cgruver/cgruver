@@ -106,9 +106,9 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
    uci set wireless.sta.disabled='0'
    uci set wireless.sta.network='wwan'
    uci set wireless.sta.wds='0'
-   uci set wireless.sta.ssid='Your-WiFi-SSID'  # Replace with your WiFi SSID
-   uci set wireless.sta.encryption='psk2'      # Replace with your encryption type
-   uci set wireless.sta.key='Your-WiFi-Key'    # Replace with your WiFi Key
+   uci set wireless.sta.ssid='Your-WiFi-SSID'  # Replace with your home WiFi router's SSID
+   uci set wireless.sta.encryption='psk2'      # Replace with your home WiFi router's encryption type
+   uci set wireless.sta.key='Your-WiFi-Key'    # Replace with your home WiFi router's Key
    uci commit wireless
    ```
 

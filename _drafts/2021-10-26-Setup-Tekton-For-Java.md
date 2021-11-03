@@ -10,6 +10,8 @@ categories:
   - Dev Tooling
 ---
 
-[Cluster Set Up Tasks](/home-lab/pipelines-setup/)
+[Cluster Set Up Tasks](/home-lab/pipelines-cluster-setup/)
+
+[Project Set Up Tasks](/home-lab/pipelines-namespace-setup/)
 
 [Demo with Quarkus & Gitea Webhooks](/home-lab/quarkus-gitea-webhook-demo/)
