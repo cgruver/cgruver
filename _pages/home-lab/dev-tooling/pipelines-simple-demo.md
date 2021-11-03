@@ -123,6 +123,14 @@ Now, let's do a quick demonstration of the capabilities of Tekton and Tekton Tri
 
    ![](images/gitea-add-team-member.png)
 
+### Enable Nexus to act as a proxy for Maven Central:
+
+1. Log into your Nexus server on the bastion Pi:
+
+   `https://nexus.${LAB_DOMAIN}:8443`
+
+1. Navigate to `Administration`, `Repository`, and `Repositories`:
+
 
 ### Create the demo application:
 
