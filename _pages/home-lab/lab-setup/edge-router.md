@@ -16,7 +16,7 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
 1. If you don't have an SSH key pair configured on your workstation, then create one now:
 
     ```bash
-    ssh-keygen -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
+    ssh-keygen -t rsa -b 4096 -N "" -f ${HOME}/.ssh/id_rsa
     ```
 
 1. Connect to your edge router:
