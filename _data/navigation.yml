@@ -43,3 +43,13 @@ lab-projects:
       url: /home-lab/tekton-install/
     - title: "CodeReady Containers for OKD"
       url: /home-lab/okd-crc/
+  - title: "CI/CD Tekton Demo"
+    children:
+    - title: "Cluster Setup"
+      url: /home-lab/pipelines-cluster-setup/
+    - title: "Gitea & Nexus Setup"
+      url: /home-lab/pipelines-gitea-nexus-setup/
+    - title: "OpenShift Project Setup"
+      url: /home-lab/pipelines-project-setup/
+    - title: "Quarkus Build & Deploy"
+      url: /home-lab/quarkus-gitea-webhook-demo/
