@@ -1723,3 +1723,67 @@ spec:
                   memory: 64Mi
 
 ```
+
+```yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: secrets-csi-test-deployment
+  namespace: csi-driver-workloads
+  labels:
+    app: secrets-csi-test-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secrets-csi-test-deployment
+  template:
+    metadata:
+      labels:
+        app: secrets-csi-test-deployment
+    spec:
+      containers:
+        - name: secrets-csi-test-pod
+          command:
+            - /bin/sleep
+            - '10000'
+          volumeMounts:
+            - name: secrets-store-inline
+              readOnly: true
+              mountPath: /mnt/secrets-store
+          image: 'k8s.gcr.io/e2e-test-images/busybox:1.29'
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: my-application-aws-secrets
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: secrets-csi-test-pod
+  namespace: csi-driver-workloads
+  labels:
+    app: secrets-csi-test-pod
+spec:
+  containers:
+    - name: secrets-csi-test-pod
+      command:
+        - /bin/sleep
+        - '10000'
+      volumeMounts:
+        - name: secrets-store-inline
+          readOnly: true
+          mountPath: /mnt/secrets-store
+      image: 'k8s.gcr.io/e2e-test-images/busybox:1.29'
+  serviceAccount: default
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: my-application-aws-secrets
+```

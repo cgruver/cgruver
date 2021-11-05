@@ -19,35 +19,54 @@ tags:
 
    OpenWrt does not include a packaged Java runtime.  So, we are going to borrow one from Alpine Linux.
 
-   ```bash
-   mkdir -p /usr/local
+   1. Grab the packages and unpack them:
 
-   mkdir /tmp/work-dir
-   cd /tmp/work-dir
+      ```bash
+      mkdir /tmp/work-dir
+      cd /tmp/work-dir
 
-   PKG="openjdk8-8 openjdk8-jre-8 openjdk8-jre-lib-8 openjdk8-jre-base-8 java-cacerts liblcms-"
+      PKG="openjdk8-8 openjdk8-jre-8 openjdk8-jre-lib-8 openjdk8-jre-base-8 java-cacerts liblcms-"
 
-   for package in ${PKG}; do
-       FILE=$(lftp -e "cls -1 alpine/edge/community/aarch64/${package}*; quit" http://dl-cdn.alpinelinux.org)
-       curl -LO http://dl-cdn.alpinelinux.org/${FILE}
-   done
+      for package in ${PKG}; do
+         FILE=$(lftp -e "cls -1 alpine/edge/community/aarch64/${package}*; quit" http://dl-cdn.alpinelinux.org)
+         curl -LO http://dl-cdn.alpinelinux.org/${FILE}
+      done
 
-   for i in $(ls)
-   do
-       tar xzf ${i}
-   done
+      for i in $(ls)
+      do
+         tar xzf ${i}
+      done
+      ```
 
-   export PATH=${PATH}:/root/bin:/usr/local/java-1.8-openjdk/bin
-   mv ./usr/lib/liblcms* /usr/lib/
-   mv ./usr/lib/jvm/java-1.8-openjdk /usr/local/java-1.8-openjdk
-   rm -f /usr/local/java-1.8-openjdk/jre/lib/security/cacerts
-   keytool -importcert -file /etc/ssl/certs/ca-certificates.crt -keystore /usr/local/java-1.8-openjdk/jre/lib/security/cacerts -keypass changeit -storepass changeit
-   cd 
+   1. Move the package files to the proper install locations:
 
-   rm -rf /tmp/work-dir
+      ```bash
+      mv ./usr/lib/liblcms* /usr/lib/
+      mv ./usr/lib/jvm/java-1.8-openjdk /usr/local/java-1.8-openjdk
+      ```
 
-   echo "export PATH=\$PATH:/root/bin:/usr/local/java-1.8-openjdk/bin" >> /root/.profile
-   ```
+   1. Add Java to the `PATH`
+
+      ```bash
+      export PATH=${PATH}:/root/bin:/usr/local/java-1.8-openjdk/bin
+      echo "export PATH=\$PATH:/root/bin:/usr/local/java-1.8-openjdk/bin" >> /root/.profile
+      ```
+
+   1. The installed `cacerts` file is empty, so we need to import the certs from the OS.
+
+      ```bash
+      rm -f /usr/local/java-1.8-openjdk/jre/lib/security/cacerts
+      keytool -importcert -file /etc/ssl/certs/ca-certificates.crt -keystore /usr/local/java-1.8-openjdk/jre/lib/security/cacerts -keypass changeit -storepass changeit
+      ```
+
+      __Note:__ At the prompt: `Trust this certificate? [no]:` Type `yes`
+
+   1. Finally, clean up:
+
+      ```bash
+      cd
+      rm -rf /tmp/work-dir
+      ```
 
 1. Install Sonatype Nexus OSS
 
@@ -220,11 +239,11 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
      sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
      ```
 
-   * Linux:
+   * Linux: (Needs to be run as root)
 
      ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
-     update-ca-trust
+     sudo openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     sudo update-ca-trust
      ```
 
 1. Next, set up the router for your OpenShift cluster:

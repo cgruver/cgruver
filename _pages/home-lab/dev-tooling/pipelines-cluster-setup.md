@@ -11,14 +11,20 @@ tags:
   - Gitea Webhooks
 ---
 
-1. If you are on a Mac like me, then start podman:
+In this session, we are going to get our cluster ready for CI/CD.  
+
+__Note:__  *If you have not installed OpenShift Pipelines, you need to do that first*: [Install Tekton](/home-lab/tekton-install/)
+
+Now, on to the setup!
+
+1. If you are on a Mac like me, then start podman: (You don't need to do this on Linux)
 
    ```bash
    podman machine init
    podman machine start
    ```
 
-1. Refresh the okd-home-lab helper project that I created.
+1. Refresh the okd-home-lab helper project that I created. (You should be tracking the `main` branch)
 
    ```bash
    cd ${OKD_LAB_PATH}/okd-home-lab
@@ -28,23 +34,37 @@ tags:
 
 1. Pull and tag some images for the pipelines:
 
-   | `origin-cli` | Contains the OpenShift command line tools for manipulating namespace scoped objects within Tekton tasks |
-   | `ubi-minimal` | A very compact RHEL based image that we will use as the basis for other images built by Tekton tasks |
-   | `buildah` | An image containing the `buildah` image manipulation tooling |
+   1. Set a couple of vars:
+
+      ```bash
+      IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+      OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
+      ```
+   
+   1. Grab the `origin-cli` image from `quay.io`:
+
+      This image contains the OpenShift command line tools that we will use for manipulating namespace scoped objects within Tekton tasks.
+
+      ```bash
+      podman pull quay.io/openshift/origin-cli:${OKD_MAJ}
+      podman tag quay.io/openshift/origin-cli:${OKD_MAJ} ${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ}
+      ```
+
+   1. Grab the `ubi-minimal` image from Red Hat:
+
+      This image is a very compact RHEL based image that we will use as the basis for other images built by Tekton tasks.  We'll also use it to run Quarkus native applications later on.
 
    ```bash
-   IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
-   OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
-
-   podman pull quay.io/openshift/origin-cli:${OKD_MAJ}
-   podman tag quay.io/openshift/origin-cli:${OKD_MAJ} ${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ}
-
    podman pull registry.access.redhat.com/ubi8/ubi-minimal:8.4
    podman tag registry.access.redhat.com/ubi8/ubi-minimal:8.4 ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4
 
    podman pull quay.io/buildah/stable:latest
    podman tag quay.io/buildah/stable:latest ${IMAGE_REGISTRY}/openshift/buildah:latest
    ```
+
+   | `origin-cli` | Contains the OpenShift command line tools for manipulating namespace scoped objects within Tekton tasks |
+   | `ubi-minimal` | A very compact RHEL based image that we will use as the basis for other images built by Tekton tasks |
+   | `buildah` | An image containing the `buildah` image manipulation tooling |
 
 1. Build the two container images that I created for this project:
 
