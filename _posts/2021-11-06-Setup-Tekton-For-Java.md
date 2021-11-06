@@ -1,6 +1,6 @@
 ---
 title: Let's Code!  ...and build, and deploy!
-date:   2021-11-05 00:00:00 -0400
+date:   2021-11-06 00:00:00 -0400
 description: "Set up Tekton pipelines with Gitea Webhooks"
 tags:
   - Tekton

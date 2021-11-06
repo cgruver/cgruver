@@ -2,6 +2,8 @@
 title: Build CodeReady Containers - With OKD
 permalink: /home-lab/okd-crc/
 description: How to build CodeReady Containers for OKD
+sitemap: true
+published: true
 tags:
   - crc
   - codeready

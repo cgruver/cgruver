@@ -1,8 +1,8 @@
 ---
 title: "Tekton Pipelines - Quarkus Build & Deploy"
 description: "Demo of Quarkus Build & Deploy with Tekton Triggers and Gitea Webhooks"
-sitemap: false
-published: false
+sitemap: true
+published: true
 permalink: /home-lab/quarkus-gitea-webhook-demo/
 tags:
   - openshift pipelines

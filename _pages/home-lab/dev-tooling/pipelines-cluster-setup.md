@@ -1,7 +1,7 @@
 ---
 title: Tekton Pipelines - Cluster Setup
-sitemap: false
-published: false
+sitemap: true
+published: true
 permalink: /home-lab/pipelines-cluster-setup/
 tags:
   - openshift pipelines

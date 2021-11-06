@@ -2,6 +2,8 @@
 title: OpenShift Pipelines - Disconnected Install
 description: How To Install OpenShift Pipelines On A Disconnected Network
 permalink: /home-lab/tekton-install/
+sitemap: true
+published: true
 tags:
   - openshift pipelines
   - tekton
