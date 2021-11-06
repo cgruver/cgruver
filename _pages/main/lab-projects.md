@@ -25,6 +25,11 @@ classes: wide
 1. [Deploy Ceph Storage](/home-lab/rook-ceph/)
 1. [(git)Tea with a Slice of Pi](/home-lab/gitea-with-pi/)
 1. [Install OpenShift Pipelines](/home-lab/tekton-install/)
+1. Tekton Pipelines Demo with Gitea Webhooks:
+    1. [Cluster Setup](/home-lab/pipelines-cluster-setup/)
+    1. [Gitea & Nexus Setup](/home-lab/pipelines-gitea-nexus-setup/)
+    1. [OpenShift Project Setup](/home-lab/pipelines-project-setup/)
+    1. [Quarkus Build & Deploy](/home-lab/quarkus-gitea-webhook-demo/)
 
 ### Build CodeReady Containers for OKD:
 
