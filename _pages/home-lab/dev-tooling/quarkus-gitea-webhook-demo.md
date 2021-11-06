@@ -55,3 +55,5 @@ Let's do a quick demonstration of the capabilities of Tekton, Tekton Triggers & 
    ```
 
 1. Watch the pipeline that was just triggered!
+
+   ![Pipelines](images/demo-pipeline-run.png)

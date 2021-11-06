@@ -11,6 +11,8 @@ tags:
   - Quarkus
   - Gitea Webhooks
 ---
+__Note:__  __*If you have not installed Gitea, you need to do that first*__: [Install Gitea](/home-lab/gitea-with-pi/)
+
 ### Set up a Gitea organization and service account for the demo application:
 
 1. Log into gitea as your admin user:
