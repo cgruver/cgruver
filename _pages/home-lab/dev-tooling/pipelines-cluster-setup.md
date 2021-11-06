@@ -1,5 +1,5 @@
 ---
-title: Tekton Pipelines - Cluster Setup
+title: "Tekton Pipelines - Cluster Setup"
 sitemap: true
 published: true
 permalink: /home-lab/pipelines-cluster-setup/
