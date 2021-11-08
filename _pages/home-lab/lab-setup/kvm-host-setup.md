@@ -62,13 +62,10 @@ There are a couple of things that we need to put in place to get started.
 1. Your `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` file should now look something like:
 
    ```yaml
-   cluster-sub-domain: dev
-   cluster-name: okd4-dev
-   edge-ip: 10.11.12.2
-   router: 10.11.13.1
-   lb-ip: 10.11.13.2
-   network: 10.11.13.0
-   netmask: 255.255.255.0
+   cluster-name: okd4
+   secret-file: /Users/username/okd-lab/pull_secret.json
+   local-registry: nexus.my.awesome.lab:5001
+   remote-registry: quay.io/openshift/okd
    bootstrap:
      kvm-host: kvm-host01
      memory: 12288
@@ -83,12 +80,12 @@ There are a couple of things that we need to put in place to get started.
      - kvm-host01
      - kvm-host01
    kvm-hosts:
-   - host-name: kvm-host01
-     mac-addr: 1c:69:7a:61:fb:44
-     ip-octet: 200
-     disks:
-       disk1: nvme0n1
-       disk2: NA
+     - host-name: kvm-host01
+       mac-addr: 1c:69:7a:6f:b8:5d
+       ip-octet: 200
+       disks:
+         disk1: nvme0n1
+         disk2: NA
    ```
 
 1. We are now ready to plug in the NUC and boot it up.
