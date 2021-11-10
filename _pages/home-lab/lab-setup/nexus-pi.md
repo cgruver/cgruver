@@ -242,7 +242,9 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
    * Linux: (Needs to be run as root)
 
      ```bash
-     sudo openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null > /tmp/nexus.${LAB_DOMAIN}.cert
+     sudo openssl x509 -outform PEM -in /tmp/nexus.${LAB_DOMAIN}.cert -out /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     rm /tmp/nexus.${LAB_DOMAIN}.cert
      sudo update-ca-trust
      ```
 
