@@ -147,6 +147,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
 1. Copy the scripts to your lab `bin` directory:
 
    ```bash
+   mkdir ${OKD_LAB_PATH}/bin
    cp okd-home-lab/bin/* ${OKD_LAB_PATH}/bin
    chmod 700 ${OKD_LAB_PATH}/bin/*
    ```

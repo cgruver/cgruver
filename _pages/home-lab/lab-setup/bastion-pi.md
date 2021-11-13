@@ -30,16 +30,18 @@ We are going to use the edge router that we set up in the previous step to confi
 1. Retrieve the OpenWRT image for the Pi 4b
 
    ```bash
-   wget https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
-   gunzip openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
+   # wget https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
+   # gunzip openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
+   wget https://downloads.openwrt.org/releases/21.02.1/targets/bcm27xx/bcm2711/openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
+   gunzip openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
    ```
 
 1. Unmount the SD Card and flash it with the OS image
 
    ```bash
    umount /dev/mmcblk1p1
-   dd if=openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/mmcblk1 bs=4M conv=fsync
-   rm openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img 
+   dd if=openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/mmcblk1 bs=4M conv=fsync
+   rm openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img
    ```
 
 1. Resize the Root volume to 20GB and create a `/usr/local` filesystem using the rest of the drive.
@@ -149,6 +151,7 @@ We are going to use the edge router that we set up in the previous step to confi
    ```bash
    umount /dev/mmcblk1p1
    umount /dev/mmcblk1p2
+   umount /dev/mmcblk1p3
    ```
 
 __Remove card from router, put it in the Pi, and boot it up.__
@@ -161,7 +164,6 @@ __Remove card from router, put it in the Pi, and boot it up.__
    createEnvScript.sh -e -c=${OKD_LAB_PATH}/lab-config/lab.yaml
    cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@bastion.${LAB_DOMAIN} "cat >> /root/.profile"
    rm -rf ${OKD_LAB_PATH}/work-dir
-   ssh root@bastion.${LAB_DOMAIN} "echo \"export LOCAL_REGISTRY=${LOCAL_REGISTRY}\" >> /root/.profile"
    ```
 
 1. Log onto the Pi:

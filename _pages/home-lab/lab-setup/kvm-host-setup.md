@@ -32,11 +32,17 @@ There are a couple of things that we need to put in place to get started.
    openssl passwd -1 'host-root-password' > ${OKD_LAB_PATH}/lab_host_pw
    ```
 
+1. Add your workstation's public SSH key to the authorized keys file that the KVM host will install:
+
+   ```bash
+   cat ~/.ssh/id_rsa.pub | ssh root@bastion.${LAB_DOMAIN} "cat >> /usr/local/www/install/postinstall/authorized_keys" 
+   ```
+
 1. Read the `MAC` address off of the bottom of the NUC and create an environment variable:
 
-  ```bash
-  MAC_ADDR=1c:69:7a:6f:ab:12  # Substiture your NUC's MAC Address
-  ```
+   ```bash
+   MAC_ADDR=1c:69:7a:6f:ab:12  # Substiture your NUC's MAC Address
+   ```
 
 1. Add `kvm-hosts` entries to your lab config file:
 
