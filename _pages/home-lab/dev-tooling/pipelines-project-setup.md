@@ -78,13 +78,13 @@ tags:
    Place the credentials into environment variables.  We're using the `read` shell command so that the username and password are not stored in the shell history.
 
    ```bash
-   read -s GITEA_USER
+   read GITEA_USER
    ```
 
    Type the service account user name that we created above and hit `retrun`:
 
    ```bash
-   read -s GITEA_PASSWD
+   read GITEA_PASSWD
    ```
 
    Type the service account password that we created above and hit `retrun`:

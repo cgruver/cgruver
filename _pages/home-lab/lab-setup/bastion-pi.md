@@ -224,14 +224,6 @@ __Remove card from router, put it in the Pi, and boot it up.__
    mkdir /usr/local/www/install/fcos
    ```
 
-1. Download the Fedora CoreOS install files:
-
-   ```bash
-   curl -o /usr/local/www/install/fcos/vmlinuz https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-kernel-x86_64
-   curl -o /usr/local/www/install/fcos/initrd https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-initramfs.x86_64.img
-   curl -o /usr/local/www/install/fcos/rootfs.img https://builds.coreos.fedoraproject.org/prod/streams/${FCOS_STREAM}/builds/${FCOS_VER}/x86_64/fedora-coreos-${FCOS_VER}-live-rootfs.x86_64.img
-   ```
-
 1. Create a script for synching a CentOS Stream repository mirror:
 
    ```bash

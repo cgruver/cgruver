@@ -10,21 +10,12 @@ tags:
   - openwrt ipxe boot
   - openwrt dhcp configuration
 ---
-1. Connect to your internal network router.  We'll set this up for our Dev OpenShift cluster:
+### Prepare for Internal Network Router Configuration:
 
-    Connect from your workstation with a network cable.
-
-1. Copy your SSH public key to the router for login:
-
-    ```bash
-    cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
-    ```
-
-1. Create an environment script to help configure the router:
+1. Create an environment script to help configure the internal router:
 
    ```bash
    createEnvScript.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
-   cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
    ```
 
 1. Add env vars to the edge router for additional configuration:
@@ -37,8 +28,7 @@ tags:
 
    ```bash
    cat ${OKD_LAB_PATH}/work-dir/edge-zone | ssh root@router.${LAB_DOMAIN} "cat >> /etc/bind/named.conf"
-   ssh root@router.${LAB_DOMAIN} "/etc/init.d/named restart"
-   rm -rf ${OKD_LAB_PATH}/work-dir
+   ssh root@router.${LAB_DOMAIN} "/etc/init.d/named stop && /etc/init.d/named start"
    ```
 
 1. Create a static route in the edge router:
@@ -58,6 +48,25 @@ tags:
    /etc/init.d/named restart
    exit
    ```
+
+### Configure Internal Network Router:
+
+1. Connect to your internal network router.  We'll set this up for our Dev OpenShift cluster:
+
+    Connect from your workstation with a network cable.
+
+1. Copy your SSH public key to the router for login:
+
+    ```bash
+    cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
+    ```
+
+1. Add env vars to the edge router for additional configuration:
+
+   ```bash
+    cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+    rm -rf ${OKD_LAB_PATH}/work-dir
+    ```
 
 1. Log into the router:
 
@@ -150,6 +159,8 @@ tags:
    ```bash
    poweroff
    ```
+
+### Finish Configuration:
 
 1. Now, we should be able to log into our new internal network router:
 
@@ -553,7 +564,7 @@ tags:
 
    ```bash
    /etc/init.d/haproxy enable
-   /etc/init.d/haproxy start
+   reboot
    ```
 
 1. Next, install CentOS Stream on your KVM host:

@@ -49,22 +49,36 @@ From your workstation, do the following:
 
    1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
 
+      If you followed the guide exactly, then the Nexus user is `openshift-mirror`
+
       ```bash
-      NEXUS_PWD=$(echo -n "openshift-mirror:your_password" | base64)
+      read NEXUS_USER
+      ```
+
+      Type the username, i.e. `openshift-mirror` and hit `<return>`
+
+      ```bash
+      read NEXUS_PWD
+      ```
+
+      Type the password that you created for the Nexus user and hit `<return>`
+
+      ```bash
+      NEXUS_SECRET=$(echo -n "${NEXUS_USER}:${NEXUS_PWD}" | base64)
       ```
 
    1. We need to put the pull secret into a JSON file that we will use to mirror the OKD images into our Nexus registry.  We'll also need the pull secret for our cluster install.  Since we are installing OKD, we don't need an official quay.io pull secret.  So, we will use a fake one.
 
       ```bash
       cat << EOF > ${OKD_LAB_PATH}/pull_secret.json
-      {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_PWD}"}}}
+      {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_SECRET}"}}}
       EOF
       ```
 
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
-   mirrorOkdRelease.sh
+   mirrorOkdRelease.sh -d=dev -c=${OKD_LAB_PATH}/lab-config/lab.yaml
    ```
 
    The final output should look something like:

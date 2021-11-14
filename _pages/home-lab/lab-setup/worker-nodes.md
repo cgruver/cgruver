@@ -98,7 +98,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Create the KVM host install config:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/deployKvmHosts.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -h=kvm-host02 -d=dev
+   deployKvmHosts.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -h=kvm-host02 -d=dev
    ```
 
 1. Now, connect the NUC to the remaining LAN port on the internal router and power it on. After a few minutes, it should be up and running.
@@ -116,13 +116,13 @@ You will need another NUC like the one that you used to build the initial lab.  
    Initialize the ignition files and iPXE boot files for the new worker nodes:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/deployOkdNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   deployOkdNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
    ```
 
 1. Start the nodes:
 
    ```bash
-   ${OKD_LAB_PATH}/bin/startNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   startNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
    ```
 
 1. Now, you need to monitor the cluster Certificate Signing Requests.  You are looking for requests in a `Pending` state.

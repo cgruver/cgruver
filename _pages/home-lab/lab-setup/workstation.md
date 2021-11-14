@@ -203,14 +203,14 @@ This tutorial assumes that you are running a Unix like operating system on your 
    __Mac OS:__
 
    ```bash
-   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.7.0/fcct-x86_64-apple-darwin
+   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.12.1/butane-x86_64-apple-darwin
    chmod 700 ${OKD_LAB_PATH}/bin/butane
    ```
 
    __Linux:__
 
    ```bash
-   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.7.0/fcct-x86_64-unknown-linux-gnu
+   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.12.1/butane-x86_64-unknown-linux-gnu
    chmod 700 ${OKD_LAB_PATH}/bin/butane
    ```
 

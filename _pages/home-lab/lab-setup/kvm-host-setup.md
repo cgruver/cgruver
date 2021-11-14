@@ -29,7 +29,13 @@ There are a couple of things that we need to put in place to get started.
 1. Create an encrypted root password for your KVM hosts:
 
    ```bash
-   openssl passwd -1 'host-root-password' > ${OKD_LAB_PATH}/lab_host_pw
+   read KVM_ROOT_PWD
+   ```
+
+   Type the password that you want to set for your KVM hosts and hit `<return>`
+
+   ```bash
+   openssl passwd -1 "${KVM_ROOT_PWD}" > ${OKD_LAB_PATH}/lab_host_pw
    ```
 
 1. Add your workstation's public SSH key to the authorized keys file that the KVM host will install:

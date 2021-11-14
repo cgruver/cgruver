@@ -29,6 +29,8 @@ lab-projects:
       url: /home-lab/prepare-okd-install/
     - title: "Install OKD"
       url: /home-lab/install-okd/
+    - title: "Tear Down Cluster"
+      url: /home-lab/recreate-cluster/
   - title: "Additional Infrastructure"
     children:
     - title: "Add Worker Nodes"

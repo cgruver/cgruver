@@ -25,7 +25,7 @@ tags:
       mkdir /tmp/work-dir
       cd /tmp/work-dir
 
-      PKG="openjdk8-8 openjdk8-jre-8 openjdk8-jre-lib-8 openjdk8-jre-base-8 java-cacerts liblcms-"
+      PKG="openjdk8-8 openjdk8-jre-8 openjdk8-jre-lib-8 openjdk8-jre-base-8 java-cacerts"
 
       for package in ${PKG}; do
          FILE=$(lftp -e "cls -1 alpine/edge/community/aarch64/${package}*; quit" http://dl-cdn.alpinelinux.org)
@@ -41,7 +41,6 @@ tags:
    1. Move the package files to the proper install locations:
 
       ```bash
-      mv ./usr/lib/liblcms* /usr/lib/
       mv ./usr/lib/jvm/java-1.8-openjdk /usr/local/java-1.8-openjdk
       ```
 
@@ -74,7 +73,7 @@ tags:
    mkdir -p /usr/local/nexus/home
    cd /usr/local/nexus
    wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz -O latest-unix.tar.gz
-   tar -xzvf latest-unix.tar.gz
+   tar -xzf latest-unix.tar.gz
    NEXUS=$(ls -d nexus-*)
    ln -s ${NEXUS} nexus-3
    rm -f latest-unix.tar.gz
@@ -148,20 +147,26 @@ tags:
    /etc/init.d/nexus start
    ```
 
-1. Finally, trust the new Nexus cert on your workstation:
+1. Nexus will take a while to start for the first time.
+
+   Go make a nice cup of tea, coffee, or hot beverage of your choice.  Nexus will be up shortly.
+
+1. After Nexus has started, trust the new Nexus cert on your workstation:
 
    * Mac OS:
 
      ```bash
      openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
      ```
 
    * Linux:
 
      ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
-     update-ca-trust
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null > /tmp/nexus.${LAB_DOMAIN}.cert
+     sudo openssl x509 -outform PEM -in /tmp/nexus.${LAB_DOMAIN}.cert -out /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
+     rm /tmp/nexus.${LAB_DOMAIN}.cert
+     sudo update-ca-trust
      ```
 
 ### Set up Nexus for image mirroring:
@@ -229,24 +234,6 @@ We need to create a hosted Docker registry to hold the mirror of the OKD images 
 1. Create the user as shown:
 
     ![Nexus User](images/NexusUser.png)
-
-1. Add the Nexus cert to the trust store on your workstation:
-
-   * Mac OS:
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
-     ```
-
-   * Linux: (Needs to be run as root)
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null > /tmp/nexus.${LAB_DOMAIN}.cert
-     sudo openssl x509 -outform PEM -in /tmp/nexus.${LAB_DOMAIN}.cert -out /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
-     rm /tmp/nexus.${LAB_DOMAIN}.cert
-     sudo update-ca-trust
-     ```
 
 1. Next, set up the router for your OpenShift cluster:
 
