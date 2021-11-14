@@ -25,6 +25,14 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
    ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
    ```
 
+1. Really annoying Mac thing...
+
+   If you are on a Mac, you might have to give DNS a kick for it to resolve the gitea address:
+
+   ```bash
+   sudo killall -HUP mDNSResponder
+   ```
+
 1. Log into the Bastion Pi server:
 
    ```bash
@@ -45,30 +53,14 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
 
 1. Install Gitea:
 
-   As with our JDK install, we're going to thank the great folks at Alpine Linux for providing aarch64 packages that are easy to install on OpenWRT.
-
-   Pull the gitea package from the Alpine site:
-
-   ```bash
-   mkdir /tmp/work-dir
-   cd /tmp/work-dir
-   FILE=$(lftp -e "cls -1 alpine/edge/community/aarch64/gitea*; quit" http://dl-cdn.alpinelinux.org | grep -v openrc)
-   curl -LO http://dl-cdn.alpinelinux.org/${FILE}
-   tar xzf $(ls *.apk)
-   ```
-
-1. Create the directory structure for Gitea and move the files:
-
    ```bash
    mkdir -p /usr/local/gitea
    for i in bin etc custom data db git
    do
      mkdir /usr/local/gitea/${i}
    done
-   mv ./usr/share/webapps/gitea /usr/local/gitea/web
-   mv ./usr/bin/gitea /usr/local/gitea/bin/
-   cd
-   rm -rf /tmp/work-dir
+   wget -O /usr/local/gitea/bin/gitea https://dl.gitea.io/gitea/1.15.6/gitea-1.15.6-linux-arm64
+   chmod 750 /usr/local/gitea/bin/gitea
    ```
 
 1. Create a self-signed key pair for Gitea:
@@ -192,6 +184,7 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
    ```bash
    /etc/init.d/gitea enable
    /etc/init.d/gitea start
+   exit
    ```
 
 1. Trust the gitea certs on your workstation:

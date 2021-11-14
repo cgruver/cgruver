@@ -19,34 +19,34 @@ Follow these steps to deploy a Ceph cluster:
 
 The first thing that we are going to do is mirror the Rook Operator and Ceph Storage images into Nexus.  Remember, our cluster is isolated from the internet.  If this were a "real" data center, we would run security scans on the images before releasing them to be ingested by applications in our cluster.  In a future post, we will actually do that.  We'll set up a two stage process to validate that images are safe to run in our data center.  But, more on that later...
 
-1. Log into the bastion host:
+1. Make sure that you have `podman` installed on your workstation.
+
+   Mac OS:
 
    ```bash
-   ssh root@bastion.${LAB_DOMAIN}
-   ```
-
-1. Install some additional packages:
-
-   ```bash
-   opkg update && opkg install openssl-util podman crun
+   brew install podman
+   podman machine init
+   podman machine start
    ```
 
 1. Pull the Rook and Ceph images so that we can mirror them to Nexus:
 
    ```bash
-   podman pull --arch=amd64 quay.io/cephcsi/cephcsi:v3.4.0
-   podman pull --arch=amd64 k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0
-   podman pull --arch=amd64 k8s.gcr.io/sig-storage/csi-resizer:v1.3.0
-   podman pull --arch=amd64 k8s.gcr.io/sig-storage/csi-provisioner:v3.0.0
-   podman pull --arch=amd64 k8s.gcr.io/sig-storage/csi-snapshotter:v4.2.0
-   podman pull --arch=amd64 k8s.gcr.io/sig-storage/csi-attacher:v3.3.0
-   podman pull --arch=amd64 docker.io/rook/ceph:v1.7.7
-   podman pull --arch=amd64 quay.io/ceph/ceph:v16.2.6
+   podman pull  quay.io/cephcsi/cephcsi:v3.4.0
+   podman pull  k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0
+   podman pull  k8s.gcr.io/sig-storage/csi-resizer:v1.3.0
+   podman pull  k8s.gcr.io/sig-storage/csi-provisioner:v3.0.0
+   podman pull  k8s.gcr.io/sig-storage/csi-snapshotter:v4.2.0
+   podman pull  k8s.gcr.io/sig-storage/csi-attacher:v3.3.0
+   podman pull  docker.io/rook/ceph:v1.7.7
+   podman pull  quay.io/ceph/ceph:v16.2.6
    ```
 
 1. Tag the images for Nexus:
 
    ```bash
+   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+
    podman tag quay.io/cephcsi/cephcsi:v3.4.0 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0
    podman tag k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0
    podman tag k8s.gcr.io/sig-storage/csi-resizer:v1.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.3.0
@@ -57,29 +57,23 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    podman tag quay.io/ceph/ceph:v16.2.6 ${LOCAL_REGISTRY}/ceph/ceph:v16.2.6
    ```
 
-1. Add the Nexus cert to the CA trust:
-
-   ```bash
-   openssl s_client -showcerts -connect nexus.${DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/ssl/certs/nexus.${DOMAIN}.crt
-   ```
-
 1. Log into Nexus:
 
    ```bash
    podman login -u openshift-mirror ${LOCAL_REGISTRY}
    ```
 
-1. Push the images:
+1. Push the images: (The `--tls-verify` is for Mac users.  It's not ideal, but it works.)
 
    ```bash
-   podman push ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.3.0
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.0.0
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v4.2.0
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.3.0
-   podman push ${LOCAL_REGISTRY}/rook/ceph:v1.7.7
-   podman push ${LOCAL_REGISTRY}/ceph/ceph:v16.2.6
+   podman push ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.3.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.0.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v4.2.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.3.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/rook/ceph:v1.7.7 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/ceph/ceph:v16.2.6 --tls-verify=false
    ```
 
 1. Clean up after yourself and log off the bastion host:
@@ -88,7 +82,12 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 
    ```bash
    podman image rm -a
-   exit
+   ```
+
+1. If you are on a Mac like me, the stop the podman VM:
+
+   ```bash
+   podman machine stop
    ```
 
 ### Now we are ready to install Ceph
