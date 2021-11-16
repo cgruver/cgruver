@@ -27,6 +27,15 @@ wget https://packages.gitlab.com/gitlab/gitlab-ce/packages/debian/buster/gitlab-
 wget https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_14.0.5-ce.0_arm64.deb/download.deb
 
 wget https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/8/gitlab-ce-14.0.5-ce.0.el8.aarch64.rpm/download.rpm
+```
+
+### Install
+
+```bash
+opkg update && opkg install ar
+
+wget https://packages.gitlab.com/gitlab/raspberry-pi2/packages/raspbian/buster/gitlab-ce_14.1.8-ce.0_armhf
+.deb/download.deb -O gitlab.deb
 
 ```
 
