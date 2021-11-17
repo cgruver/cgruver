@@ -37,6 +37,19 @@ opkg update && opkg install ar
 wget https://packages.gitlab.com/gitlab/raspberry-pi2/packages/raspbian/buster/gitlab-ce_14.1.8-ce.0_armhf
 .deb/download.deb -O gitlab.deb
 
+mkdir gitlab
+
+cd gitlab
+
+ar -x ../gitlab.deb
+tar -xzf data.tar.gz
+
+ln -s /usr/local /opt
+
+cp -r opt/gitlab /usr/local
+
+cd /usr/local/gitalab
+
 ```
 
 ## Firewall
