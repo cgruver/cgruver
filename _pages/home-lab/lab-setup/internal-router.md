@@ -33,21 +33,33 @@ tags:
 
 1. Create a static route in the edge router:
 
-   ```bash
-   ssh root@router.${LAB_DOMAIN}
+   1. Log into the edge router:
 
-   unset ROUTE
+      ```bash
+      ssh root@router.${LAB_DOMAIN}
+      ```
    
-   ROUTE=$(uci add network route)
-   uci set network.${ROUTE}.interface=lan
-   uci set network.${ROUTE}.target=${DEV_NETWORK}
-   uci set network.${ROUTE}.netmask=${NETMASK}
-   uci set network.${ROUTE}.gateway=${DEV_ROUTER}
-   uci commit network
-   /etc/init.d/network restart
-   /etc/init.d/named restart
-   exit
-   ```
+   1. Create the route:
+
+      ```bash
+      unset ROUTE
+   
+      ROUTE=$(uci add network route)
+      uci set network.${ROUTE}.interface=lan
+      uci set network.${ROUTE}.target=${DEV_NETWORK}
+      uci set network.${ROUTE}.netmask=${NETMASK}
+      uci set network.${ROUTE}.gateway=${DEV_ROUTER}
+      uci commit network
+      ```
+
+   1. Restart the network and DNS services:
+
+      ```bash
+      /etc/init.d/network restart
+      /etc/init.d/named stop
+      /etc/init.d/named start
+      exit
+      ```
 
 ### Configure Internal Network Router:
 
@@ -420,7 +432,7 @@ tags:
    /etc/init.d/dnsmasq restart
    ```
 
-1. Then, enable Bind and reboot the router:
+1. Finally, enable Bind:
 
    ```bash
    /etc/init.d/named enable
