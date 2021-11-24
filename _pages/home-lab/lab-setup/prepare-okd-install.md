@@ -78,7 +78,7 @@ From your workstation, do the following:
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
-   mirrorOkdRelease.sh -d=dev -c=${OKD_LAB_PATH}/lab-config/lab.yaml
+   mirrorOkdRelease.sh -d=${SUB_DOMAIN} 
    ```
 
    The final output should look something like:
@@ -124,7 +124,7 @@ From your workstation, do the following:
 
    ```bash
    cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/id_rsa.pub
-   deployOkdNodes.sh -i -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   deployOkdNodes.sh -i -d=${SUB_DOMAIN}
    ```
 
     This script does a whole lot of work for us.  Crack it open and take a look.

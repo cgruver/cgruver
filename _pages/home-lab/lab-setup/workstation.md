@@ -162,6 +162,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    export OKD_LAB_PATH=${HOME}/okd-lab
    export PATH=$PATH:${OKD_LAB_PATH}/bin
    export LAB_DOMAIN="my.awesome.lab"
+   export LAB_CONFIG_FILE=${OKD_LAB_PATH}/lab-config/lab.yaml
    ```
 
 1. Log off and back on to set the variables.

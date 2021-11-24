@@ -34,7 +34,7 @@ The operating system running your router is OpenWRT.  Find out more here: [OpenW
 1. Create an environment script to help configure the router:
 
    ```bash
-   createEnvScript.sh -e -c=${OKD_LAB_PATH}/lab-config/lab.yaml
+   createEnvScript.sh -e 
    cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@192.168.8.1 "cat >> /root/.profile"
    rm -rf ${OKD_LAB_PATH}/work-dir
    ```
@@ -181,7 +181,7 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
 1. Connect your workstation to your new lab WiFi network, and log into the router:
 
    ```bash
-   EDGE_ROUTER=$(yq e ".router" ${OKD_LAB_PATH}/lab-config/lab.yaml)
+   EDGE_ROUTER=$(yq e ".router" ${LAB_CONFIG_FILE})
    ssh root@${EDGE_ROUTER}
    ```
 

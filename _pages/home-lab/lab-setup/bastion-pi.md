@@ -161,7 +161,7 @@ __Remove card from router, put it in the Pi, and boot it up.__
 1. From your workstation, SSH into the bastion host
 
    ```bash
-   createEnvScript.sh -e -c=${OKD_LAB_PATH}/lab-config/lab.yaml
+   createEnvScript.sh -e 
    cat ${OKD_LAB_PATH}/work-dir/edge-router | ssh root@bastion.${LAB_DOMAIN} "cat >> /root/.profile"
    rm -rf ${OKD_LAB_PATH}/work-dir
    ```

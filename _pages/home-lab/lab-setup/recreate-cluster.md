@@ -13,7 +13,7 @@ There is a single script that will completely wipe the cluster and reset HA Prox
    Remember, we already destroyed the Bootstrap node.
 
    ```bash
-   destroyNodes.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -r -d=dev
+   destroyNodes.sh -r -d=${SUB_DOMAIN}
    ```
 
 In a matter of moments, the cluster will be completely gone.
@@ -56,7 +56,7 @@ Now, to recreate the cluster, first make any changes that you want to your clust
 1. Now, create the OpenShift manifests and create the Virtual Machines:
 
    ```bash
-   deployOkdNodes.sh -i -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   deployOkdNodes.sh -i -d=${SUB_DOMAIN}
    ```
 
 1. Finally, follow the directions here: [Installing OpenShift](/home-lab/install-okd/).

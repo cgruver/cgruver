@@ -37,7 +37,7 @@ Now, on to the setup!
    Set a couple of vars:
 
    ```bash
-   IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+   IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
    ```
 
@@ -107,7 +107,7 @@ Now, on to the setup!
    1. Log into your OpenShift cluster:
 
       ```bash
-      oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
+      oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
       ```
 
    1. Create a ConfigMap from the contents of the environment variable:

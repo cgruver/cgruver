@@ -45,7 +45,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Tag the images for Nexus:
 
    ```bash
-   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
 
    podman tag quay.io/cephcsi/cephcsi:v3.4.0 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0
    podman tag k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0
@@ -123,7 +123,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    ```bash
    for i in 0 1 2
    do
-         oc label nodes okd4-${CEPH_NODE}-${i}.dev.${LAB_DOMAIN} role=storage-node
+         oc label nodes okd4-${CEPH_NODE}-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} role=storage-node
    done
    ```
 
@@ -138,8 +138,8 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Deploy the Ceph Operator:
 
    ```bash
-   export REGION=dev
-   export LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+   export REGION=${SUB_DOMAIN}
+   export LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    envsubst < ${OKD_LAB_PATH}/okd-home-lab/rook-ceph/install/operator-openshift.yaml | oc apply -f -
    ```
 

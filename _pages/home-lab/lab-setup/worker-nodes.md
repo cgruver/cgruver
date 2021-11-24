@@ -48,13 +48,13 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Use `yq` to merge the new records into your lab configuration YAML file:
 
    ```bash
-   yq eval-all --inplace 'select(fileIndex == 0) *+ select(fileIndex == 1)' ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml ${OKD_LAB_PATH}/lab-config/add-workers.yaml
+   yq eval-all --inplace 'select(fileIndex == 0) *+ select(fileIndex == 1)' ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml ${OKD_LAB_PATH}/lab-config/add-workers.yaml
    rm ${OKD_LAB_PATH}/lab-config/add-workers.yaml
    ```
 
 1. Take a look at the config file now:
 
-   `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` should now look something like:
+   `${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml` should now look something like:
 
    ```yaml
    cluster-name: okd4
@@ -98,7 +98,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Create the KVM host install config:
 
    ```bash
-   deployKvmHosts.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -h=kvm-host02 -d=dev
+   deployKvmHosts.sh -h=kvm-host02 -d=${SUB_DOMAIN}
    ```
 
 1. Now, connect the NUC to the remaining LAN port on the internal router and power it on. After a few minutes, it should be up and running.
@@ -106,7 +106,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Verify that everything looks good on the new host:
 
    ```bash
-   ssh root@kvm-host02.dev.${LAB_DOMAIN}
+   ssh root@kvm-host02.${SUB_DOMAIN}.${LAB_DOMAIN}
    # Take a look around
    exit
    ```
@@ -116,13 +116,13 @@ You will need another NUC like the one that you used to build the initial lab.  
    Initialize the ignition files and iPXE boot files for the new worker nodes:
 
    ```bash
-   deployOkdNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   deployOkdNodes.sh -w -d=${SUB_DOMAIN}
    ```
 
 1. Start the nodes:
 
    ```bash
-   startNodes.sh -w -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   startNodes.sh -w -d=${SUB_DOMAIN}
    ```
 
 1. Now, you need to monitor the cluster Certificate Signing Requests.  You are looking for requests in a `Pending` state.
@@ -151,7 +151,7 @@ Since we now have three dedicated worker nodes for our applications, let's move 
    ```bash
    for i in 0 1 2
    do
-   oc label nodes okd4-master-${i}.dev.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
+   oc label nodes okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} node-role.kubernetes.io/infra=""
    done
    ```
 

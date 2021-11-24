@@ -14,8 +14,8 @@ tags:
 1. Start the nodes:
 
    ```bash
-   startNodes.sh -b -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
-   startNodes.sh -m -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   startNodes.sh -b -d=${SUB_DOMAIN}
+   startNodes.sh -m -d=${SUB_DOMAIN}
    ```
 
 1. Monitor the bootstrap process:
@@ -29,7 +29,7 @@ tags:
    If you want to watch logs for issues:
 
    ```bash
-   ssh core@okd4-bootstrap.dev.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
+   ssh core@okd4-bootstrap.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
 1. You will see the following, when the bootstrap is complete:
@@ -50,7 +50,7 @@ tags:
 1. When the bootstrap process is complete, remove the bootstrap node:
 
    ```bash
-   destroyNodes.sh -b -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   destroyNodes.sh -b -d=${SUB_DOMAIN}
    ```
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
@@ -106,15 +106,15 @@ tags:
 1. Before we do anything else, let's save the emergency keys to our cluster:
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/
+   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
    ```
 
-   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/kubeconfig`
+   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
 
    ```bash
-   export KUBECONFIG="${OKD_LAB_PATH}/kubecreds/okd4.dev.${LAB_DOMAIN}/kubeconfig"
+   export KUBECONFIG="${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig"
    ```
 
 1. Install is Complete!!!
@@ -126,14 +126,14 @@ tags:
    * Mac OS:
 
      ```bash
-     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.dev.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.dev.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
      ```
 
    * Linux:
 
      ```bash
-     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.dev.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
      update-ca-trust
      ```
 
@@ -142,7 +142,7 @@ tags:
    On Mac OS:
 
    ```bash
-   open -a Safari https://console-openshift-console.apps.okd4.dev.${LAB_DOMAIN}
+   open -a Safari https://console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
    ```
 
    Log in as `kubeadmin` with the password from the output at the completion of the install.
@@ -201,7 +201,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Now you can verify that the new user account works:
 
    ```bash
-   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    ```
 
 1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:

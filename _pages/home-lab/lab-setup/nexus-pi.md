@@ -54,8 +54,18 @@ tags:
    1. The installed `cacerts` file is empty, so we need to import the certs from the OS.
 
       ```bash
+      opkg update
+      opkg install ca-certificates
+      
       rm -f /usr/local/java-1.8-openjdk/jre/lib/security/cacerts
-      keytool -importcert -file /etc/ssl/certs/ca-certificates.crt -keystore /usr/local/java-1.8-openjdk/jre/lib/security/cacerts -keypass changeit -storepass changeit
+      keytool -noprompt -importcert -file /etc/ssl/certs/ca-certificates.crt -keystore /usr/local/java-1.8-openjdk/jre/lib/security/cacerts -keypass changeit -storepass changeit
+
+
+      for i in $(find /etc/ssl/certs -type f)
+      do
+        ALIAS=$(echo ${i} | cut -d"/" -f5)
+        keytool -noprompt -importcert -file ${i} -alias ${ALIAS}  -keystore /usr/local/java-1.8-openjdk/jre/lib/security/cacerts -keypass changeit -storepass changeit
+      done
       ```
 
       __Note:__ At the prompt: `Trust this certificate? [no]:` Type `yes`

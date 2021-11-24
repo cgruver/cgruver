@@ -53,7 +53,7 @@ There are a couple of things that we need to put in place to get started.
 1. Add `kvm-hosts` entries to your lab config file:
 
    ```bash
-   cat << EOF >> ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   cat << EOF >> ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml
    kvm-hosts:
    - host-name: kvm-host01
      mac-addr: ${MAC_ADDR}
@@ -64,14 +64,14 @@ There are a couple of things that we need to put in place to get started.
    EOF
    ```
 
-1. Now edit `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml`: 
+1. Now edit `${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml`: 
 
    You need to know whether you have NVME or SATA SSDs in the NUC.
 
    1. If you have more than one NMVE drive installed, then replace `disk2: NA` with `disk2: nvme0n2`
    1. If you have SATA M.2 drivers, then replace `nvme0n1` with `sda`, and `nvme0n2` with `sdb` if appropriate.
 
-1. Your `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` file should now look something like:
+1. Your `${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml` file should now look something like:
 
    ```yaml
    cluster-name: okd4
@@ -111,7 +111,7 @@ There are a couple of things that we need to put in place to get started.
 1. Create the KVM host reources:
 
    ```bash
-   deployKvmHosts.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   deployKvmHosts.sh -d=${SUB_DOMAIN}
    ```
 
 1. After creating the install files, connect the NUC to your internal router and power it on.  After a few minutes, it should be up a running.

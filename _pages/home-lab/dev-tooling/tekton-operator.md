@@ -13,12 +13,10 @@ tags:
 1. First we need to install a couple of tools: (Assuming MacOS with HomeBrew here...)
 
    ```bash
-   brew install go yq kustomize podman ko
+   brew install go podman ko
    ```
 
    For Fedora or other linux distributions, check out the project sites for install instructions:
-   * [YQ](https://github.com/mikefarah/yq)
-   * [Kustomize](https://kustomize.io)
    * [Podman](https://podman.io/getting-started/installation)
    * [Go](https://golang.org)
    * [ko](https://github.com/google/ko)
@@ -48,7 +46,7 @@ tags:
 1. Log into the lab Nexus registry:
 
    ```bash
-   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml)
+   LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    podman login -u openshift-mirror ${LOCAL_REGISTRY}
    ```
 
@@ -61,22 +59,22 @@ tags:
 1. Log into the OpenShift cluster:
 
    ```bash
-   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    ```
 
 1. Create a proxy repository for
 
    ```bash
-   cat <<EOF > dockerHubMirror.yaml
+   cat <<EOF | oc apply -f -
    apiVersion: operator.openshift.io/v1alpha1
    kind: ImageContentSourcePolicy
    metadata:
-     name: dockerhub
+     name: gcr-io
    spec:
      repositoryDigestMirrors:
      - mirrors:
-       - nexus.${LAB_DOMAIN}:5002/dockerhub 
-       source: docker.io 
+       - nexus.clg.lab:5002
+       source: gcr.io
    EOF
    ```
 
@@ -110,7 +108,7 @@ tags:
    git clone https://github.com/tektoncd/operator.git
    cd operator
    git checkout v0.51.2
-   oc login -u admin https://api.okd4.dev.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    make TARGET=openshift CR=config/default clean
    cd
    rm -rf ${OKD_LAB_PATH}/work-dir

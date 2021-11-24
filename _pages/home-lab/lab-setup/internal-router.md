@@ -15,7 +15,7 @@ tags:
 1. Create an environment script to help configure the internal router:
 
    ```bash
-   createEnvScript.sh -c=${OKD_LAB_PATH}/lab-config/lab.yaml -d=dev
+   createEnvScript.sh -d=${SUB_DOMAIN}
    ```
 
 1. Add env vars to the edge router for additional configuration:

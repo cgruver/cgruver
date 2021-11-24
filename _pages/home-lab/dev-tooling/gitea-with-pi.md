@@ -18,8 +18,8 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
 1. Create a DNS entry for gitea on the edge router:
 
    ```bash
-   BASTION_HOST=$(yq e ".bastion-ip" ${OKD_LAB_PATH}/lab-config/lab.yaml)
-   EDGE_ROUTER=$(yq e ".router" ${OKD_LAB_PATH}/lab-config/lab.yaml)
+   BASTION_HOST=$(yq e ".bastion-ip" ${LAB_CONFIG_FILE})
+   EDGE_ROUTER=$(yq e ".router" ${LAB_CONFIG_FILE})
 
    echo "gitea.${LAB_DOMAIN}.           IN      A      ${BASTION_HOST}" | ssh root@${EDGE_ROUTER} "cat >> /etc/bind/db.${LAB_DOMAIN}"
    ssh root@${EDGE_ROUTER} "/etc/init.d/named restart"
@@ -42,7 +42,7 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
 1. Add the OpenShift wildcard certificate to the local keystore so that Gitea will trust Tekton Trigger routes that we'll create later:
 
    ```bash
-   openssl s_client -showcerts -connect console-openshift-console.apps.okd4.dev.${DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/ssl/certs/apps.okd4.${DOMAIN}.crt
+   openssl s_client -showcerts -connect console-openshift-console.apps.okd4.${SUB_DOMAIN}.${DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/ssl/certs/apps.okd4.${DOMAIN}.crt
    ```
 
 1. Install SQLite3 and ssh-keygen
