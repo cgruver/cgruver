@@ -18,6 +18,8 @@ tags:
 1. Create an OpenShift project for our demonstration:
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    oc login -u devuser https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    oc new-project app-demo
    ```

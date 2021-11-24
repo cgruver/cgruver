@@ -10,7 +10,7 @@ tags:
 ---
 
 ## We are now ready to fire up our OpenShift cluster
-
+ 
 1. Start the nodes:
 
    ```bash

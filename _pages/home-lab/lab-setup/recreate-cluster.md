@@ -13,6 +13,7 @@ There is a single script that will completely wipe the cluster and reset HA Prox
    Remember, we already destroyed the Bootstrap node.
 
    ```bash
+   export SUB_DOMAIN=dev
    destroyNodes.sh -r -d=${SUB_DOMAIN}
    ```
 

@@ -37,6 +37,8 @@ Now, on to the setup!
    Set a couple of vars:
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
    ```

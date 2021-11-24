@@ -53,6 +53,8 @@ There are a couple of things that we need to put in place to get started.
 1. Add `kvm-hosts` entries to your lab config file:
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    cat << EOF >> ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml
    kvm-hosts:
    - host-name: kvm-host01

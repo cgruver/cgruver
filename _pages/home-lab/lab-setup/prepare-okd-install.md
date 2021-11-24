@@ -78,6 +78,8 @@ From your workstation, do the following:
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    mirrorOkdRelease.sh -d=${SUB_DOMAIN} 
    ```
 

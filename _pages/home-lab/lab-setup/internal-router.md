@@ -15,6 +15,7 @@ tags:
 1. Create an environment script to help configure the internal router:
 
    ```bash
+   export SUB_DOMAIN=dev
    createEnvScript.sh -d=${SUB_DOMAIN}
    ```
 

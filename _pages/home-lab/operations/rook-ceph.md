@@ -45,6 +45,8 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Tag the images for Nexus:
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
 
    podman tag quay.io/cephcsi/cephcsi:v3.4.0 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0

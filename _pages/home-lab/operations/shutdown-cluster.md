@@ -13,6 +13,8 @@ published: false
 1. Cordon, and Drain the `worker` nodes:  (This will take a while, be patient)
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    for i in 0 1 2 ; do oc adm cordon okd4-worker-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} ; done
 
    for i in 0 1 2 ; do oc adm drain okd4-worker-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} --ignore-daemonsets --force --grace-period=60 --delete-emptydir-data; done
