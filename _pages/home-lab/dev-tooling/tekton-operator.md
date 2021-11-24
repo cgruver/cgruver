@@ -80,6 +80,14 @@ tags:
    EOF
    ```
 
+1. Wait for the cluster nodes to restart as they apply the `ImageContentSourcePolicy`
+
+   You can watch the progress with:
+
+   ```bash
+   oc get nodes
+   ```
+
 1. Build the OpenShift Pipelines operator and install it to your cluster:
 
    ```bash
