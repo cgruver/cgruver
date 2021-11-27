@@ -71,12 +71,12 @@ tags:
    apiVersion: operator.openshift.io/v1alpha1
    kind: ImageContentSourcePolicy
    metadata:
-     name: gcr-io
+     name: lab-registry
    spec:
      repositoryDigestMirrors:
      - mirrors:
-       - nexus.clg.lab:5002
-       source: gcr.io
+       - nexus.clg.lab:5000
+       source: gcr.io/tekton/releases
    EOF
    ```
 
