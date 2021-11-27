@@ -14,6 +14,8 @@ tags:
 1. Start the nodes:
 
    ```bash
+   export SUB_DOMAIN=dev
+   
    startNodes.sh -b -d=${SUB_DOMAIN}
    startNodes.sh -m -d=${SUB_DOMAIN}
    ```
@@ -197,6 +199,8 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    ```bash
    oc adm policy add-cluster-role-to-user cluster-admin admin
    ```
+
+1. Wait a couple of minutes for the Authentication pods to restart and stabalize.
 
 1. Now you can verify that the new user account works:
 

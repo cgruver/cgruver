@@ -130,7 +130,7 @@ You will need another NUC like the one that you used to build the initial lab.  
 1. Now, you need to monitor the cluster Certificate Signing Requests.  You are looking for requests in a `Pending` state.
 
    ```bash
-   watch oc get csr
+   watch "oc get csr | grep Pending"
    ```
 
 1. When you see Certificate Signing Requests in a `Pending` state, you need to approve them:

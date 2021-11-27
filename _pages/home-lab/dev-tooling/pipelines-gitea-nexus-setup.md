@@ -66,7 +66,7 @@ __Note:__  __*If you have not installed Gitea, you need to do that first*__: [In
 
    ![Add User to Team](images/gitea-add-team-member.png)
 
-### Enable Nexus to act as a proxy for Maven Central:
+### Enable Nexus to act as a proxy for the Google and Quay registries:
 
 1. Log into your Nexus server on the bastion Pi as your `admin` user:
 
@@ -82,13 +82,10 @@ __Note:__  __*If you have not installed Gitea, you need to do that first*__: [In
 
 1. Select the `maven-central` repository:
 
-   Check `Use Nexus Trust Store`:
-
-   ![Nexus Trust](images/nexus-maven-cert.png)
-
-1. Click on `View certificate` and then click on `Add certificate to truststore`
+   
 
 1. Click `Save` at the bottom of the page.
+
 
 __Now that Gitea and Nexus are ready to play their part in our development ecosystem, let's get an OpenShift project set up:__
 

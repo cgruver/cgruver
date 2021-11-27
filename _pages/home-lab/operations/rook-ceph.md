@@ -141,7 +141,7 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 
    ```bash
    export REGION=${SUB_DOMAIN}
-   export LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
+   export PROXY_REGISTRY=$(yq e ".proxy-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    envsubst < ${OKD_LAB_PATH}/okd-home-lab/rook-ceph/install/operator-openshift.yaml | oc apply -f -
    ```
 
