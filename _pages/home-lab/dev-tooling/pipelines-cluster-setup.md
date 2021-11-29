@@ -58,7 +58,6 @@ Now, on to the setup!
 
    ```bash
    podman pull registry.access.redhat.com/ubi8/ubi-minimal:8.4
-   podman tag registry.access.redhat.com/ubi8/ubi-minimal:8.4 ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4
    ```
 
    Pull the `buildah` image from quay.io:
@@ -84,6 +83,13 @@ Now, on to the setup!
    podman build -t ${IMAGE_REGISTRY}/openshift/java-11-builder:latest -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/images/java-11-builder.Dockerfile ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
    ```
 
+1. Create a base image from the UBI minimal image:
+
+   ```bash
+   CONTAINER=$(podman create registry.access.redhat.com/ubi8/ubi-minimal:8.4)
+   podman commit ${CONTAINER} ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4
+   podman container rm ${CONTAINER}
+   ```
 1. Now, push the images to Nexus on the bastion Pi server:
 
    ```bash
@@ -94,6 +100,8 @@ Now, on to the setup!
    podman push ${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --tls-verify=false
    podman push ${IMAGE_REGISTRY}/openshift/java-11-builder:latest --tls-verify=false
    podman push ${IMAGE_REGISTRY}/openshift/buildah:latest --tls-verify=false
+
+   podman image rm -a
    ```
 
 ### Create Image Streams
