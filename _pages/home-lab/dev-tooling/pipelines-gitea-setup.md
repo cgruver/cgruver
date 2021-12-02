@@ -3,7 +3,7 @@ title: "Tekton Pipelines - Gitea & Nexus Setup"
 description: "Setting up an OpenShift namespace and Gitea organization for Tekton Triggers with Gitea Webhooks"
 sitemap: true
 published: true
-permalink: /home-lab/pipelines-gitea-nexus-setup/
+permalink: /home-lab/pipelines-gitea-setup/
 tags:
   - openshift pipelines
   - tekton
@@ -66,27 +66,6 @@ __Note:__  __*If you have not installed Gitea, you need to do that first*__: [In
 
    ![Add User to Team](images/gitea-add-team-member.png)
 
-### Enable Nexus to act as a proxy for the Google and Quay registries:
-
-1. Log into your Nexus server on the bastion Pi as your `admin` user:
-
-   `https://nexus.${LAB_DOMAIN}:8443`
-
-1. Select the `Gear` icon to enter the `Administration` menu:
-
-   ![Administration](images/nexus-admin.png)
-
-1. Navigate to `Repository` -> `Repositories`:
-
-   ![Repositories](images/nexus-repositories.png)
-
-1. Select the `maven-central` repository:
-
-   
-
-1. Click `Save` at the bottom of the page.
-
-
-__Now that Gitea and Nexus are ready to play their part in our development ecosystem, let's get an OpenShift project set up:__
+__Now that Gitea is ready to play its part in our development ecosystem, let's get an OpenShift project set up:__
 
 __[Tekton Pipelines - OpenShift Project Setup](/home-lab/pipelines-project-setup/)__

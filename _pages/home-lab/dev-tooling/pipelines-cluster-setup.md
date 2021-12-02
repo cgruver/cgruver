@@ -225,4 +225,4 @@ Let's install in along side OpenShift Pipelines.
 
 Now, it's time to set up Gitea and Nexus for the Quarkus application that we're going to build.
 
-Go to the next step here: [Tekton Pipelines - Gitea & Nexus Setup](/home-lab/pipelines-gitea-nexus-setup/)
+Go to the next step here: [Tekton Pipelines - Gitea Setup](/home-lab/pipelines-gitea-setup/)

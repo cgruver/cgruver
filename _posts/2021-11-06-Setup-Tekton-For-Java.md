@@ -20,7 +20,7 @@ There are four parts to this section.  Execute them in order:
 
 1. Set up a Gitea organization for our code, and enable Nexus to be a Maven Mirror:
 
-   [Gitea & Nexus Setup](/home-lab/pipelines-gitea-nexus-setup/)
+   [Gitea & Nexus Setup](/home-lab/pipelines-gitea-setup/)
 
 1. Create and configure an OpenShift project to run our application
 
