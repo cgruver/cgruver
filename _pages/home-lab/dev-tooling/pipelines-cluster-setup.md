@@ -90,6 +90,7 @@ Now, on to the setup!
    podman commit ${CONTAINER} ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4
    podman container rm ${CONTAINER}
    ```
+
 1. Now, push the images to Nexus on the bastion Pi server:
 
    ```bash
