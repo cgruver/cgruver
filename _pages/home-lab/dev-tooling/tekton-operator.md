@@ -76,7 +76,7 @@ tags:
      repositoryDigestMirrors:
      - mirrors:
        - nexus.clg.lab:5000
-       source: gcr.io/tekton/releases
+       source: gcr.io
    EOF
    ```
 

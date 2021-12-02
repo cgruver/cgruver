@@ -187,63 +187,105 @@ If prompted to allow anonymous access, select to allow.
 
 The `?` in the top right hand corner of the Nexus screen will take you to their documentation.
 
-We need to create a hosted Docker registry to hold the mirror of the OKD images that we will use to install our cluster.
+1. We need to create a hosted Docker registry to hold the mirror of the OKD images that we will use to install our cluster.
 
-1. Login as your new admin user
+   1. Login as your new admin user
 
-1. Select the gear icon from the top bar, in between a cube icon and the search dialog.
+   1. Select the gear icon from the top bar, in between a cube icon and the search dialog.
 
-1. Select `Repositories` from the left menu bar.
+   1. Select `Repositories` from the left menu bar.
 
-    ![Nexus Admin](images/NexusAdmin.png)
+      ![Nexus Admin](images/NexusAdmin.png)
 
-1. Select `+ Create repository`
+   1. Select `+ Create repository`
 
-1. Select `docker (hosted)`
+   1. Select `docker (hosted)`
 
-1. Name your repository `okd`
+      ![Repository Types](images/NexusRepositoryTypes.png)
 
-1. Check `HTTPS` and put `5001` in the port dialog entry
+   1. Name your repository `okd`
 
-1. Check `Allow anonymous docker pull`
+   1. Check `HTTPS` and put `5001` in the port dialog entry
 
-1. Check `Enable Docker V1 API`, you may need this for some older docker clients.
+   1. Check `Allow anonymous docker pull`
 
-    ![Nexus OKD Repo](images/CreateOriginRepo.png)
+      ![Nexus OKD Repo](images/NexusCreateOkdRepo.png)
 
-1. Click `Create repository` at the bottom of the page.
+   1. Click `Create repository` at the bottom of the page.
+
+1. Next we need to create a Proxy registry for `gcr.io`.  We'll need this later on for Tekton.
+
+   1. Select `Repositories` from the left menu bar.
+
+   1. Select `+ Create repository`
+
+   1. Select `docker (proxy)`
+
+   1. Name your repository `gcr-io`
+
+   1. Check `Allow anonymous docker pull`
+
+   1. Set `https://gcr.io` as the `Remote storage` location.
+
+      ![Proxy Repo](images/NexusDockerProxy.png)
+
+   1. Click `Create repository` at the bottom of the page.
+
+1. Finally, create a Group registry as an umbrella for the hosted and proxy registries.
+
+   1. Select `Repositories` from the left menu bar.
+
+   1. Select `+ Create repository`
+
+   1. Select `docker (group)`
+
+   1. Name your repository `lab-registry`
+
+   1. Check `HTTPS` and put `5000` in the port dialog entry
+
+   1. Check `Allow anonymous docker pull`
+
+   1. Set `https://gcr.io` as the `Remote storage` location.
+
+      ![Proxy Repo](images/NexusConfigGroup.png)
+
+   1. Add your other two registries as group members:
+
+      ![Add Members](images/NexusDockerGroupMembers.png)
+
+   1. Click `Create repository` at the bottom of the page.
 
 1. Now expand the `Security` menu on the left and select `Realms`
 
-1. Add `Docker Bearer Token Realm` to the list of active `Realms`
+   1. Add `Docker Bearer Token Realm` to the list of active `Realms`
 
-    ![Realms](images/NexusRealms.png)
+      ![Realms](images/NexusRealms.png)
 
-1. Click `Save`
+   1. Click `Save`
 
 1. Now, select `Roles` from the expanded `Security` menu on the left.
 
-1. Click `+ Create role` and select `Nexus role`
+   1. Click `+ Create role` and select `Nexus role`
 
-1. Create the role as shown:
+   1. Create the role as shown:
 
-    ![Nexus Role](images/NexusRole.png)
+      ![Nexus Role](images/NexusRole.png)
 
-1. Add the appropriate privileges as shown:
+   1. Add the appropriate privileges as shown:
 
-    ![Role Privileges](images/RolePrivileges.png)
+      ![Role Privileges](images/NexusRolePrivileges.png)
 
-1. Click `Create role`
+   1. Click `Create role`
 
 1. Now, select `Users` from the expanded `Security` menu on the left.
 
     ![Create User](images/CreateUser.png)
 
-1. Click `Create local user`
+   1. Click `Create local user`
 
-1. Create the user as shown:
+   1. Create the user as shown:
 
-    ![Nexus User](images/NexusUser.png)
+      ![Nexus User](images/NexusUser.png)
 
 1. Next, set up the router for your OpenShift cluster:
 
