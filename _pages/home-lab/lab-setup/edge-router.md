@@ -233,7 +233,6 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
 
    recursion yes;
 
-   dnssec-enable yes;
    dnssec-validation yes;
 
    /* Path to ISC DLV key */
