@@ -1,5 +1,5 @@
 ---
-title: "Tekton Pipelines - Gitea & Nexus Setup"
+title: "Tekton Pipelines - Gitea Setup"
 description: "Setting up an OpenShift namespace and Gitea organization for Tekton Triggers with Gitea Webhooks"
 sitemap: true
 published: true

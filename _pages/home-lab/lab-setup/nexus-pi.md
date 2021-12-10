@@ -68,8 +68,6 @@ tags:
       done
       ```
 
-      __Note:__ At the prompt: `Trust this certificate? [no]:` Type `yes`
-
    1. Finally, clean up:
 
       ```bash

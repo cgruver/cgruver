@@ -70,9 +70,9 @@ tags:
 
 1. Copy your SSH public key to the router for login:
 
-    ```bash
-    cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
-    ```
+   ```bash
+   cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
+   ```
 
 1. Add env vars to the edge router for additional configuration:
 
@@ -573,7 +573,13 @@ tags:
    EOF
    ```
 
-1. Start HA Proxy:
+1. Create a copy of the config minus the bootstrap node:
+
+   ```bash
+   cp /etc/haproxy.cfg /etc/haproxy.bootstrap && cat /etc/haproxy.cfg | grep -v bootstrap > /etc/haproxy.no-bootstrap
+   ```
+
+1. Enable HA Proxy:
 
    ```bash
    /etc/init.d/haproxy enable
