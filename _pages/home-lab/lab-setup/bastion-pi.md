@@ -30,8 +30,6 @@ We are going to use the edge router that we set up in the previous step to confi
 1. Retrieve the OpenWRT image for the Pi 4b
 
    ```bash
-   # wget https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
-   # gunzip openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
    wget https://downloads.openwrt.org/releases/21.02.1/targets/bcm27xx/bcm2711/openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
    gunzip openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
    ```

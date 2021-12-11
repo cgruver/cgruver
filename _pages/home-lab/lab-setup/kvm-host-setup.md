@@ -81,11 +81,13 @@ There are a couple of things that we need to put in place to get started.
    local-registry: nexus.my.awesome.lab:5001
    remote-registry: quay.io/openshift/okd
    bootstrap:
+     metal: false
      kvm-host: kvm-host01
      memory: 12288
      cpu: 4
      root_vol: 50
    control-plane:
+     metal: false
      memory: 20480
      cpu: 6
      root_vol: 100

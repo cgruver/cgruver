@@ -38,7 +38,15 @@ This tutorial assumes that you are running a Unix like operating system on your 
    export EDGE_NETWORK="10.11.12.0"
    ```
 
+1. Set the OKD Version that we'll install.  We're going to grab the latest OKD release:
+
+```bash
+   OKD_VERSION=$(curl https://github.com/openshift/okd/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
+   ```
+
 1. Create lab configuration YAML file:
+
+   __I'm being intentionally prescriptive here to help ensure success the first time you try this.__
 
    ```bash
    OKD_LAB_PATH=${HOME}/okd-lab
@@ -70,8 +78,6 @@ This tutorial assumes that you are running a Unix like operating system on your 
    EOF
    ```
 
-   I'm being intentionally prescriptive here to help ensure success the first time you try this.
-
    Your lab configuration YAML file should look something like this:
 
    ```yaml
@@ -97,12 +103,17 @@ This tutorial assumes that you are running a Unix like operating system on your 
    secret-file: ${OKD_LAB_PATH}/pull_secret.json
    local-registry: nexus.${LAB_DOMAIN}:5001
    remote-registry: quay.io/openshift/okd
+   butane-version: v0.12.1
+   butane-spec-version: 1.3.0
+   okd-version: ${OKD_VERSION}
    bootstrap:
+     metal: false
      kvm-host: kvm-host01
      memory: 12288
      cpu: 4
      root_vol: 50
    control-plane:
+     metal: false
      memory: 20480
      cpu: 6
      root_vol: 100
@@ -120,12 +131,17 @@ This tutorial assumes that you are running a Unix like operating system on your 
    secret-file: ${OKD_LAB_PATH}/pull_secret.json
    local-registry: nexus.${LAB_DOMAIN}:5001
    remote-registry: quay.io/openshift/okd
+   butane-version: v0.12.1
+   butane-spec-version: 1.3.0
+   okd-version: 4.8.0-0.okd-2021-11-14-052418
    bootstrap:
+     metal: false
      kvm-host: kvm-host01
      memory: 12288
      cpu: 4
      root_vol: 50
    control-plane:
+     metal: false
      memory: 20480
      cpu: 6
      root_vol: 100
@@ -171,48 +187,16 @@ This tutorial assumes that you are running a Unix like operating system on your 
 
    Download the `openshift-client` & `openshift-install` appropriate for your workstation OS
 
-   ```bash
-   OKD_VERSION=$(curl https://github.com/openshift/okd/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
-   ```
-
    __Mac OS:__
 
    ```bash
-   OS_VER=mac
+   getOkdCmds.sh -m -d=dev
    ```
 
    __Linux:__
 
    ```bash
-   OS_VER=linux
-   ```
-
-   ```bash
-   wget -O ${OKD_LAB_PATH}/oc.tar.gz https://github.com/openshift/okd/releases/download/${OKD_VERSION}/openshift-client-${OS_VER}-${OKD_VERSION}.tar.gz
-   wget -O ${OKD_LAB_PATH}/oc-install.tar.gz https://github.com/openshift/okd/releases/download/${OKD_VERSION}/openshift-install-${OS_VER}-${OKD_VERSION}.tar.gz
-   tar -xzf ${OKD_LAB_PATH}/oc.tar.gz -C ${OKD_LAB_PATH}/bin
-   tar -xzf ${OKD_LAB_PATH}/oc-install.tar.gz -C ${OKD_LAB_PATH}/bin
-   chmod 700 ${OKD_LAB_PATH}/bin/oc
-   chmod 700 ${OKD_LAB_PATH}/bin/kubectl
-   chmod 700 ${OKD_LAB_PATH}/bin/openshift-install
-   rm -f ${OKD_LAB_PATH}/oc.tar.gz
-   rm -f ${OKD_LAB_PATH}/oc-install.tar.gz
-   ```
-
-1. Download `butane` for configuring Fedora CoreOS ignition files:
-
-   __Mac OS:__
-
-   ```bash
-   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.12.1/butane-x86_64-apple-darwin
-   chmod 700 ${OKD_LAB_PATH}/bin/butane
-   ```
-
-   __Linux:__
-
-   ```bash
-   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/v0.12.1/butane-x86_64-unknown-linux-gnu
-   chmod 700 ${OKD_LAB_PATH}/bin/butane
+   getOkdCmds.sh -l -d=dev
    ```
 
 1. Now, you are ready to configure your edge router.
