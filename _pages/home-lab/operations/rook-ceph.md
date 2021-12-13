@@ -123,6 +123,8 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    Add a label to the nodes that are going to host Ceph:
 
    ```bash
+   oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
+   
    for i in 0 1 2
    do
          oc label nodes okd4-${CEPH_NODE}-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} role=storage-node
