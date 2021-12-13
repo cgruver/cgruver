@@ -206,3 +206,4 @@ The helper scripts for this project are located in the `bin` directory of this r
 | mirrorOkdRelease.sh | Mirrors the OpenShift install images to a local image registry |
 | startNodes.sh | Starts KVM guests |
 | setlab.sh | Allows for switching between different lab configurations for multiple clusters |
+| shutdownCluster.sh | Gracefully shuts down your OpenShift cluster |

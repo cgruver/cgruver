@@ -2,7 +2,7 @@
 sitemap: false
 published: false
 permalink: /home-lab/bare-metal-okd/
-title: Installing OpenShift on Bare Metal Intel NUC
+title: Installing OpenShift on Bare Metal with Intel NUC
 description: Installing UPI OpenShift on Bare Metal Intel NUC with OKD
 tags:
   - openshift bare metal install
