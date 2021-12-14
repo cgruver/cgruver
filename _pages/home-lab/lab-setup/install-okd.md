@@ -108,15 +108,15 @@ tags:
 1. Before we do anything else, let's save the emergency keys to our cluster:
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
+   mkdir -p ${OKD_LAB_PATH}/lab-config/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password ${OKD_LAB_PATH}/lab-config/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
+   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/lab-config/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
    ```
 
-   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
+   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/lab-config/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
 
    ```bash
-   export KUBECONFIG="${OKD_LAB_PATH}/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig"
+   export KUBECONFIG="${OKD_LAB_PATH}/lab-config/kubecreds/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig"
    ```
 
 1. Install is Complete!!!

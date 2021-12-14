@@ -1809,3 +1809,9 @@ spec:
         volumeAttributes:
           secretProviderClass: my-application-aws-secrets
 ```
+
+# List Cluster Admins:
+
+```bash
+oc get clusterrolebindings -o json | jq '.items[] | select(.roleRef.name=="cluster-admin") | select(.subjects[].name=="admin" and .subjects[].kind=="User") | .subjects | length'
+```
