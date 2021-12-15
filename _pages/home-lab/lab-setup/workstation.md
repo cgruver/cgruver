@@ -100,7 +100,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    ```bash
    cat << EOF  > ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
    cluster-name: okd4
-   secret-file: ${OKD_LAB_PATH}/pull_secret.json
+   secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
    local-registry: nexus.${LAB_DOMAIN}:5001
    remote-registry: quay.io/openshift/okd
    butane-version: v0.12.1
@@ -128,7 +128,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
 
    ```yaml
    cluster-name: okd4
-   secret-file: ${OKD_LAB_PATH}/pull_secret.json
+   secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
    local-registry: nexus.${LAB_DOMAIN}:5001
    remote-registry: quay.io/openshift/okd
    butane-version: v0.12.1
