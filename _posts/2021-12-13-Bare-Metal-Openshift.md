@@ -27,6 +27,16 @@ The worker nodes are: NUC6i7KYK machines with 64GB of RAM, 256GB SATA SSD for FC
 
 I'm going to show you how to build one with 3 nodes.  With the following list of parts, you will be able to power your cluster off of two power supplies, and pack the whole thing up in a slim 15" laptop bag.
 
+It will look like this: 
+
+![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-lab.jpg)
+
+![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-front.jpg)
+
+![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-bag.jpg)
+
+![Bare Metal Lab](/_pages/home-lab/bare-metal/images/NetworkTopologyBareMetal.png)
+
 Below is the complete bill of materials for your starter lab.  I've included Amazon.com links to the gear that I have.
 
 * Bare Metal Lab Gear:
@@ -53,16 +63,6 @@ Below is the complete bill of materials for your starter lab.  I've included Ama
 
      Other NUC models will work as well.  The slim models are much more portable, so I tend to prefer those.  I love the NUC10i7FNK because it has 6 cores.  That's 12 vCPUs for your nodes!!!
      Prices fluctuate so much on the NUCs, M2 NVMe, and RAM that I am not listing any links here.  But I get most of my compute gear from [B&H Photo Video](https://www.bhphotovideo.com), or [Amazon.com](https://www.amazon.com).
-
-It will look like this: 
-
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-lab.jpg)
-
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-front.jpg)
-
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-bag.jpg)
-
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/NetworkTopologyBareMetal.png)
 
 Most of the bare-metal configuration is going to be just like the KVM setup that I posted previously.  In fact, I have refactored the lab helper scripts to support both KVM and Bare metal installations.
 
