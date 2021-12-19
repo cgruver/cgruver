@@ -87,18 +87,18 @@ From your workstation, do the following:
 
    ```bash
    Success
-   Update image:  nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901:4.7.0-0.okd-2021-07-03-190901
-   Mirror prefix: nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
-   Mirror prefix: nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901:4.7.0-0.okd-2021-07-03-190901
+   Update image:  nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
+   Mirror prefix: nexus.my.awesome.lab:5001/okd
+   Mirror prefix: nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
 
    To use the new mirrored repository to install, add the following section to the install-config.yaml:
 
    imageContentSources:
    - mirrors:
-     - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
+     - nexus.my.awesome.lab:5001/okd
      source: quay.io/openshift/okd
    - mirrors:
-     - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
+     - nexus.my.awesome.lab:5001/okd
      source: quay.io/openshift/okd-content
 
 
@@ -111,10 +111,10 @@ From your workstation, do the following:
    spec:
      repositoryDigestMirrors:
      - mirrors:
-       - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
+       - nexus.my.awesome.lab:5001/okd
        source: quay.io/openshift/okd
      - mirrors:
-       - nexus.my.awesome.lab:5001/4.7.0-0.okd-2021-07-03-190901
+       - nexus.my.awesome.lab:5001/okd
        source: quay.io/openshift/okd-content    
    ```
 

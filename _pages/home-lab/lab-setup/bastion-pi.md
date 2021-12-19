@@ -338,25 +338,23 @@ __Remove card from router, put it in the Pi, and boot it up.__
    cat << EOF > /usr/local/www/install/postinstall/rebuildhost.sh
    #!/bin/bash
 
+   REBOOT=true
+
    for i in "$@"
    do
-   case ${i} in
-      -r|--reboot)
-      EDGE=true
-      shift
-      ;;
-      -s|--shutdown)
-      REBOOT=FALSE
-      shift
-      ;;
-      *)
+     case ${i} in
+       -s|--shutdown)
+       REBOOT=false
+       shift
+     ;;
+       *)
          echo "USAGE:"
          echo "\nTo initiate an immediate rebuild:"
-         echo "rebuildhost.sh -r"
+         echo "rebuildhost.sh"
          echo "\nTo shutdown and rebuild on the next boot:"
          echo "rebuildhost.sh -s"
-      ;;
-   esac
+     ;;
+     esac
    done
 
    P1=\$(lsblk -l | grep /boot/efi | cut -d" " -f1)
@@ -369,7 +367,13 @@ __Remove card from router, put it in the Pi, and boot it up.__
    wipefs -a /dev/\${P1}
    wipefs -a /dev/\${P2}
    dd if=/dev/zero of=/dev/\${BOOT_DISK} bs=512 count=1
-   shutdown -r now
+   
+   if [[ ${REBOOT} == "true" ]]
+   then
+     shutdown -r now
+   else
+     shutdown -h now
+   fi
    EOF
    ```
 

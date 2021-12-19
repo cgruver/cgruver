@@ -323,8 +323,8 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
          IN      NS      router.${DOMAIN}.
 
    ; PTR Records
-   1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
-   10.${NET_PREFIX_ARPA}    IN      PTR     bastion.${DOMAIN}.
+   1    IN      PTR     router.${DOMAIN}.
+   10    IN      PTR     bastion.${DOMAIN}.
    EOF
    ```
 

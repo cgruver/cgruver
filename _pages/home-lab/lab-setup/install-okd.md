@@ -17,8 +17,12 @@ tags:
    export SUB_DOMAIN=dev
    
    startNodes.sh -b -d=${SUB_DOMAIN}
-   startNodes.sh -m -d=${SUB_DOMAIN}
+   startNodes.sh -m -d=${SUB_DOMAIN}  # This command is not necessary if you are installing a bare-metal cluster.
    ```
+
+   __NOTE: Bare Metal Installation__
+
+   Do not power on your control plane nodes until the bootstrap Kubernetes API is available.
 
 1. Monitor the bootstrap process:
 
@@ -33,6 +37,23 @@ tags:
    ```bash
    ssh core@okd4-bootstrap.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
+
+1. __Bare Metal Install__
+
+   You need to be running this, to monitor the bootstrap process:
+
+   ```bash
+   openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for bootstrap-complete --log-level debug
+   ```
+
+   When the API is available, you will see the following:
+
+   ```bash
+   INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
+   INFO Waiting up to 30m0s for bootstrapping to complete... 
+   ```
+
+   __Now, power on your NUCs to start the cluster installation.__
 
 1. You will see the following, when the bootstrap is complete:
 

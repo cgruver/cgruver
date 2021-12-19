@@ -401,7 +401,7 @@ tags:
        IN      NS      router.${DOMAIN}.
 
    ; PTR Records
-   1.${NET_PREFIX_ARPA}    IN      PTR     router.${DOMAIN}.
+   1    IN      PTR     router.${DOMAIN}.
    EOF
    ```
 
@@ -586,6 +586,11 @@ tags:
    reboot
    ```
 
-1. Next, install CentOS Stream on your KVM host:
+1. Next, if you are building your cluster on KVM, then install CentOS Stream on your KVM host:
 
    __[KVM Host Setup](/home-lab/kvm-host-setup/)__
+
+   If you are building a bare-metal cluster, then prepare for the OpenShift install:
+
+   __[Prepare for OpenShift Install](/home-lab/prepare-okd-install/)__
+
