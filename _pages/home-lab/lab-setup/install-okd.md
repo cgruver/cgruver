@@ -63,6 +63,17 @@ tags:
    openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for install-complete --log-level debug
    ```
 
+1. Fix for a stuck MCO
+
+   In some recent versions of OKD, the Machine Config Operator cannot complete the installation because it is looking for a non-existent machine config.
+
+   ```bash
+   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
+   oc delete mc 99-master-okd-extensions 99-okd-master-disable-mitigations
+   ```
+
+   This will force a recreation of the control plane machine configs, and will allow the install to complete.
+
 1. Installation Complete:
 
    ```bash

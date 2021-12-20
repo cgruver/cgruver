@@ -108,4 +108,4 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
 
 1. Now, you are ready to configure your edge router.
 
-   [Edge Router](/home-lab/edge-router/)
+   __[Edge Router](/home-lab/edge-router/)__

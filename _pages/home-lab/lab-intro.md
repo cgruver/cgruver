@@ -24,6 +24,6 @@ Of course...  small is relative.  So, at this point you can make a choice; virtu
 
 Take a look at both, choose one, and carry on.
 
-1. [KVM base lab](/home-lab/kvm-lab-intro/)
+1. __[KVM base lab](/home-lab/kvm-lab-intro/)__
 
-1. [Bare Metal lab](/home-lab/bare-metal-intro/)
+1. __[Bare Metal lab](/home-lab/bare-metal-intro/)__

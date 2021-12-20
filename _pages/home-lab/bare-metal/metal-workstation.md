@@ -225,4 +225,4 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
 
 1. Now, we need to set up our MacBook to run the bootstrap node:
 
-   [Mac OS Qemu setup](/home-lab/bare-metal-bootstrap/)
+   __[Mac OS Qemu setup](/home-lab/bare-metal-bootstrap/)__

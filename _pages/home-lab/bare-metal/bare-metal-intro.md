@@ -61,4 +61,4 @@ Everything else is pretty much the same.  The cluster nodes will boot via iPXE, 
 
 Let's get to it!
 
-Go here first:  [Setting up Your Workstation for a Bare Metal OKD install](/home-lab/bare-metal-okd-workstation/) Then, follow the links at the end of each section.
+Go here first:  __[Setting up Your Workstation for a Bare Metal OKD install](/home-lab/bare-metal-okd-workstation/)__ Then, follow the links at the end of each section.

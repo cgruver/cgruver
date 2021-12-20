@@ -79,24 +79,24 @@ tags:
 
    1. Modify the kernel arguments to enable SMT on the next boot:
 
-   ```bash
-   export SUB_DOMAIN=dev
+      ```bash
+      export SUB_DOMAIN=dev
 
-   for i in 0 1 2
-   do
-     ssh core@okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} "sudo rpm-ostree kargs --replace=\"mitigations=auto,nosmt=auto\""
-   done
-   ```
+      for i in 0 1 2
+      do
+        ssh core@okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} "sudo rpm-ostree kargs --replace=\"mitigations=auto,nosmt=auto\""
+      done
+      ```
 
    1. Stagger a reboot of the nodes:
 
-   ```bash
-   for i in 0 1 2
-   do
-     ssh core@okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} "sudo systemctl reboot"
-   sleep 5
-   done
-   ```
+      ```bash
+      for i in 0 1 2
+      do
+        ssh core@okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} "sudo systemctl reboot"
+      sleep 5
+      done
+      ```
 
 1. Now, wait patiently for the bootstrap process to complete:
 
@@ -129,6 +129,17 @@ tags:
    ```bash
    openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for install-complete --log-level debug
    ```
+
+1. Fix for a stuck MCO
+
+   In some recent versions of OKD, the Machine Config Operator cannot complete the installation because it is looking for a non-existent machine config.
+
+   ```bash
+   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
+   oc delete mc 99-master-okd-extensions 99-okd-master-disable-mitigations
+   ```
+
+   This will force a recreation of the control plane machine configs, and will allow the install to complete.
 
 1. Installation Complete:
 

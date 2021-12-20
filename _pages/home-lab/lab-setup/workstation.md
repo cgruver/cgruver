@@ -201,4 +201,4 @@ This tutorial assumes that you are running a Unix like operating system on your 
 
 1. Now, you are ready to configure your edge router.
 
-   [Edge Router](/home-lab/edge-router/)
+   __[Edge Router](/home-lab/edge-router/)__
