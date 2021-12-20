@@ -14,7 +14,7 @@ tags:
 ---
 Let's ditch the hypervisor and put our lab right on the metal!
 
-This project is not for the feint of heart.  It will require some investment.  You are going to need at least 3 Intel NUC machines with a minimum of 2 cores and 32GB RAM each.
+This project is not for the faint of heart.  It will require some investment.  You are going to need at least 3 Intel NUC machines with a minimum of 2 cores and 32GB RAM each.
 
 With the following list of parts, you will be able to power your cluster off of two power supplies, and pack the whole thing up in a slim 15" laptop bag.
 

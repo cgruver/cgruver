@@ -15,7 +15,7 @@ First, go listen to __[this](https://www.youtube.com/watch?v=tMDFv5m18Pw)__.  It
 
 OK, now let's talk about this installation.
 
-This project is not for the feint of heart.  It will require some investment.  You are going to need at least 3 Intel NUC machines with a minimum of 2 cores and 32GB RAM each.
+This project is not for the faint of heart.  It will require some investment.  You are going to need at least 3 Intel NUC machines with a minimum of 2 cores and 32GB RAM each.
 
 Here is my prototype:
 
