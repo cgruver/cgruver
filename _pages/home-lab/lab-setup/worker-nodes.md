@@ -34,14 +34,30 @@ You will need another NUC like the one that you used to build the initial lab.  
        disk1: nvme0n1
        disk2: NA
    compute-nodes:
-     memory: 20480
-     cpu: 6
-     root_vol: 50
-     ceph_vol: 200
-     kvm-hosts:
-     - kvm-host02
-     - kvm-host02
-     - kvm-host02
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
    EOF
    ```
 
@@ -87,14 +103,30 @@ You will need another NUC like the one that you used to build the initial lab.  
        disk1: nvme0n1
        disk2: NA
    compute-nodes:
-     memory: 20480
-     cpu: 4
-     root_vol: 50
-     ceph_vol: 200
-     kvm-hosts:
-     - kvm-host02
-     - kvm-host02
-     - kvm-host02
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
+     - metal: false
+       name: ""
+       kvm-host: kvm-host02
+       node-spec:
+         memory: 20480
+         cpu: 6
+         root_vol: 50
+         ceph_vol: 200
    ```
 
 1. Create the KVM host install config:
@@ -139,7 +171,7 @@ You will need another NUC like the one that you used to build the initial lab.  
    oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs oc adm certificate approve
    ```
 
-   __There will be a total of 6 CSRs that you need to approve.__
+   __There will be a total of 9 CSRs that you need to approve.__
    3 CSRs appear first for the node bootstrap.
    The final three will be for each worker node.
 
