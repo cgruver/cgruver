@@ -106,34 +106,65 @@ kvm-hosts:
     disks:
       disk1: nvme0n1
       disk2: NA
-# Bootstrap Node configuration
+# Bootstrap Node configuration with KVM
 bootstrap:
   metal: false
   kvm-host: kvm-host01
-  memory: 12288
-  cpu: 4
-  root_vol: 50
-# Master Node configuraion
+  node-spec:
+    memory: 12288
+    cpu: 4
+    root_vol: 50
+# Bootstrap Node configuration for bare metal
+bootstrap:
+  metal: true
+  kvm-host: kvm-host01
+  mac-addr: "52:54:00:a1:b2:c3"
+  boot-dev: sda
+  bridge-dev: en6
+  node-spec:
+    memory: 12288
+    cpu: 4
+    root_vol: 50
+# Master Node configuraion with KVM
 control-plane:
   metal: false
-  memory: 20480
-  cpu: 6
-  root_vol: 100
-  kvm-hosts:
-  - kvm-host01
-  - kvm-host01
-  - kvm-host01
+  node-spec:
+    memory: 20480
+    cpu: 6
+    root_vol: 100
+  okd-hosts:
+  - name: ""
+    kvm-host: kvm-host01
+  - name: ""
+    kvm-host: kvm-host01
+  - name: ""
+    kvm-host: kvm-host01
 # Worker Node configuraion
 compute-nodes:
-  metal: false
-  memory: 20480
-  cpu: 4
-  root_vol: 50
-  ceph_vol: 200
-  kvm-hosts:
-    - kvm-host02
-    - kvm-host02
-    - kvm-host02
+- metal: false
+  name: ""
+  kvm-host: kvm-host02
+  node-spec:
+    memory: 20480
+    cpu: 4
+    root_vol: 50
+    ceph_vol: 200
+- metal: false
+  name: ""
+  kvm-host: kvm-host02
+  node-spec:
+    memory: 20480
+    cpu: 4
+    root_vol: 50
+    ceph_vol: 200
+- metal: false
+  name: ""
+  kvm-host: kvm-host02
+  node-spec:
+    memory: 20480
+    cpu: 4
+    root_vol: 50
+    ceph_vol: 200
 ```
 
 | Cluster Configuration | |

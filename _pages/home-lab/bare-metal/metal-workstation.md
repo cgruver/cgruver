@@ -144,6 +144,7 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
        cpu: 2
        root_vol: 50
    control-plane:
+     metal: true
      okd-hosts:
      - mac-addr: "${NUC1}"
        boot-dev: ${SSD}
@@ -174,6 +175,7 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
        cpu: 2
        root_vol: 50
    control-plane:
+     metal: true
      okd-hosts:
      - mac-addr: "1c:69:11:22:33:44"
        boot-dev: sda
