@@ -9,6 +9,8 @@ tags:
 ---
 There are two YAML configuration files that are used by the helper scripts for deploying the infrastructure for you home lab:
 
+__Note:  Needs Update based on recent refactor__
+
 The first configuration file defines the networks for your lab, as well as any KVM Hosts that are deployed on the edge LAN network.
 
 ```yaml
@@ -106,7 +108,7 @@ kvm-hosts:
     disks:
       disk1: nvme0n1
       disk2: NA
-# Bootstrap Node configuration with KVM
+# Bootstrap Node configuration for KVM install
 bootstrap:
   metal: false
   kvm-host: kvm-host01
@@ -114,7 +116,7 @@ bootstrap:
     memory: 12288
     cpu: 4
     root_vol: 50
-# Bootstrap Node configuration for bare metal
+# Bootstrap Node configuration for bare metal install
 bootstrap:
   metal: true
   kvm-host: kvm-host01
@@ -125,7 +127,7 @@ bootstrap:
     memory: 12288
     cpu: 4
     root_vol: 50
-# Master Node configuraion with KVM
+# Master Node configuration for KVM install
 control-plane:
   metal: false
   node-spec:
@@ -133,38 +135,77 @@ control-plane:
     cpu: 6
     root_vol: 100
   okd-hosts:
-  - name: ""
+  - name: "okd4-master-0"
     kvm-host: kvm-host01
-  - name: ""
+    ip-addr: 10.11.12.60
+  - name: "okd4-master-1"
     kvm-host: kvm-host01
-  - name: ""
+    ip-addr: 10.11.12.61
+  - name: "okd4-master-2"
     kvm-host: kvm-host01
-# Worker Node configuraion
+    ip-addr: 10.11.12.62
+# Master Node configuration for bare metal install
+control-plane:
+  metal: true
+  okd-hosts:
+  - name: "okd4-master-0"
+    mac-addr: "1c:69:11:22:33:44"
+    boot-dev: sda
+    ip-addr: 10.11.12.60
+  - name: "okd4-master-1"
+    mac-addr: "1c:69:ab:cd:12:34"
+    boot-dev: sda
+    ip-addr: 10.11.12.61
+  - name: "okd4-master-2"
+    mac-addr: "1c:69:fe:dc:ba:21"
+    boot-dev: sda
+    ip-addr: 10.11.12.62
+# Worker Node configuration for KVM install
 compute-nodes:
 - metal: false
-  name: ""
+  name: "okd4-worker-0"
   kvm-host: kvm-host02
+  ip-addr: 10.11.12.70
   node-spec:
     memory: 20480
     cpu: 4
     root_vol: 50
     ceph_vol: 200
 - metal: false
-  name: ""
+  name: "okd4-worker-1"
   kvm-host: kvm-host02
+  ip-addr: 10.11.12.71
   node-spec:
     memory: 20480
     cpu: 4
     root_vol: 50
     ceph_vol: 200
 - metal: false
-  name: ""
+  name: "okd4-worker-2"
   kvm-host: kvm-host02
+  ip-addr: 10.11.12.72
   node-spec:
     memory: 20480
     cpu: 4
     root_vol: 50
     ceph_vol: 200
+# Worker Node configuration for bare metal install
+compute-nodes:
+- metal: true
+  name: "okd4-worker-0"
+  mac-addr: "1c:69:ab:cd:12:34"
+  boot-dev: sda
+  ip-addr: 10.11.12.70
+- metal: false
+  name: "okd4-worker-1"
+  mac-addr: "1c:69:11:22:33:44"
+  boot-dev: sda
+  ip-addr: 10.11.12.71
+- metal: false
+  name: "okd4-worker-2"
+  mac-addr: "1c:69:fe:dc:ba:21"
+  boot-dev: sda
+  ip-addr: 10.11.12.72
 ```
 
 | Cluster Configuration | |
@@ -202,12 +243,13 @@ compute-nodes:
 | Control Plane Configuration `control-plane` | |
 | --- | --- |
 | metal | true: install on bare metal, false: install with qemu |
-| memory | (`metal: false`) The amount of RAM to be provisioned for each node |
-| cpu | (`metal: false`) The number of vCPUs to be provisioned for each node |
-| root-vol | (`metal: false`) The size, in Gb, of the disk to be provisioned for each node |
-| kvm-hosts | (`metal: false`) A list of three KVM hostnames in the region.  One entry for each of the three master nodes. A master node will be provisioned for each of the entries.  If the hostnames are different then a master node will be provisioned on each KVM Host.  If the hostnames are the same, then all three master nodes will be provisioned on the same KVM host. |
-| okd-hosts | (`metal: true`) List of three bare metal hosts for the control plane |
-| okd-hosts.mac-addr | (`metal: true`) The MAC address of the node |
+| node-spec.memory | (`metal: false`) The amount of RAM to be provisioned for each node |
+| node-spec.cpu | (`metal: false`) The number of vCPUs to be provisioned for each node |
+| node-spec.root-vol | (`metal: false`) The size, in Gb, of the disk to be provisioned for each node |
+| okd-hosts | List of three configurations for the control plane |
+| okd-hosts.name | The hostname of each control plane node.  This entry is created by the deployment helper script. |
+| okd-hosts.mac-addr | The MAC address of each control plane node.  This entry is created by the deployment helper script for a KVM install.  It is user provided for bare metal install |
+| okd-hosts.kvm-host | (`metal: false`) The KVM hostname that the master node will be provisioned on. |
 | okd-hosts.boot-dev | (`metal: true`) The boot device that FCOS will be installed on. i.e. `sda` |
 
 | Worker Node Configuration `compute-nodes` | |
