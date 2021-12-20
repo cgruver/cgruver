@@ -67,16 +67,6 @@ tags:
      update-ca-trust
      ```
 
-1. Point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
-
-   On Mac OS:
-
-   ```bash
-   open -a Safari https://console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
-   ```
-
-   Log in as `kubeadmin` with the password from the output at the completion of the install.
-
 ### Create user accounts:
 
 Let's add some users to the cluster that we created.  The temporary `kubeadmin` account is not a useful long term strategy for access to your cluster.  So, we're going to add a couple of user accounts.
@@ -141,5 +131,15 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    ```bash
    oc delete secrets kubeadmin -n kube-system
    ```
+
+1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
+
+   On Mac OS:
+
+   ```bash
+   open -a Safari https://console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
+   ```
+
+   Log in as `admin` with the password from the output at the completion of the install.
 
 That's it!  You now have a three node OpenShift cluster.
