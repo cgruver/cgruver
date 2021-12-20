@@ -135,9 +135,15 @@ From your workstation, do the following:
     1. Invokes the openshift-install command against our install-config to produce ignition files
     1. Uses `butane` to modify the ignition files to configure each node's network settings
     1. Copies the ignition files into place for Fedora CoreOS
-    1. Creates guest VMs based on the inventory file
-    1. Creates iPXE boot files for each VM and copies them to the iPXE server, (your router)
+    1. Creates guest VMs based on the lab configuration file, for KVM based nodes
+    1. Creates iPXE boot files for each node and copies them to the iPXE server, (your router)
 
 1. Finaly, we are ready to install OpenShift!
 
-   [OpenShift Install](/home-lab/install-okd/)
+   If you are building a cluster on KVM, go here:
+
+   __[OpenShift Install - KVM](/home-lab/install-okd/)__
+
+   If you are building a bare-metal cluster, go here:
+
+   __[OpenShift Install - Bare Metal](/home-lab/bare-metal-install-okd/)__
