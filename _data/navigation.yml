@@ -7,44 +7,26 @@ main:
   - title: "Videos"
     url: /videos/
 lab-projects:
-  - title: "Home Lab Installation Guide"
-    children:
-    - title: "Introduction"
-      url: /home-lab/lab-intro/
-    - title: "Workstation Setup"
-      url: /home-lab/workstation/
-    - title: "Lab Config Reference"
-      url: /home-lab/configuration/
-    - title: "Edge LAN Router"
-      url: /home-lab/edge-router/
-    - title: "Bastion Pi 4B"
-      url: /home-lab/bastion-pi/
-    - title: "Sonatype Nexus on Pi"
-      url: /home-lab/nexus-pi/
-    - title: "Internal Region LAN Router"
-      url: /home-lab/internal-router/
-    - title: "KVM Host Install"
-      url: /home-lab/kvm-host-setup/
-    - title: "Prepare OKD Install"
-      url: /home-lab/prepare-okd-install/
-    - title: "Install OKD"
-      url: /home-lab/install-okd/
-    - title: "Tear Down Cluster"
-      url: /home-lab/recreate-cluster/
-  - title: "Additional Infrastructure"
-    children:
-    - title: "Add Worker Nodes"
-      url: /home-lab/worker-nodes/
-    - title: "Add Ceph Storage Provider"
-      url: /home-lab/rook-ceph/
-  - title: "Developer Tooling"
+  - title: "Home Lab Intro"
+    url: /home-lab/lab-intro/
+  - title: "KVM Based Lab"
+    url: /home-lab/workstation/
+  - title: Bare Metal Lab
+    url: /home-lab/bare-metal-okd-workstation/
+  - title: "Lab Config Reference"
+    url: /home-lab/configuration/
+  - title: "Add Worker Nodes"
+    url: /home-lab/worker-nodes/
+  - title: "Add Ceph Storage Provider"
+    url: /home-lab/rook-ceph/
+  - title: "Tear Down & Rebuild Cluster"
+    url: /home-lab/recreate-cluster/
+  - title: "CI/CD Tekton Demo"
     children:
     - title: "GitTea"
       url: /home-lab/gitea-with-pi/
     - title: "Install Tekton Pipelines"
       url: /home-lab/tekton-install/  
-  - title: "CI/CD Tekton Demo"
-    children:
     - title: "Cluster Setup"
       url: /home-lab/pipelines-cluster-setup/
     - title: "Gitea Setup"
