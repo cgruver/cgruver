@@ -75,7 +75,7 @@ tags:
    spec:
      repositoryDigestMirrors:
      - mirrors:
-       - nexus.clg.lab:5000
+       - nexus.${LAB_DOMAIN}:5000
        source: gcr.io
    EOF
    ```

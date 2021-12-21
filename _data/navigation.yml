@@ -10,9 +10,9 @@ lab-projects:
   - title: "Home Lab Intro"
     url: /home-lab/lab-intro/
   - title: "KVM Based Lab"
-    url: /home-lab/workstation/
+    url: /home-lab/kvm-lab-intro/
   - title: Bare Metal Lab
-    url: /home-lab/bare-metal-okd-workstation/
+    url: /home-lab/bare-metal-intro/
   - title: "Lab Config Reference"
     url: /home-lab/configuration/
   - title: "Add Worker Nodes"
