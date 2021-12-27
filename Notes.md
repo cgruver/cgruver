@@ -1905,3 +1905,52 @@ do
 done
 
 ```
+
+```bash
+podman pull -q quay.io/openshift/okd-content@sha256:57a303eec1366e3d8aa30a2fa02f63aafdeaa01e6e3bf072e22f3fc500bbe5e1
+
+podman create --net=none --annotation=org.openshift.machineconfigoperator.pivot=true --name ostree-container-pivot-d5b4750a-a7fa-47ed-9c5e-1670e178b8fc quay.io/openshift/okd-content@sha256:57a303eec1366e3d8aa30a2fa02f63aafdeaa01e6e3bf072e22f3fc500bbe5e1
+
+podman cp c7661ba70298684cf51ecb8615e8c6eec446e4b6e53be06573a8cd508bbfbfc1:/ /run/mco-machine-os-content/os-content-349361028
+
+
+cpio --extract < ../rootfs.img
+unsquashfs root.squashfs
+
+mksquashfs squashfs-root/ rootfs
+
+###
+
+OKD_RELEAE_IMAGE=$(openshift-install version | grep image | cut -d" " -f3)
+
+podman machine init fcos
+podman machine start fcos
+
+FCOS_SSH_PORT=$(cat ~/.config/containers/podman/machine/qemu/fcos.json | jq -r '.Port')
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman pull -q ${OKD_RELEAE_IMAGE}"
+OS_CONTENT_IMAGE=$(ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost  "sudo podman run --quiet --rm --net=none ${OKD_RELEAE_IMAGE} image machine-os-content")
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman pull -q ${OS_CONTENT_IMAGE}"
+CONTAINER_ID=$(ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman create --net=none --name ostree-container ${OS_CONTENT_IMAGE}")
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo mkdir -p /usr/local/fcos-image/os-content && sudo podman cp ${CONTAINER_ID}:/ /usr/local/fcos-image/os-content"
+
+scp -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} ${OKD_LAB_PATH}/ipxe-work-dir/fcos/okd4-sno-${SUB_DOMAIN}/rootfs.img core@localhost:/tmp/rootfs.img
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo mkdir -p /usr/local/fcos-image/rootfs && sudo cpio --extract -D /usr/local/fcos-image/rootfs < /tmp/rootfs.img"
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo unsquashfs -d /usr/local/fcos-image/new-fs /usr/local/fcos-image/rootfs/root.squashfs"
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -rf /usr/local/fcos-image/new-fs/ostree/repo && mv /usr/local/fcos-image/os-content/srv/repo /usr/local/fcos-image/new-fs/ostree/repo"
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -f /usr/local/fcos-image/rootfs/root.squashfs && mksquashfs /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/rootfs/root.squashfs"
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -rf /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/os-content"
+
+ssh -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo cpio -D /usr/local/fcos-image/rootfs --create < cpio.list > /usr/local/fcos-image/rootfs.img"
+
+scp -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} core@localhost:/usr/local/fcos-image/rootfs.img ${OKD_LAB_PATH}/ipxe-work-dir/fcos/okd4-sno-${SUB_DOMAIN}/bootstrap-rootfs.img 
+
+podman machine stop fcos
+podman machine rm fcos
+```
