@@ -19,7 +19,6 @@ There are three different ways to navigate this site:
 1. The left hand navigation, (or drop down menu on mobile).  Those links will take you to specific tutorials for building or adding capabilities to your home lab.
 
 1. The top navigation bar.  
-   * About Me: A brief bio
-   * Lab Projects: More descriptive info on the lab projects listed in the left hand nav bar.
-   * Videos: YouTube links to videos that I have participated in.
-
+   * [About Me](/about/): A brief bio
+   * [Lab Projects](/lab-projects/): More descriptive info on the lab projects listed in the left hand nav bar.
+   * [Videos](/videos/): YouTube links to videos that I have participated in.
