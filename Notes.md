@@ -1954,3 +1954,129 @@ scp -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} core@localhost:/usr/local/fcos-image/root
 podman machine stop fcos
 podman machine rm fcos
 ```
+
+## K8ssandra
+
+
+podman build -t ${LOCAL_REGISTRY}/k8ssandra/
+
+```bash
+ln -s $(which podman) ~/bin/docker
+
+podman machine stop
+podman machine rm --force
+podman machine init --cpus 2 --disk-size 20 --memory 8192
+podman machine start
+
+podman login -u admin ${LOCAL_REGISTRY}
+
+export IMAGE_TAG_BASE=${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator
+
+mkdir -p ${OKD_LAB_PATH}/k8ssandra-work-dir/cert-manager-install
+mkdir -p ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install
+git clone https://github.com/k8ssandra/k8ssandra-operator.git ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-operator
+
+make --directory=${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-operator docker-build
+podman push ${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator:latest
+
+podman pull quay.io/jetstack/cert-manager-cainjector:v1.3.1
+podman pull quay.io/jetstack/cert-manager-controller:v1.3.1
+podman pull quay.io/jetstack/cert-manager-webhook:v1.3.1
+podman pull docker.io/k8ssandra/cass-operator:v1.9.0
+podman pull docker.io/k8ssandra/k8ssandra-operator:v1.0.0-alpha.2
+
+podman tag quay.io/jetstack/cert-manager-cainjector:v1.3.1 ${LOCAL_REGISTRY}/jetstack/cert-manager-cainjector:v1.3.1
+podman tag quay.io/jetstack/cert-manager-controller:v1.3.1 ${LOCAL_REGISTRY}/jetstack/cert-manager-controller:v1.3.1
+podman tag quay.io/jetstack/cert-manager-webhook:v1.3.1 ${LOCAL_REGISTRY}/jetstack/cert-manager-webhook:v1.3.1
+podman tag docker.io/k8ssandra/cass-operator:v1.9.0 ${LOCAL_REGISTRY}/k8ssandra/cass-operator:v1.9.0
+podman tag docker.io/k8ssandra/k8ssandra-operator:v1.0.0-alpha.2 ${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator:v1.0.0-alpha.2
+
+podman push --tls-verify=false ${LOCAL_REGISTRY}/jetstack/cert-manager-cainjector:v1.3.1
+podman push --tls-verify=false ${LOCAL_REGISTRY}/jetstack/cert-manager-controller:v1.3.1
+podman push --tls-verify=false ${LOCAL_REGISTRY}/jetstack/cert-manager-webhook:v1.3.1
+podman push --tls-verify=false ${LOCAL_REGISTRY}/k8ssandra/cass-operator:v1.9.0
+podman push --tls-verify=false ${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator:v1.0.0-alpha.2
+
+cat <<EOF > ${OKD_LAB_PATH}/k8ssandra-work-dir/cert-manager-install/kustomization.yaml
+resources:
+- ../k8ssandra-operator/config/cert-manager
+images:
+- name: quay.io/jetstack/cert-manager-cainjector
+  newTag: v1.3.1
+  newName: ${LOCAL_REGISTRY}/jetstack/cert-manager-cainjector
+- name: quay.io/jetstack/cert-manager-controller
+  newTag: v1.3.1
+  newName: ${LOCAL_REGISTRY}/jetstack/cert-manager-controller
+- name: quay.io/jetstack/cert-manager-webhook
+  newTag: v1.3.1
+  newName: ${LOCAL_REGISTRY}/jetstack/cert-manager-webhook
+EOF
+
+# cat <<EOF > ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install/kustomization.yaml
+# namespace: k8ssandra-operator
+# resources:
+# - ../k8ssandra-operator/config/deployments/control-plane/cluster-scope
+# images:
+# - name: k8ssandra/k8ssandra-operator
+#   newTag: v1.0.0-alpha.2
+#   newName: ${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator
+# - name: k8ssandra/cass-operator
+#   newTag: v1.9.0
+#   newName: ${LOCAL_REGISTRY}/k8ssandra/cass-operator
+# EOF
+
+cat <<EOF > ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install/kustomization.yaml
+namespace: k8ssandra-operator
+resources:
+- ../k8ssandra-operator/config/deployments/control-plane
+images:
+- name: k8ssandra/k8ssandra-operator
+  newTag: v1.0.0-alpha.2
+  newName: ${LOCAL_REGISTRY}/k8ssandra/k8ssandra-operator
+- name: k8ssandra/cass-operator
+  newTag: v1.9.0
+  newName: ${LOCAL_REGISTRY}/k8ssandra/cass-operator
+EOF
+
+kustomize build ${OKD_LAB_PATH}/k8ssandra-work-dir/cert-manager-install > ${OKD_LAB_PATH}/k8ssandra-work-dir/cert-manager-install.yaml
+kustomize build ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install > ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install.yaml
+
+oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
+oc create -f ${OKD_LAB_PATH}/k8ssandra-work-dir/cert-manager-install.yaml
+oc create -f ${OKD_LAB_PATH}/k8ssandra-work-dir/k8ssandra-install.yaml
+
+oc adm policy add-scc-to-user anyuid -z cass-operator-controller-manager -n k8ssandra-operator
+
+cat <<EOF | oc -n k8ssandra-operator apply -f -
+apiVersion: k8ssandra.io/v1alpha1
+kind: K8ssandraCluster
+metadata:
+  name: demo
+spec:
+  cassandra:
+    cluster: demo
+    serverVersion: "4.0.1"
+    datacenters:
+      - metadata:
+          name: dc1
+        size: 3
+        storageConfig:
+          cassandraDataVolumeClaimSpec:
+            storageClassName: rook-ceph-block
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 5Gi
+        config:
+          jvmOptions:
+            heapSize: 512M
+        stargate:
+          ServiceAccountName: k8ssandra
+          size: 1
+          heapSize: 256M
+EOF
+
+
+rm -rf ${OKD_LAB_PATH}/k8ssandra-work-dir
+```

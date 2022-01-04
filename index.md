@@ -8,7 +8,7 @@ classes: wide
 header:
   image: /assets/images/Fiat-Wide.jpg
 ---
-This site is dedicated to sharing the work that I do in my home lab.  I am a huge fan of cloud native application delivery on Kubernetes based platforms.  I specifically focus on [OpenShift Container Platform](https://openshift.com), and its subscription free sibling, [OKD](https://okd.io).
+This site is dedicated to sharing the work that I do in my home lab.  I am a huge fan of cloud native application delivery on Kubernetes based platforms.  I specifically focus on [OpenShift Container Platform](https://openshift.com), and its subscription free (community supported) sibling, [OKD](https://okd.io).
 
 The projects that I present here are intended to reflect a "close to real-world" environment.  The result is a more complicated setup than you will find in other tutorials, but the trade off is that your lab environment will resemble what you find in most corporate IT environments.  I try to focus on what my brother-in-law commonly calls the "ilities" of IT; security, reliability, flexibility, availability, etc...
 
