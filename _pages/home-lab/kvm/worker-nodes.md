@@ -61,11 +61,15 @@ You will need another NUC like the one that you used to build the initial lab.  
    EOF
    ```
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Use `yq` to merge the new records into your lab configuration YAML file:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    yq eval-all --inplace 'select(fileIndex == 0) *+ select(fileIndex == 1)' ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml ${OKD_LAB_PATH}/lab-config/add-workers.yaml
    rm ${OKD_LAB_PATH}/lab-config/add-workers.yaml
    ```

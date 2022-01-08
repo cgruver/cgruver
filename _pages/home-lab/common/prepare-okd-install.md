@@ -11,34 +11,26 @@ tags:
 
 Since we are simulating a secure data center environment, let's deny internet access to our internal network:
 
-1. Log into the edger router:
+1. Select the Lab subdomain that you want to work with:
 
    ```bash
-   ssh root@router.${LAB_DOMAIN}
+   labctx
    ```
 
 1. Add a firewall rule to block internet bound traffic from the internal router:
 
    ```bash
-   new_rule=$(uci add firewall rule) 
-   uci batch << EOI
-   set firewall.${new_rule}.enabled='1'
-   set firewall.${new_rule}.target='REJECT'
-   set firewall.${new_rule}.src='lan'
-   set firewall.${new_rule}.src_ip='${DEV_NETWORK}/24'
-   set firewall.${new_rule}.dest='wan'
-   set firewall.${new_rule}.name='DEV_BLOCK'
-   set firewall.${new_rule}.proto='all'
-   set firewall.${new_rule}.family='ipv4'
-   EOI
-   uci commit firewall
-   /etc/init.d/firewall restart
-   ```
-
-1. Now, go back to your workstation.
-
-   ```bash
-   exit
+   ssh root@router.${LAB_DOMAIN} "new_rule=\$(uci add firewall rule) ; \
+   uci set firewall.\${new_rule}.enabled=1 ; \
+   uci set firewall.\${new_rule}.target=REJECT ; \
+   uci set firewall.\${new_rule}.src=lan ; \
+   uci set firewall.\${new_rule}.src_ip=${DOMAIN_NETWORK}/24 ; \
+   uci set firewall.\${new_rule}.dest=wan ; \
+   uci set firewall.\${new_rule}.name=${SUB_DOMAIN}-internet-deny ; \
+   uci set firewall.\${new_rule}.proto=all ; \
+   uci set firewall.\${new_rule}.family=ipv4 ; \
+   uci commit firewall && \
+   /etc/init.d/firewall restart"
    ```
 
 ### Create OpenShift image mirror:
@@ -78,8 +70,6 @@ From your workstation, do the following:
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    mirrorOkdRelease.sh -d=${SUB_DOMAIN} 
    ```
 

@@ -190,16 +190,15 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   cd ${OKD_LAB_PATH}
-   git clone https://github.com/cgruver/okd-home-lab.git
+   git clone https://github.com/cgruver/okd-home-lab.git ${OKD_LAB_PATH}/okd-home-lab
    ```
 
-1. Copy the scripts to your lab `bin` directory:
+1. Copy the helper scripts to your `${OKD_LAB_PATH}` directory:
 
    ```bash
-   mkdir ${OKD_LAB_PATH}/bin
-   cp okd-home-lab/bin/* ${OKD_LAB_PATH}/bin
+   cp -r ${OKD_LAB_PATH}/okd-home-lab/bin ${OKD_LAB_PATH}/bin
    chmod 700 ${OKD_LAB_PATH}/bin/*
+   cp -r ${OKD_LAB_PATH}/okd-home-lab/utils ${OKD_LAB_PATH}/utils
    ```
 
 1. Add the following to your shell environment:
@@ -211,8 +210,8 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
    ```bash
    export OKD_LAB_PATH=${HOME}/okd-lab
    export PATH=$PATH:${OKD_LAB_PATH}/bin
-   export LAB_DOMAIN="my.awesome.lab"
    export LAB_CONFIG_FILE=${OKD_LAB_PATH}/lab-config/lab.yaml
+   . ${OKD_LAB_PATH}/utils/labctx.sh
    ```
 
 1. Log off and back on to set the variables.

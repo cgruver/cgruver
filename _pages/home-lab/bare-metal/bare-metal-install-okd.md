@@ -10,13 +10,17 @@ tags:
 
 ## We are now ready to fire up our OpenShift cluster
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Start the bootstrap node:
 
    In a separate terminal window, run the following:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    startNodes.sh -b -d=${SUB_DOMAIN}
    ```
 
@@ -51,14 +55,12 @@ tags:
    In yet another terminal...
 
    ```bash
-   export SUB_DOMAIN=dev
    ssh core@okd4-bootstrap.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
    Or, to monitor the logs from one of the control plane nodes:
 
    ```bash
-   export SUB_DOMAIN=dev
    ssh core@okd4-master-0.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
@@ -80,8 +82,6 @@ tags:
    1. Modify the kernel arguments to enable SMT on the next boot:
 
       ```bash
-      export SUB_DOMAIN=dev
-
       for i in 0 1 2
       do
         ssh core@okd4-master-${i}.${SUB_DOMAIN}.${LAB_DOMAIN} "sudo rpm-ostree kargs --replace=\"mitigations=auto,nosmt=auto\""
@@ -118,7 +118,6 @@ tags:
 1. When the bootstrap process is complete, remove the bootstrap node:
 
    ```bash
-   export SUB_DOMAIN=dev
    destroyNodes.sh -b -d=${SUB_DOMAIN}
    ```
 
@@ -133,6 +132,8 @@ tags:
 1. Fix for a stuck MCO
 
    In some recent versions of OKD, the Machine Config Operator cannot complete the installation because it is looking for a non-existent machine config.
+
+   See: [https://github.com/openshift/okd/issues/963](https://github.com/openshift/okd/issues/963)
 
    ```bash
    export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"

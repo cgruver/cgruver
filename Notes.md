@@ -2080,3 +2080,19 @@ EOF
 
 rm -rf ${OKD_LAB_PATH}/k8ssandra-work-dir
 ```
+
+```bash
+. labctx.sh
+
+createEnvScript.sh
+cat ~/.ssh/id_rsa.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
+cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+rm -rf ${OKD_LAB_PATH}/work-dir
+scp ${OKD_LAB_PATH}/utils/domain/init-router.sh root@192.168.8.1:/tmp
+ssh root@192.168.8.1 "chmod 700 /tmp/init-router.sh && . ~/.profile ; /tmp/init-router.sh"
+ssh root@192.168.8.1 "poweroff"
+
+scp ${OKD_LAB_PATH}/utils/domain/config-router.sh root@${DOMAIN_ROUTER}:/tmp
+ssh root@${DOMAIN_ROUTER} "chmod 700 /tmp/config-router.sh && . ~/.profile ; /tmp/config-router.sh"
+ssh root@${DOMAIN_ROUTER} "reboot"
+```

@@ -15,6 +15,12 @@ This tutorial assumes that you have already configured your lab with the followi
 
 We're going to install Gitea on the Raspberry Pi that we previously installed Nexus on.
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Create a DNS entry for gitea on the edge router:
 
    ```bash
@@ -42,8 +48,6 @@ We're going to install Gitea on the Raspberry Pi that we previously installed Ne
 1. Add the OpenShift wildcard certificate to the local keystore so that Gitea will trust Tekton Trigger routes that we'll create later:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    openssl s_client -showcerts -connect console-openshift-console.apps.okd4.${SUB_DOMAIN}.${DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/ssl/certs/apps.okd4.${DOMAIN}.crt
    ```
 

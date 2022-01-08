@@ -15,11 +15,15 @@ tags:
 
 *In a later post, I'll show you how to automate this setup across your whole cluster.*
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Create an OpenShift project for our demonstration:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    oc login -u devuser https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    oc new-project app-demo
    ```

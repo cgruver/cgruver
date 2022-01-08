@@ -17,6 +17,12 @@ __Note:__  *If you have not installed OpenShift Pipelines, you need to do that f
 
 Now, on to the setup!
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. If you are on a Mac like me, then start podman: (You don't need to do this on Linux)
 
    ```bash
@@ -37,8 +43,6 @@ Now, on to the setup!
    Set a couple of vars:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
    ```

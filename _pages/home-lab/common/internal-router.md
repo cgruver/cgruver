@@ -12,10 +12,15 @@ tags:
 ---
 ### Prepare for Internal Network Router Configuration:
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Create an environment script to help configure the internal router:
 
    ```bash
-   export SUB_DOMAIN=dev
    createEnvScript.sh -d=${SUB_DOMAIN}
    ```
 
@@ -34,33 +39,19 @@ tags:
 
 1. Create a static route in the edge router:
 
-   1. Log into the edge router:
-
-      ```bash
-      ssh root@router.${LAB_DOMAIN}
-      ```
+   ```bash
+   # Create the route:
+   ssh root@router.${LAB_DOMAIN} "unset ROUTE ; ROUTE=\$(uci add network route) ; \
+      uci set network.\${ROUTE}.interface=lan ; \
+      uci set network.\${ROUTE}.target=${DOMAIN_NETWORK} ; \
+      uci set network.\${ROUTE}.netmask=${DOMAIN_NETMASK} ; \
+      uci set network.\${ROUTE}.gateway=${DOMAIN_ROUTER_EDGE} ; \
+      uci commit network"
    
-   1. Create the route:
-
-      ```bash
-      unset ROUTE
-   
-      ROUTE=$(uci add network route)
-      uci set network.${ROUTE}.interface=lan
-      uci set network.${ROUTE}.target=${DEV_NETWORK}
-      uci set network.${ROUTE}.netmask=${NETMASK}
-      uci set network.${ROUTE}.gateway=${DEV_ROUTER}
-      uci commit network
-      ```
-
-   1. Restart the network and DNS services:
-
-      ```bash
-      /etc/init.d/network restart
-      /etc/init.d/named stop
-      /etc/init.d/named start
-      exit
-      ```
+   # Restart the network and DNS services:
+   ssh root@router.${LAB_DOMAIN} "/etc/init.d/network restart"
+   ssh root@router.${LAB_DOMAIN} "/etc/init.d/named stop && /etc/init.d/named start"
+   ```
 
 ### Configure Internal Network Router:
 
@@ -77,9 +68,9 @@ tags:
 1. Add env vars to the edge router for additional configuration:
 
    ```bash
-    cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
-    rm -rf ${OKD_LAB_PATH}/work-dir
-    ```
+   cat ${OKD_LAB_PATH}/work-dir/internal-router | ssh root@192.168.8.1 "cat >> /root/.profile"
+   rm -rf ${OKD_LAB_PATH}/work-dir
+   ```
 
 1. Log into the router:
 
@@ -167,6 +158,12 @@ tags:
    /etc/init.d/firewall restart
    ```
 
+   __Note:__ You can safely ignore the errors:
+
+   `! Skipping due to path error: No such file or directory`
+
+   `RTNETLINK answers: Network unreachable`
+
 1. Now power off the router, connect to the uplink port on the router to one of the LAN ports on your edge router:
 
    ```bash
@@ -178,8 +175,7 @@ tags:
 1. Now, we should be able to log into our new internal network router:
 
    ```bash
-   DEV_ROUTER=$(ssh root@router.${LAB_DOMAIN} ". /root/.profile ; echo \${DEV_ROUTER}")
-   ssh root@${DEV_ROUTER}
+   ssh root@${DOMAIN_ROUTER}
    ```
 
 1. Install some additional packages on your router:

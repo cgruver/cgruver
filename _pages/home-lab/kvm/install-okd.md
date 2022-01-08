@@ -10,12 +10,16 @@ tags:
 ---
 
 ## We are now ready to fire up our OpenShift cluster
- 
+
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Start the nodes:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    startNodes.sh -b -d=${SUB_DOMAIN}
    startNodes.sh -m -d=${SUB_DOMAIN}
    ```
@@ -66,6 +70,8 @@ tags:
 1. Fix for a stuck MCO
 
    In some recent versions of OKD, the Machine Config Operator cannot complete the installation because it is looking for a non-existent machine config.
+
+   See: [https://github.com/openshift/okd/issues/963](https://github.com/openshift/okd/issues/963)
 
    ```bash
    export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"

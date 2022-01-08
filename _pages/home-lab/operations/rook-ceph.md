@@ -42,11 +42,15 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    podman pull  quay.io/ceph/ceph:v16.2.6
    ```
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Tag the images for Nexus:
 
    ```bash
-   export SUB_DOMAIN=dev
-   
    LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
 
    podman tag quay.io/cephcsi/cephcsi:v3.4.0 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0

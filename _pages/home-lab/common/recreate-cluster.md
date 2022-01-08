@@ -8,12 +8,17 @@ There will be times when you want to wipe your whole environment and rebuild it 
 
 There is a single script that will completely wipe the cluster and reset HA Proxy on the router for a new cluster.
 
+1. Select the Lab subdomain that you want to work with:
+
+   ```bash
+   labctx
+   ```
+
 1. Tear down the cluster and delete it's resources:
 
    Remember, we already destroyed the Bootstrap node.
 
    ```bash
-   export SUB_DOMAIN=dev
    destroyNodes.sh -r -d=${SUB_DOMAIN}
    ```
 
