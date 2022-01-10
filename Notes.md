@@ -2096,3 +2096,12 @@ scp ${OKD_LAB_PATH}/utils/domain/config-router.sh root@${DOMAIN_ROUTER}:/tmp
 ssh root@${DOMAIN_ROUTER} "chmod 700 /tmp/config-router.sh && . ~/.profile ; /tmp/config-router.sh"
 ssh root@${DOMAIN_ROUTER} "reboot"
 ```
+
+```bash
+uci set wireless.radio0.disabled=1
+uci set wireless.radio1.disabled=1
+uci set wireless.radio2.disabled=1
+uci set wireless.default_radio0.disabled=1
+uci commit wireless
+/etc/init.d/network reload
+```

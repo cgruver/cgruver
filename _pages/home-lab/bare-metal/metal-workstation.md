@@ -211,7 +211,7 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
    export OKD_LAB_PATH=${HOME}/okd-lab
    export PATH=$PATH:${OKD_LAB_PATH}/bin
    export LAB_CONFIG_FILE=${OKD_LAB_PATH}/lab-config/lab.yaml
-   . ${OKD_LAB_PATH}/utils/labctx.sh
+   . ${OKD_LAB_PATH}/bin/labctx.env
    ```
 
 1. Log off and back on to set the variables.
