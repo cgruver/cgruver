@@ -1849,15 +1849,15 @@ BOOTSTRAP_BRIDGE=en6
 
 qemu-system-x86_64 -accel accel=hvf -m 12G -smp 2 -display none -nographic -drive file=${OKD_LAB_PATH}/bootstrap/bootstrap-node.qcow2,if=none,id=disk1  -device ide-hd,bus=ide.0,drive=disk1,id=sata0-0-0,bootindex=1 -boot n -netdev vde,id=nic0,sock=/var/run/vde.bridged.${BOOTSTRAP_BRIDGE}.ctl -device virtio-net-pci,netdev=nic0,mac=52:54:00:a1:b2:c3
 
-launchctl unload -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.bridged.en6.plist"
-launchctl unload -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.bridged.en6.plist"
+launchctl unload -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.bridged.${BOOTSTRAP_BRIDGE}.plist"
+launchctl unload -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.bridged.${BOOTSTRAP_BRIDGE}.plist"
 launchctl unload -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.plist"
 launchctl unload -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.plist"
 
 launchctl load -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.plist"
 launchctl load -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.plist"
-launchctl load -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.bridged.en6.plist"
-launchctl load -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.bridged.en6.plist"
+launchctl load -w "/Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.bridged.${BOOTSTRAP_BRIDGE}.plist"
+launchctl load -w "/Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.bridged.${BOOTSTRAP_BRIDGE}.plist"
 
   disks:
     - device: /dev/${boot_dev}
@@ -2104,4 +2104,18 @@ uci set wireless.radio2.disabled=1
 uci set wireless.default_radio0.disabled=1
 uci commit wireless
 /etc/init.d/network reload
+```
+
+## Single Node Cluster
+
+```bash
+
+ssh core@10.14.14.200 "sudo rpm-ostree kargs --replace=\"mitigations=auto,nosmt=auto\""
+ssh core@10.14.14.200 "sudo systemctl reboot"
+
+export KUBECONFIG="${OKD4_SNC_PATH}/okd4-install-dir/auth/kubeconfig"
+oc patch etcd cluster -p='{"spec": {"unsupportedConfigOverrides": {"useUnsupportedUnsafeNonHANonProductionUnstableEtcd": true}}}' --type=merge
+oc patch IngressController default -n openshift-ingress-operator -p='{"spec": {"replicas": 1}}' --type=merge
+oc patch authentications.operator.openshift.io cluster -p='{"spec": {"unsupportedConfigOverrides": {"useUnsupportedUnsafeNonHANonProductionUnstableOAuthServer": true }}}' --type=merge
+
 ```
