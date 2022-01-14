@@ -21,7 +21,7 @@ tags:
    In a separate terminal window, run the following:
 
    ```bash
-   startNodes.sh -b -d=${SUB_DOMAIN}
+   startNodes.sh -b
    ```
 
    * Do not close this terminal.  It is the console of the bootstrap node.
@@ -32,7 +32,7 @@ tags:
    In a terminal window, run the following:
 
    ```bash
-   openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for bootstrap-complete --log-level debug
+   openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete --log-level debug
    ```
 
    __Note:__ This command does not affect to install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
@@ -126,7 +126,7 @@ tags:
 1. Monitor the installation process:
 
    ```bash
-   openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for install-complete --log-level debug
+   openshift-install --dir=${INSTALL_DIR} wait-for install-complete --log-level debug
    ```
 
 1. Fix for a stuck MCO
