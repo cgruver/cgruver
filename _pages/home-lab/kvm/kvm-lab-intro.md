@@ -21,7 +21,7 @@ Below is the complete bill of materials for your starter lab.  I've included Ama
     * __Note:__ The GL-AR750S-Ext will not work for this function.
   * [Raspberry Pi 4b 8GB](https://www.amazon.com/gp/product/B089ZZ8DTV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) (Bastion Host)
   * [SD Card for the Pi](https://www.amazon.com/gp/product/B08RG6XJZD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
-  * [Anker 63W 4 Port PIQ 3.0 & GaN Fast Charger Adapter](https://www.amazon.com/gp/product/B088TFZ942/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+  * [Anker 65W 4 Port PIQ 3.0 & GaN Fast Charger Adapter](https://www.amazon.com/Anker-Charger-4-Port-MacBook-Laptops/dp/B098WQRGNQ/ref=dp_prsubs_1?pd_rd_i=B098WQRGNQ&psc=1)
     * __Note:__ I use this Anker power supply to run the routers and Pi off of one brick.  It saves valuable bag space when travelling.
   * [USB C cables](https://www.amazon.com/gp/product/B08R68T84N/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
   * [USB A to USB C cables](https://www.amazon.com/gp/product/B08T5VXQN3/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
