@@ -75,6 +75,8 @@ From your workstation, do the following:
    mirrorOkdRelease.sh -d=${SUB_DOMAIN} 
    ```
 
+   __Note:__ If you see X509 errors, and you are on a MacBook, you might have to open KeyChain and trust the Nexus cert.  Then run the above command again.
+
    The final output should look something like:
 
    ```bash

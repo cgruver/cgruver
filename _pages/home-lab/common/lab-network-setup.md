@@ -185,6 +185,8 @@ We are going to use the edge router that we set up previously to configure the O
      ```bash
      openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
      sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
+     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
      ```
 
    * Linux:
@@ -223,7 +225,15 @@ We are going to use the edge router that we set up previously to configure the O
 
 ### Set up Nexus for image mirroring:
 
-Now point your browser to `https://nexus.${LAB_DOMAIN}:8443`.  Login, and create a password for your admin user.
+1. Log into Nexus:
+
+   Get the initial admin password for Nexus:
+
+   ```bash
+   echo $(ssh root@bastion.${LAB_DOMAIN} "cat /usr/local/nexus/sonatype-work/nexus3/admin.password")
+   ```
+
+   Now point your browser to `https://nexus.${LAB_DOMAIN}:8443`.  Login, and create a password for your admin user.
 
 If prompted to allow anonymous access, select to allow.
 
@@ -286,8 +296,6 @@ The `?` in the top right hand corner of the Nexus screen will take you to their 
    1. Check `HTTPS` and put `5000` in the port dialog entry
 
    1. Check `Allow anonymous docker pull`
-
-   1. Set `https://gcr.io` as the `Remote storage` location.
 
       ![Proxy Repo](images/NexusConfigGroup.png)
 
