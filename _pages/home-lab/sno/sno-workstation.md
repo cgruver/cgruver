@@ -11,6 +11,10 @@ tags:
 ---
 We're going to install an OpenShift OKD SNO cluster on a bare metal server.  The bootstrap node will run on your workstation.  This particular tutorial is biased towards a MacBook workstation.  However, you can easily modify this to run the bootstrap node on Fedora or other Linux flavor.
 
+There is also a feature for installing SNO with "bootstrap-in-place" which does not require a bootstrap node.  It is not quite ready for our purposes yet, so we're still going to use a bootstrap node to initiate the install.
+
+Look for a future post with Bootstrap In Place.
+
 1. Install some tools on your workstation:
 
    ```bash
