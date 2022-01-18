@@ -241,14 +241,6 @@ In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since 
 
 1. Log off and back on to set the variables.
 
-1. Download OpenShift CLI tools from [https://github.com/openshift/okd/releases/latest](https://github.com/openshift/okd/releases/latest)
-
-   Download the `openshift-client` & `openshift-install`
-
-   ```bash
-   getOkdCmds.sh -d=sno
-   ```
-
 ### Set up Workstation for Bootstrap
 
 1. Now, we need to set up our MacBook to run the bootstrap node:

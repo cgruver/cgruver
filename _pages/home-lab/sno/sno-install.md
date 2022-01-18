@@ -152,7 +152,7 @@ From your workstation, do the following:
 
    __Note:__ This command does not affect to install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
 
-1. When the API is available, power on your control plane NUCs:
+1. When the API is available, power on your control plane NUC:
 
    You will see the following output from the above command:
 
@@ -163,7 +163,7 @@ From your workstation, do the following:
    INFO Waiting up to 30m0s for bootstrapping to complete... 
    ```
 
-   __Now, power on your NUCs to start the cluster installation.__
+   __Now, power on your NUC to start the cluster installation.__
 
    If you want to watch bootstrap logs:
 
@@ -173,10 +173,10 @@ From your workstation, do the following:
    ssh core@okd4-bootstrap.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
-   Or, to monitor the logs from one of the control plane nodes:
+   Or, to monitor the logs from the node:
 
    ```bash
-   ssh core@okd4-master-0.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
+   ssh core@okd4-snc-node.${SUB_DOMAIN}.${LAB_DOMAIN} "journalctl -b -f -u release-image.service -u bootkube.service"
    ```
 
 1. Enable Hyper-Threading on the OpenShift node:
