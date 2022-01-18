@@ -188,7 +188,7 @@ From your workstation, do the following:
    1. Make sure that all of the OpenShift node is up and installing:
 
       ```bash
-      ssh core@okd4-snc-node.${SUB_DOMAIN}.${LAB_DOMAIN} "echo Running!"
+      ssh core@okd4-snc-node.${SUB_DOMAIN}.${LAB_DOMAIN} "echo Running"
       ```
 
    1. Modify the kernel arguments to enable SMT on the next boot:
@@ -202,7 +202,7 @@ From your workstation, do the following:
    You will see the following, when the bootstrap is complete:
 
    ```bash
-   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4.dev.my.awesome.lab:6443... 
+   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4-snc.sno.my.awesome.lab:6443... 
    DEBUG Still waiting for the Kubernetes API: an error on the server ("") has prevented the request from succeeding 
    INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
    INFO Waiting up to 30m0s for bootstrapping to complete... 
@@ -250,7 +250,7 @@ From your workstation, do the following:
    DEBUG OpenShift console route is admitted          
    INFO Install complete!                            
    INFO To access the cluster as the system:admin user when using 'oc', run 'export KUBECONFIG=/Users/yourhome/okd-lab/okd-install-dir/auth/kubeconfig' 
-   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4.dev.my.awesome.lab 
+   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4-snc.sno.my.awesome.lab 
    INFO Login to the console with user: "kubeadmin", and password: "AhnsQ-CGRqg-gHu2h-rYZw3" 
    DEBUG Time elapsed per stage:                      
    DEBUG Cluster Operators: 13m49s                    
@@ -285,17 +285,12 @@ From your workstation, do the following:
    oc patch configs.samples.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Removed"}}'
    ```
 
-1. Before we do anything else, let's save the emergency keys to our cluster:
+1. __Note:__
+
+   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/lab-config/okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/lab-config/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
-   cp ${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig ${OKD_LAB_PATH}/lab-config/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/
-   chmod 400 ${OKD_LAB_PATH}/lab-config/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig
-   ```
-
-   __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/lab-config/okd4.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
-
-   ```bash
+   labctx -d=sno
    export KUBECONFIG=${KUBE_INIT_CONFIG}
    ```
 
@@ -306,14 +301,14 @@ From your workstation, do the following:
    * Mac OS:
 
      ```bash
-     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
      sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
      ```
 
    * Linux:
 
      ```bash
-     openssl s_client -showcerts -connect console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
+     openssl s_client -showcerts -connect console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
      update-ca-trust
      ```
 
@@ -373,7 +368,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Now you can verify that the new user account works:
 
    ```bash
-   oc login -u admin https://api.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
+   oc login -u admin https://api.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
    ```
 
 1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:
@@ -382,12 +377,12 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    oc delete secrets kubeadmin -n kube-system
    ```
 
-1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4.dev.my.awesome.lab`
+1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4-snc.sno.my.awesome.lab`
 
    On Mac OS:
 
    ```bash
-   open -a Safari https://console-openshift-console.apps.okd4.${SUB_DOMAIN}.${LAB_DOMAIN}
+   open -a Safari https://console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}
    ```
 
    Log in as `admin` with the password from the output at the completion of the install.
