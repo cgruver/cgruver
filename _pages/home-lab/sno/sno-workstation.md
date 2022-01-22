@@ -207,6 +207,18 @@ Look for a future post with Bootstrap In Place.
        ip-addr: 10.11.12.200
    ```
 
+1. If you don't have an SSH key pair configured on your workstation, then create one now:
+
+   ```bash
+   ssh-keygen -t rsa -b 4096 -N "" -f ${HOME}/.ssh/id_rsa
+   ```
+
+1. Copy the SSH public key to the Lab configuration folder:
+
+   ```bash
+   cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/ssh_key.pub
+   ```
+
 ### Install the CLI Utilities for the Lab
 
 I have created a companion project for this blog.  It contains all of the shell scripts that I have created to ease the task of building and tearing down infrastructure in my lab.

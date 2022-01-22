@@ -35,12 +35,6 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
 
 ### Configure the Edge Router
 
-1. If you don't have an SSH key pair configured on your workstation, then create one now:
-
-   ```bash
-   ssh-keygen -t rsa -b 4096 -N "" -f ${HOME}/.ssh/id_rsa
-   ```
-
 1. Connect to your edge router:
 
    Do not connect your router to any other network devices yet.

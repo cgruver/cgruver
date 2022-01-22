@@ -2119,3 +2119,44 @@ oc patch IngressController default -n openshift-ingress-operator -p='{"spec": {"
 oc patch authentications.operator.openshift.io cluster -p='{"spec": {"unsupportedConfigOverrides": {"useUnsupportedUnsafeNonHANonProductionUnstableOAuthServer": true }}}' --type=merge
 
 ```
+
+### Secret test
+
+```bash
+podman pull docker.io/library/nginx
+podman tag docker.io/library/nginx:latest ${LOCAL_REGISTRY}/test/nginx:latest
+podman login -u admin ${LOCAL_REGISTRY} --tls-verify=false
+podman push ${LOCAL_REGISTRY}/test/nginx:latest --tls-verify=false
+
+oc create sa test-sa
+
+GITEA_CERT=$(openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM | while read line; do echo "    $line"; done)
+
+oc create secret generic secret-test --from-literal=cert=${GITEA_CERT}
+
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitea-secret
+type: kubernetes.io/basic-auth
+data:
+  username: $(echo -n "gitea-cert" | base64)
+  password: "$(echo -n ${GITEA_CERT} | base64)"
+EOF
+
+oc patch sa test-sa --type json --patch '[{"op": "add", "path": "/secrets/-", "value": {"name":"secret-test"}}]'
+oc patch sa test-sa --type json --patch '[{"op": "add", "path": "/secrets/-", "value": {"name":"gitea-secret"}}]'
+
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-test
+spec:
+  containers:
+  - name: secret-test
+    image: ${LOCAL_REGISTRY}/test/nginx:latest
+  serviceAccount: test-sa
+EOF
+```

@@ -117,7 +117,6 @@ From your workstation, do the following:
 1. Create the manifests and Node installation files:
 
    ```bash
-   cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/id_rsa.pub
    deployOkdNodes.sh -i
    ```
 
@@ -278,11 +277,12 @@ From your workstation, do the following:
    oc delete pod --field-selector=status.phase==Succeeded --all-namespaces
    ```
 
-1. Because our install is disconnected from the internet, we need to remove the cluster update channel, and the Samples Operator:
+1. Because our install is disconnected from the internet, we need to remove the cluster update channel, Samples Operator, and OperatorHub:
 
    ```bash
    oc patch ClusterVersion version --type merge -p '{"spec":{"channel":""}}'
    oc patch configs.samples.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Removed"}}'
+   oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
    ```
 
 1. __Note:__
@@ -368,7 +368,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Now you can verify that the new user account works:
 
    ```bash
-   oc login -u admin https://api.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:6443
+   oc login -u admin $(oc whoami --show-server)
    ```
 
 1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:
@@ -382,7 +382,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    On Mac OS:
 
    ```bash
-   open -a Safari https://console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}
+   open -a Safari $(oc whoami --show-console)
    ```
 
    Log in as `admin` with the password from the output at the completion of the install.

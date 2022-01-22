@@ -28,11 +28,12 @@ tags:
    oc delete pod --field-selector=status.phase==Succeeded --all-namespaces
    ```
 
-1. Because our install is disconnected from the internet, we need to remove the cluster update channel, and the Samples Operator:
+1. Because our install is disconnected from the internet, we need to remove the cluster update channel, Samples Operator, and OperatorHub:
 
    ```bash
    oc patch ClusterVersion version --type merge -p '{"spec":{"channel":""}}'
    oc patch configs.samples.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Removed"}}'
+   oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/sources/0/disabled", "value": true}]'
    ```
 
 1. Before we do anything else, let's save the emergency keys to our cluster:
