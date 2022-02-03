@@ -10,8 +10,6 @@ classes: wide
 
 ### OpenShift Home Lab Setup:
 
-* [Reference for Lab Configuration Files](/home-lab/configuration/)
-
 1. [Build A Kubernetes Home Lab with OKD4](/home-lab/lab-intro/)
     1. Select a platform: KVM or Bare-Metal
         * KVM:

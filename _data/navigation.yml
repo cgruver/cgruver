@@ -4,6 +4,8 @@ main:
     url: /about/
   - title: "Lab Projects"
     url: /lab-projects/
+  - title: "Lab CLI"
+    url: /home-lab/labcli/
   - title: "Videos"
     url: /videos/
 lab-projects:
@@ -13,8 +15,6 @@ lab-projects:
     url: /home-lab/kvm-lab-intro/
   - title: Bare Metal Lab
     url: /home-lab/bare-metal-intro/
-  - title: "Lab Config Reference"
-    url: /home-lab/configuration/
   - title: "Add Worker Nodes"
     url: /home-lab/worker-nodes/
   - title: "Add Ceph Storage Provider"

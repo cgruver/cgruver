@@ -2160,3 +2160,358 @@ spec:
   serviceAccount: test-sa
 EOF
 ```
+
+### FCOS RootFS
+```bash
+#!/bin/bash
+
+SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SCP="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+CONFIG_FILE=${LAB_CONFIG_FILE}
+
+for i in "$@"
+do
+  case $i in
+    -c=*|--config=*)
+      CONFIG_FILE="${i#*=}"
+      shift # past argument=value
+    ;;
+    -d=*|--domain=*)
+      SUB_DOMAIN="${i#*=}"
+      shift
+    ;;
+      *)
+            # put usage here:
+      ;;
+  esac
+done
+
+DONE=false
+DOMAIN_COUNT=$(yq e ".sub-domain-configs" ${CONFIG_FILE} | yq e 'length' -)
+let i=0
+while [[ i -lt ${DOMAIN_COUNT} ]]
+do
+  domain_name=$(yq e ".sub-domain-configs.[${i}].name" ${CONFIG_FILE})
+  if [[ ${domain_name} == ${SUB_DOMAIN} ]]
+  then
+    INDEX=${i}
+    DONE=true
+    break
+  fi
+  i=$(( ${i} + 1 ))
+done
+if [[ ${DONE} == "false" ]]
+then
+  echo "Domain Entry Not Found In Config File."
+  exit 1
+fi
+
+SUB_DOMAIN=$(yq e ".sub-domain-configs.[${INDEX}].name" ${CONFIG_FILE})
+CLUSTER_CONFIG=$(yq e ".sub-domain-configs.[${INDEX}].cluster-config-file" ${CONFIG_FILE})
+CLUSTER_NAME=$(yq e ".cluster-name" ${CLUSTER_CONFIG})
+OKD_RELEAE_IMAGE=$(openshift-install version | grep image | cut -d" " -f3)
+
+podman machine init fcos
+podman machine start fcos
+
+FCOS_SSH_PORT=$(cat ~/.config/containers/podman/machine/qemu/fcos.json | jq -r '.Port')
+
+${SCP} -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} ${OKD_LAB_PATH}/ipxe-work-dir/fcos/${CLUSTER_NAME}-${SUB_DOMAIN}/rootfs.img core@localhost:/tmp/rootfs.img
+
+cat << EOF > /tmp/createRootFs.sh
+#!/bin/bash
+
+set -x
+
+podman pull -q ${OKD_RELEAE_IMAGE}
+OS_CONTENT_IMAGE=\$(podman run --quiet --rm --net=none ${OKD_RELEAE_IMAGE} image machine-os-content)
+podman pull -q \${OS_CONTENT_IMAGE}
+CONTAINER_ID=\$(podman create --net=none --name ostree-container \${OS_CONTENT_IMAGE})
+mkdir -p /usr/local/fcos-image/os-content
+podman cp \${CONTAINER_ID}:/ /usr/local/fcos-image/os-content
+mkdir -p /usr/local/fcos-image/rootfs
+cpio --extract -D /usr/local/fcos-image/rootfs < /tmp/rootfs.img
+unsquashfs -d /usr/local/fcos-image/new-fs /usr/local/fcos-image/rootfs/root.squashfs
+rm -rf /usr/local/fcos-image/new-fs/ostree/repo
+mv /usr/local/fcos-image/os-content/srv/repo /usr/local/fcos-image/new-fs/ostree/repo
+rm -f /usr/local/fcos-image/rootfs/root.squashfs
+mksquashfs /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/rootfs/root.squashfs -comp zstd
+rm -rf /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/os-content
+ls /usr/local/fcos-image/rootfs > /usr/local/fcos-image/cpio.list
+cpio -D /usr/local/fcos-image/rootfs --create < /usr/local/fcos-image/cpio.list > /usr/local/fcos-image/rootfs.img
+EOF
+
+${SCP} -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} /tmp/createRootFs.sh core@localhost:/tmp/createRootFs.sh
+
+${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo chmod 755 /tmp/createRootFs.sh"
+${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo /tmp/createRootFs.sh"
+
+${SCP} -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} core@localhost:/usr/local/fcos-image/rootfs.img ${OKD_LAB_PATH}/ipxe-work-dir/fcos/okd4-sno-${SUB_DOMAIN}/bootstrap-rootfs.img 
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman pull -q ${OKD_RELEAE_IMAGE}"
+# OS_CONTENT_IMAGE=$(${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost  "sudo podman run --quiet --rm --net=none ${OKD_RELEAE_IMAGE} image machine-os-content")
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman pull -q ${OS_CONTENT_IMAGE}"
+# CONTAINER_ID=$(${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo podman create --net=none --name ostree-container ${OS_CONTENT_IMAGE}")
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo mkdir -p /usr/local/fcos-image/os-content && sudo podman cp ${CONTAINER_ID}:/ /usr/local/fcos-image/os-content"
+
+# ${SCP} -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} ${OKD_LAB_PATH}/ipxe-work-dir/fcos/okd4-sno-${SUB_DOMAIN}/rootfs.img core@localhost:/tmp/rootfs.img
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo mkdir -p /usr/local/fcos-image/rootfs && sudo cpio --extract -D /usr/local/fcos-image/rootfs < /tmp/rootfs.img"
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo unsquashfs -d /usr/local/fcos-image/new-fs /usr/local/fcos-image/rootfs/root.squashfs"
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -rf /usr/local/fcos-image/new-fs/ostree/repo && sudo mv /usr/local/fcos-image/os-content/srv/repo /usr/local/fcos-image/new-fs/ostree/repo"
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -f /usr/local/fcos-image/rootfs/root.squashfs && sudo mksquashfs /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/rootfs/root.squashfs"
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo rm -rf /usr/local/fcos-image/new-fs/ /usr/local/fcos-image/os-content"
+
+# ${SSH} -i ~/.ssh/fcos -p ${FCOS_SSH_PORT} core@localhost "sudo ls /usr/local/fcos-image/rootfs > /usr/local/fcos-image/cpio.list && sudo cpio -D /usr/local/fcos-image/rootfs --create < /usr/local/fcos-image/cpio.list > /usr/local/fcos-image/rootfs.img"
+
+# ${SCP} -i ~/.ssh/fcos -P ${FCOS_SSH_PORT} core@localhost:/usr/local/fcos-image/rootfs.img ${OKD_LAB_PATH}/ipxe-work-dir/fcos/okd4-sno-${SUB_DOMAIN}/bootstrap-rootfs.img 
+
+# podman machine stop fcos
+# sleep 10
+# podman machine rm --force fcos
+```
+
+## Lab Refator - Build from Scratch
+
+```bash
+cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/ssh_key.pub
+labRouter.sh -e -i
+labRouter.sh -e -s
+labRouter.sh -e -aw
+labPi.sh -i
+labPi.sh -s
+labPi.sh -n -g
+
+ssh root@bastion.${LAB_DOMAIN} "echo \$(cat /usr/local/nexus/sonatype-work/nexus3/admin.password)"
+
+labRouter.sh -i
+labRouter.sh -s
+```
+
+## Mesh Netowrk
+
+```bash
+wpad-openssl
+```
+
+Mesh Config:
+
+/etc/config/network
+
+```bash
+config device
+        option name 'br-default'
+        option type 'bridge'
+        list ports 'eth0.1'
+        list ports 'bat0'
+
+config interface 'default'
+        option device 'br-default'
+        option proto 'static'
+        option ipaddr '192.168.10.10'
+        option netmask '255.255.255.0'
+        option gateway '192.168.10.1'
+        option dns '192.168.10.1'
+
+config interface 'mesh5g'
+      option proto 'batadv_hardif'
+      option master 'bat0'
+      option mtu '1536'
+
+config interface 'mesh2g'
+      option proto 'batadv_hardif'
+      option master 'bat0'
+      option mtu '1536'
+```
+
+/etc/config/wireless
+
+```bash
+config wifi-iface 'wmesh5g'
+      option device 'radio1'
+      option network 'mesh5g'
+      option mode 'mesh'
+      option mesh_id 'MeshCloud'
+      option encryption 'sae'
+      option key 'MeshPassword123'
+      option mesh_fwding '0'
+      option mesh_ttl '1'
+      option mcast_rate '24000'
+      option disabled '0'
+
+config wifi-iface 'wmesh2g'
+      option device 'radio0'
+      option network 'mesh2g'
+      option mode 'mesh'
+      option mesh_id 'MeshCloud'
+      option encryption 'sae'
+      option key 'MeshPassword123'
+      option mesh_fwding '0'
+      option mesh_ttl '1'
+      option mcast_rate '24000'
+      option disabled '0'
+
+```
+
+```bash
+delete network.guest
+
+network.lan=interface
+network.lan.type='bridge'
+network.lan.ifname='eth0.1'
+network.lan.proto='static'
+network.lan.netmask='255.255.255.0'
+network.lan.ip6assign='60'
+network.lan.hostname='GL-AR750S-8a8'
+network.lan.ipaddr='192.168.8.1'
+network.wan=interface
+network.wan.ifname='eth0.2'
+network.wan.proto='dhcp'
+network.wan.hostname='GL-AR750S-8a8'
+network.wan.metric='10'
+network.wan.ipv6='0'
+network.wan6=interface
+network.wan6.ifname='eth0.2'
+network.wan6.proto='dhcpv6'
+network.wan6.disabled='1'
+network.@switch[0]=switch
+network.@switch[0].name='switch0'
+network.@switch[0].reset='1'
+network.@switch[0].enable_vlan='1'
+network.@switch_vlan[0]=switch_vlan
+network.@switch_vlan[0].device='switch0'
+network.@switch_vlan[0].vlan='1'
+network.@switch_vlan[0].ports='2 3 0t'
+network.@switch_vlan[1]=switch_vlan
+network.@switch_vlan[1].device='switch0'
+network.@switch_vlan[1].vlan='2'
+network.@switch_vlan[1].ports='1 0t'
+network.guest=interface
+network.guest.ifname='guest'
+network.guest.type='bridge'
+network.guest.proto='static'
+network.guest.ipaddr='192.168.9.1'
+network.guest.netmask='255.255.255.0'
+network.guest.ip6assign='60'
+
+
+
+uci batch << EOI
+delete wireless.radio0
+delete wireless.radio1
+delete wireless.default_radio0
+delete wireless.default_radio1
+delete wireless.guest5g
+delete wireless.guest2g
+set wireless.radio0=wifi-device
+set wireless.radio0.type='mac80211'
+set wireless.radio0.channel='48'
+set wireless.radio0.hwmode='11a'
+set wireless.radio0.path='pci0000:00/0000:00:00.0'
+set wireless.radio0.htmode='VHT80'
+set wireless.radio0.doth='0'
+set wireless.radio0.txpower='20'
+set wireless.radio0.txpower_max='20'
+set wireless.radio0.band='5G'
+set wireless.radio0.disabled='0'
+set wireless.radio0.noscan='0'
+set wireless.radio1=wifi-device
+set wireless.radio1.type='mac80211'
+set wireless.radio1.channel='9'
+set wireless.radio1.hwmode='11g'
+set wireless.radio1.path='platform/ahb/18100000.wmac'
+set wireless.radio1.txpower_max='20'
+set wireless.radio1.txpower='20'
+set wireless.radio1.noscan='0'
+set wireless.radio1.htmode='HT40'
+set wireless.radio1.band='2G'
+set wireless.radio1.disabled='0'
+set wireless.default_radio0=wifi-iface
+set wireless.default_radio0.device='radio0'
+set wireless.default_radio0.network='lan'
+set wireless.default_radio0.mode='mesh'
+set wireless.default_radio0.mesh_id='CLG-LAB-MESH'
+set wireless.default_radio0.encryption='psk2'
+set wireless.default_radio0.key='WelcomeToMyLab'
+set wireless.default_radio0.disassoc_low_ack='0'
+set wireless.default_radio0.ifname='wlan0'
+set wireless.default_radio0.mesh_fwding=0
+set wireless.default_radio0.mesh_ttl=1
+set wireless.default_radio0.mcast_rate=24000
+set wireless.default_radio1=wifi-iface
+set wireless.default_radio1.device='radio1'
+set wireless.default_radio1.network='lan'
+set wireless.default_radio1.mode='mesh'
+set wireless.default_radio1.mesh_id='CLG-LAB-MESH'
+set wireless.default_radio1.encryption='psk2'
+set wireless.default_radio1.key='WelcomeToMyLab'
+set wireless.default_radio1.disassoc_low_ack='0'
+set wireless.default_radio1.ifname='wlan1'
+set wireless.default_radio1.mesh_fwding=0
+set wireless.default_radio1.mesh_ttl=1
+set wireless.default_radio1.mcast_rate=24000
+EOI
+
+
+
+
+
+wireless.radio0=wifi-device
+wireless.radio0.type='mac80211'
+wireless.radio0.channel='36'
+wireless.radio0.hwmode='11a'
+wireless.radio0.path='pci0000:00/0000:00:00.0'
+wireless.radio0.htmode='VHT80'
+wireless.radio0.doth='0'
+wireless.radio0.txpower='20'
+wireless.radio0.txpower_max='20'
+wireless.radio0.band='5G'
+wireless.radio0.disabled='0'
+wireless.radio0.noscan='0'
+wireless.radio1=wifi-device
+wireless.radio1.type='mac80211'
+wireless.radio1.channel='9'
+wireless.radio1.hwmode='11g'
+wireless.radio1.path='platform/ahb/18100000.wmac'
+wireless.radio1.txpower_max='20'
+wireless.radio1.txpower='20'
+wireless.radio1.htmode='HT40'
+wireless.radio1.band='2G'
+wireless.default_radio0=wifi-iface
+wireless.default_radio0.device='radio0'
+wireless.default_radio0.network='lan'
+wireless.default_radio0.mode='mesh'
+wireless.default_radio0.mesh_id='CLG-LAB-MESH'
+wireless.default_radio0.encryption='psk2'
+wireless.default_radio0.key='WelcomeToMyLab'
+wireless.default_radio0.disassoc_low_ack='0'
+wireless.default_radio0.ifname='wlan0'
+wireless.default_radio0.mesh_fwding='0'
+wireless.default_radio0.mesh_ttl='1'
+wireless.default_radio0.mcast_rate='24000'
+wireless.default_radio1=wifi-iface
+wireless.default_radio1.device='radio1'
+wireless.default_radio1.network='lan'
+wireless.default_radio1.mode='mesh'
+wireless.default_radio1.mesh_id='CLG-LAB-MESH'
+wireless.default_radio1.encryption='psk2'
+wireless.default_radio1.key='WelcomeToMyLab'
+wireless.default_radio1.disassoc_low_ack='0'
+wireless.default_radio1.ifname='wlan1'
+wireless.default_radio1.mesh_fwding='0'
+wireless.default_radio1.mesh_ttl='1'
+wireless.default_radio1.mcast_rate='24000'
+wireless.wifinet2=wifi-iface
+wireless.wifinet2.ssid='CLG-LAB-M'
+wireless.wifinet2.encryption='psk2'
+wireless.wifinet2.device='radio1'
+wireless.wifinet2.mode='ap'
+wireless.wifinet2.network='lan'
+wireless.wifinet2.key='WelcomeToMyLab'
+
+```

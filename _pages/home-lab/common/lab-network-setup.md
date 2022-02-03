@@ -56,7 +56,7 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
    __To use the router with a wired connection to your home network, do this:__
 
    ```bash
-   initRouter.sh -e -wl
+   labcli --router -i -e -wl
    ```
 
    You will prompted to enter an `SSID` and a passphrase for your new lab network.
@@ -64,7 +64,7 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
    __To use the router in repeater mode, do this instead:__
 
    ```bash
-   initRouter.sh -e -wl -ww
+   labcli --router -i -e -wl -ww
    ```
 
    You will prompted to enter the `SSID` and passphrase for home wireless network, and you will prompted to enter an `SSID` and a passphrase for your new lab network.
@@ -80,7 +80,7 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
    Finish the configuration:
 
    ```bash
-   configRouter.sh -e
+   labcli --router -s -e
    ```
 
    __Note:__   If you want to see the details of what the init and config scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/)
@@ -100,7 +100,7 @@ This configuration is very similar to setting up the edge router.
 1. Initialize the router configuration:
 
    ```bash
-   initRouter.sh -d=sno
+   labcli --router -i -d=sno
    ```
 
    When the configuration is complete, the router will reboot.
@@ -120,7 +120,7 @@ This configuration is very similar to setting up the edge router.
    Now, complete the router configuration:
 
    ```bash
-   configRouter.sh -d=sno
+   labcli --router -s -d=sno
    ```
 
    When the configuration is complete, the router will reboot.
@@ -136,7 +136,7 @@ We are going to use the edge router that we set up previously to configure the O
 1. Install and configure OpenWRT on the SD Card:
 
    ```bash
-   initPi.sh
+   labcli --pi -i
    ```
 
    This will take a while to complete.
@@ -156,7 +156,7 @@ We are going to use the edge router that we set up previously to configure the O
 1. Complete the configuration of the Pi:
 
    ```bash
-   configPi.sh -s
+   labcli --pi -s
    ```
 
    When the configuration is complete, the Pi will reboot.
@@ -164,8 +164,8 @@ We are going to use the edge router that we set up previously to configure the O
 1. Install Sonatype Nexus and Gitea
 
    ```bash
-   configPi.sh -n
-   configPi.sh -g
+   labcli --pi -n
+   labcli --pi -g
    ```
 
 1. Nexus will take a while to start for the first time.

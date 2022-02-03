@@ -70,7 +70,7 @@ Look for a future post with Bootstrap In Place.
    cat << EOF > ${OKD_LAB_PATH}/lab-config/lab.yaml
    domain: ${LAB_DOMAIN}
    network: ${EDGE_NETWORK}
-   router: ${EDGE_ROUTER}
+   router-ip: ${EDGE_ROUTER}
    bastion-ip: ${BASTION_HOST}
    netmask: 255.255.255.0
    openwrt-version: 21.02.1
@@ -170,7 +170,7 @@ Look for a future post with Bootstrap In Place.
        boot-dev: ${SSD}
        sno-install-dev: sda
        name: okd4-snc-node
-       ip-addr: ${SNO_NODE_IP}.200
+       ip-addr: ${SNO_NODE_IP}
    EOF
    ```
 
@@ -219,9 +219,9 @@ Look for a future post with Bootstrap In Place.
    cp ~/.ssh/id_rsa.pub ${OKD_LAB_PATH}/ssh_key.pub
    ```
 
-### Install the CLI Utilities for the Lab
+### Install the `labcli` utilities for the Lab
 
-I have created a companion project for this blog.  It contains all of the shell scripts that I have created to ease the task of building and tearing down infrastructure in my lab.
+I have created a companion project for this blog.  It contains all of the shell functions that I have created to ease the task of building and tearing down infrastructure in my lab.
 
 In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since these scripts take on the drudgery of repeated tasks, I chose to name them after the guy that cleans the toilets on a ship...  Thus, the project is named: __καμαρότος__.  That is, kamarótos; Greek for Ship's steward or cabin boy...
 
@@ -248,7 +248,7 @@ In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since 
    export OKD_LAB_PATH=${HOME}/okd-lab
    export PATH=$PATH:${OKD_LAB_PATH}/bin
    export LAB_CONFIG_FILE=${OKD_LAB_PATH}/lab-config/lab.yaml
-   . ${OKD_LAB_PATH}/bin/labctx.env
+   . ${OKD_LAB_PATH}/bin/labEnv.sh
    ```
 
 1. Log off and back on to set the variables.

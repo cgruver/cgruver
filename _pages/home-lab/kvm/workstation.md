@@ -151,8 +151,6 @@ This tutorial assumes that you are running a Unix like operating system on your 
      - kvm-host01
    ```
 
-   __The full explanation for these configuration files can be found here:__ [Configuration Files & Deployment Automation for Your Lab](/home-lab/configuration/)
-
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash

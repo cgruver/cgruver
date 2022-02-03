@@ -185,8 +185,6 @@ Much of this lab is duplicated from [Building a Portable Kubernetes Home Lab wit
        boot-dev: sda
    ```
 
-   __The full explanation for these configuration files can be found here:__ [Configuration Files & Deployment Automation for Your Lab](/home-lab/configuration/)
-
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash

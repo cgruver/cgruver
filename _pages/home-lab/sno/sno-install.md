@@ -16,63 +16,30 @@ Since we are simulating a secure data center environment, let's deny internet ac
    There is a function that we added to our shell when we set up the workstation.  It allows you to switch between different lab domain contexts so that you can run multiple clusters with potentially different releases of OpenShift.
 
    ```bash
-   labctx -d=sno
+   labctx sno
    ```
 
 1. Add a firewall rule to block internet bound traffic from the internal router:
 
    ```bash
-   ssh root@router.${LAB_DOMAIN} "new_rule=\$(uci add firewall rule) ; \
-   uci set firewall.\${new_rule}.enabled=1 ; \
-   uci set firewall.\${new_rule}.target=REJECT ; \
-   uci set firewall.\${new_rule}.src=lan ; \
-   uci set firewall.\${new_rule}.src_ip=${DOMAIN_NETWORK}/24 ; \
-   uci set firewall.\${new_rule}.dest=wan ; \
-   uci set firewall.\${new_rule}.name=${SUB_DOMAIN}-internet-deny ; \
-   uci set firewall.\${new_rule}.proto=all ; \
-   uci set firewall.\${new_rule}.family=ipv4 ; \
-   uci commit firewall && \
-   /etc/init.d/firewall restart"
+   labcli --disconnect
    ```
 
 ### Create OpenShift image mirror:
 
 From your workstation, do the following:
 
-1. First, we need a couple of pull secrets:
 
-   1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
+1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
 
-      If you followed the guide exactly, then the Nexus user is `openshift-mirror`
-
-      ```bash
-      read NEXUS_USER
-      ```
-
-      Type the username, i.e. `openshift-mirror` and hit `<return>`
-
-      ```bash
-      read NEXUS_PWD
-      ```
-
-      Type the password that you created for the Nexus user and hit `<return>`
-
-      ```bash
-      NEXUS_SECRET=$(echo -n "${NEXUS_USER}:${NEXUS_PWD}" | base64)
-      ```
-
-   1. We need to put the pull secret into a JSON file that we will use to mirror the OKD images into our Nexus registry.  We'll also need the pull secret for our cluster install.  Since we are installing OKD, we don't need an official quay.io pull secret.  So, we will use a fake one.
-
-      ```bash
-      cat << EOF > ${OKD_LAB_PATH}/pull_secret.json
-      {"auths": {"fake": {"auth": "Zm9vOmJhcgo="},"nexus.${LAB_DOMAIN}:5001": {"auth": "${NEXUS_SECRET}"}}}
-      EOF
-      ```
+   ```bash
+   labcli --pull-secret
+   ```
 
 1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
 
    ```bash
-   mirrorOkdRelease.sh -d=${SUB_DOMAIN} 
+   labcli --mirror 
    ```
 
    __Note:__ If you see X509 errors, and you are on a MacBook, you might have to open KeyChain and trust the Nexus cert.  Then run the above command again.
@@ -117,7 +84,7 @@ From your workstation, do the following:
 1. Create the manifests and Node installation files:
 
    ```bash
-   deployOkdNodes.sh -i
+   labcli --deploy -c
    ```
 
     This script does a whole lot of work for us.  Crack it open and take a look.
@@ -135,7 +102,7 @@ From your workstation, do the following:
    In a separate terminal window, run the following:
 
    ```bash
-   startNodes.sh -b
+   labcli --start -b
    ```
 
    * Do not close this terminal.  It is the console of the bootstrap node.
@@ -216,7 +183,7 @@ From your workstation, do the following:
 1. When the bootstrap process is complete, remove the bootstrap node:
 
    ```bash
-   destroyNodes.sh -b
+   labcli --destroy -b
    ```
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
@@ -290,7 +257,7 @@ From your workstation, do the following:
    __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/lab-config/okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
 
    ```bash
-   labctx -d=sno
+   labctx sno
    export KUBECONFIG=${KUBE_INIT_CONFIG}
    ```
 
@@ -298,19 +265,9 @@ From your workstation, do the following:
 
 1. Add the OKD Cluster cert to the trust store on your workstation:
 
-   * Mac OS:
-
-     ```bash
-     openssl s_client -showcerts -connect  console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
-     ```
-
-   * Linux:
-
-     ```bash
-     openssl s_client -showcerts -connect console-openshift-console.apps.okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/okd-console.${SUB_DOMAIN}.${LAB_DOMAIN}.crt
-     update-ca-trust
-     ```
+   ```bash
+   labcli --trust
+   ```
 
 ### Create user accounts:
 
@@ -323,44 +280,8 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Create an `htpasswd` file for a couple of users:
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/okd-creds
-   htpasswd -B -c -b ${OKD_LAB_PATH}/okd-creds/htpasswd admin $(cat ${OKD_LAB_PATH}/okd-install-dir/auth/kubeadmin-password)
-   htpasswd -b ${OKD_LAB_PATH}/okd-creds/htpasswd devuser devpwd
-   ```
-
-   This creates an `htpasswd` file with two users.  The admin user will have the same password that was created for the kubeadmin user.
-
-1. Create a Kubernetes Secret with the htpasswd file:
-
-   ```bash
-   oc create -n openshift-config secret generic htpasswd-secret --from-file=htpasswd=${OKD_LAB_PATH}/okd-creds/htpasswd
-   ```
-
-   We'll associate this secret with a new htpasswd based OAuth provider.  If you want to change passwords or add more users, recreate the file and replace the secret.
-
-1. Create the OAuth provider, associated with the secret that we just added.
-
-   ```bash
-   cat << EOF | oc apply -f -
-   apiVersion: config.openshift.io/v1
-   kind: OAuth
-   metadata:
-     name: cluster
-   spec:
-     identityProviders:
-     - name: okd4_htpasswd_idp
-       mappingMethod: claim 
-       type: HTPasswd
-       htpasswd:
-         fileData:
-           name: htpasswd-secret
-   EOF
-   ```
-
-1. Assign the `admin` user to be a cluster administrator:
-
-   ```bash
-   oc adm policy add-cluster-role-to-user cluster-admin admin
+   labcli --user -i -a -u=admin
+   labcli --user -u=devuser
    ```
 
 1. Wait a couple of minutes for the Authentication pods to restart and stabalize.
@@ -368,7 +289,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 1. Now you can verify that the new user account works:
 
    ```bash
-   oc login -u admin $(oc whoami --show-server)
+   labcli --login
    ```
 
 1. After you verify that the new admin account works.  you can delete the temporary kubeadmin account:
@@ -379,10 +300,8 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
 
 1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4-snc.sno.my.awesome.lab`
 
-   On Mac OS:
-
    ```bash
-   open -a Safari $(oc whoami --show-console)
+   labcli --console
    ```
 
    Log in as `admin` with the password from the output at the completion of the install.
