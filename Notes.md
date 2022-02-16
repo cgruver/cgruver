@@ -1,4 +1,5 @@
 ---
+permalink: /notes/
 title: Notes
 sitemap: false
 published: false

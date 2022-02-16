@@ -43,7 +43,6 @@ Now, on to the setup!
    Set a couple of vars:
 
    ```bash
-   IMAGE_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
    OKD_MAJ=$(oc version --client=true | cut -d" " -f3 | cut -d"." -f-2).0
    ```
 
@@ -53,7 +52,7 @@ Now, on to the setup!
 
    ```bash
    podman pull quay.io/openshift/origin-cli:${OKD_MAJ}
-   podman tag quay.io/openshift/origin-cli:${OKD_MAJ} ${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ}
+   podman tag quay.io/openshift/origin-cli:${OKD_MAJ} ${LOCAL_REGISTRY}/openshift/origin-cli:${OKD_MAJ}
    ```
 
    Pull the `ubi-minimal` image from Red Hat:
@@ -61,7 +60,7 @@ Now, on to the setup!
    This image is a very compact RHEL based image that we will use as the basis for other images built by Tekton tasks.  We'll also use it to run Quarkus native applications later on.
 
    ```bash
-   podman pull registry.access.redhat.com/ubi8/ubi-minimal:8.4
+   podman pull registry.access.redhat.com/ubi8/ubi-minimal:8.5
    ```
 
    Pull the `buildah` image from quay.io:
@@ -70,7 +69,7 @@ Now, on to the setup!
 
    ```bash
    podman pull quay.io/buildah/stable:latest
-   podman tag quay.io/buildah/stable:latest ${IMAGE_REGISTRY}/openshift/buildah:latest
+   podman tag quay.io/buildah/stable:latest ${LOCAL_REGISTRY}/openshift/buildah:latest
    ```
 
 1. Next, you need to build the two container images that I created for this project:
@@ -78,33 +77,33 @@ Now, on to the setup!
    The first one is an image for running Java 11 based fat jar applications like Quarkus, Spring Boot, or JBoss Bootable jars...  yeah, that's a thing for you JEE folks out there.  [https://docs.wildfly.org/bootablejar/](https://docs.wildfly.org/bootablejar/)
 
    ```bash
-   podman build -t ${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/images/java-11-app-runner.Dockerfile ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
+   podman build -t ${LOCAL_REGISTRY}/openshift/java-11-app-runner:1.3.8 -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/images/java-11-app-runner.Dockerfile ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
    ```
 
    The second image contains tooling for building Maven based Java 11 fat jar, and Quarkus Native applications.
 
    ```bash
-   podman build -t ${IMAGE_REGISTRY}/openshift/java-11-builder:latest -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/images/java-11-builder.Dockerfile ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
+   podman build -t ${LOCAL_REGISTRY}/openshift/java-11-builder:latest -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/images/java-11-builder.Dockerfile ${OKD_LAB_PATH}/okd-home-lab/pipelines/images
    ```
 
 1. Create a base image from the UBI minimal image:
 
    ```bash
-   CONTAINER=$(podman create registry.access.redhat.com/ubi8/ubi-minimal:8.4)
-   podman commit ${CONTAINER} ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4
+   CONTAINER=$(podman create registry.access.redhat.com/ubi8/ubi-minimal:8.5)
+   podman commit ${CONTAINER} ${LOCAL_REGISTRY}/openshift/ubi-minimal:8.5
    podman container rm ${CONTAINER}
    ```
 
 1. Now, push the images to Nexus on the bastion Pi server:
 
    ```bash
-   podman login -u openshift-mirror ${IMAGE_REGISTRY}
+   podman login -u openshift-mirror ${LOCAL_REGISTRY}
 
-   podman push ${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --tls-verify=false
-   podman push ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4 --tls-verify=false
-   podman push ${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --tls-verify=false
-   podman push ${IMAGE_REGISTRY}/openshift/java-11-builder:latest --tls-verify=false
-   podman push ${IMAGE_REGISTRY}/openshift/buildah:latest --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/openshift/ubi-minimal:8.5 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/openshift/java-11-app-runner:1.3.8 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/openshift/java-11-builder:latest --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/openshift/buildah:latest --tls-verify=false
 
    podman image rm -a
    ```
@@ -118,7 +117,7 @@ We do this by creating a ConfigMap with the image registry certificates that we 
 1. Grab the Nexus certificate, and put it in an environment variable:
 
    ```bash
-   NEXUS_CERT=$(openssl s_client -showcerts -connect ${IMAGE_REGISTRY} </dev/null 2>/dev/null|openssl x509 -outform PEM)
+   NEXUS_CERT=$(openssl s_client -showcerts -connect ${LOCAL_REGISTRY} </dev/null 2>/dev/null|openssl x509 -outform PEM)
    ```
 
 1. Log into your OpenShift cluster:
@@ -133,7 +132,7 @@ We do this by creating a ConfigMap with the image registry certificates that we 
    This mimics the Linux convention of namimg a cert file with `HOST:PORT`.  The `..` is replaced with `:` when the operator consumes the ConfigMap and creates a file for the certificate.  We're using some shell magic to make the substitution for us.
 
    ```bash
-   oc create configmap nexus-registry -n openshift-config --from-literal=${IMAGE_REGISTRY//:/..}=${NEXUS_CERT}
+   oc create configmap nexus-registry -n openshift-config --from-literal=${LOCAL_REGISTRY//:/..}=${NEXUS_CERT}
    ```
 
 1. Patch the configuration for the Image Registry Operator:
@@ -151,11 +150,11 @@ We do this by creating a ConfigMap with the image registry certificates that we 
 1. Now we can create ImageStreams to import the images from Nexus to the OpenShift cluster:
 
    ```bash
-   oc import-image origin-cli:latest --from=${IMAGE_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --confirm -n openshift
-   oc import-image ubi-minimal:latest --from=${IMAGE_REGISTRY}/openshift/ubi-minimal:8.4 --confirm -n openshift
-   oc import-image java-11-app-runner:latest --from=${IMAGE_REGISTRY}/openshift/java-11-app-runner:1.3.8 --confirm -n openshift
-   oc import-image java-11-builder:latest --from=${IMAGE_REGISTRY}/openshift/java-11-builder:latest --confirm -n openshift
-   oc import-image buildah:latest --from=${IMAGE_REGISTRY}/openshift/buildah:latest --confirm -n openshift
+   oc import-image origin-cli:latest --from=${LOCAL_REGISTRY}/openshift/origin-cli:${OKD_MAJ} --confirm -n openshift
+   oc import-image ubi-minimal:latest --from=${LOCAL_REGISTRY}/openshift/ubi-minimal:8.5 --confirm -n openshift
+   oc import-image java-11-app-runner:latest --from=${LOCAL_REGISTRY}/openshift/java-11-app-runner:1.3.8 --confirm -n openshift
+   oc import-image java-11-builder:latest --from=${LOCAL_REGISTRY}/openshift/java-11-builder:latest --confirm -n openshift
+   oc import-image buildah:latest --from=${LOCAL_REGISTRY}/openshift/buildah:latest --confirm -n openshift
    ```
 
 ### Add Certificates to OpenShift Cluster
@@ -223,7 +222,7 @@ Let's install in along side OpenShift Pipelines.
 1. Build and install the interceptor:
 
    ```bash
-   export KO_DOCKER_REPO=${IMAGE_REGISTRY}/tekton
+   export KO_DOCKER_REPO=${LOCAL_REGISTRY}/tekton
    ko resolve --platform=linux/amd64 --preserve-import-paths -t latest -f ./config | oc apply -f -
    ```
 

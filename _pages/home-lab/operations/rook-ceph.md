@@ -32,14 +32,14 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Pull the Rook and Ceph images so that we can mirror them to Nexus:
 
    ```bash
-   podman pull  quay.io/cephcsi/cephcsi:v3.4.0
-   podman pull  k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0
-   podman pull  k8s.gcr.io/sig-storage/csi-resizer:v1.3.0
-   podman pull  k8s.gcr.io/sig-storage/csi-provisioner:v3.0.0
-   podman pull  k8s.gcr.io/sig-storage/csi-snapshotter:v4.2.0
-   podman pull  k8s.gcr.io/sig-storage/csi-attacher:v3.3.0
-   podman pull  docker.io/rook/ceph:v1.7.7
-   podman pull  quay.io/ceph/ceph:v16.2.6
+   podman pull  quay.io/cephcsi/cephcsi:v3.5.1
+   podman pull  k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.4.0
+   podman pull  k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
+   podman pull  k8s.gcr.io/sig-storage/csi-provisioner:v3.1.0
+   podman pull  k8s.gcr.io/sig-storage/csi-snapshotter:v5.0.1
+   podman pull  k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+   podman pull  docker.io/rook/ceph:v1.8.4
+   podman pull  quay.io/ceph/ceph:v16.2.7
    ```
 
 1. Select the Lab subdomain that you want to work with:
@@ -53,14 +53,14 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    ```bash
    LOCAL_REGISTRY=$(yq e ".local-registry" ${OKD_LAB_PATH}/lab-config/${SUB_DOMAIN}-cluster.yaml)
 
-   podman tag quay.io/cephcsi/cephcsi:v3.4.0 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0
-   podman tag k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0
-   podman tag k8s.gcr.io/sig-storage/csi-resizer:v1.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.3.0
-   podman tag k8s.gcr.io/sig-storage/csi-provisioner:v3.0.0 ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.0.0
-   podman tag k8s.gcr.io/sig-storage/csi-snapshotter:v4.2.0 ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v4.2.0
-   podman tag k8s.gcr.io/sig-storage/csi-attacher:v3.3.0 ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.3.0
-   podman tag docker.io/rook/ceph:v1.7.7 ${LOCAL_REGISTRY}/rook/ceph:v1.7.7
-   podman tag quay.io/ceph/ceph:v16.2.6 ${LOCAL_REGISTRY}/ceph/ceph:v16.2.6
+   podman tag quay.io/cephcsi/cephcsi:v3.5.1 ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.5.1
+   podman tag k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.4.0 ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.4.0
+   podman tag k8s.gcr.io/sig-storage/csi-resizer:v1.4.0 ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.4.0
+   podman tag k8s.gcr.io/sig-storage/csi-provisioner:v3.1.0 ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.1.0
+   podman tag k8s.gcr.io/sig-storage/csi-snapshotter:v5.0.1 ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v5.0.1
+   podman tag k8s.gcr.io/sig-storage/csi-attacher:v3.4.0 ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.4.0
+   podman tag docker.io/rook/ceph:v1.8.4 ${LOCAL_REGISTRY}/rook/ceph:v1.8.4
+   podman tag quay.io/ceph/ceph:v16.2.7 ${LOCAL_REGISTRY}/ceph/ceph:v16.2.7
    ```
 
 1. Log into Nexus:
@@ -72,14 +72,14 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
 1. Push the images: (The `--tls-verify` is for Mac users.  It's not ideal, but it works.)
 
    ```bash
-   podman push ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.4.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.3.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.3.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.0.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v4.2.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.3.0 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/rook/ceph:v1.7.7 --tls-verify=false
-   podman push ${LOCAL_REGISTRY}/ceph/ceph:v16.2.6 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/cephcsi/cephcsi:v3.5.1 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-node-driver-registrar:v2.4.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-resizer:v1.4.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-provisioner:v3.1.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-snapshotter:v5.0.1 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/sig-storage/csi-attacher:v3.4.0 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/rook/ceph:v1.8.4 --tls-verify=false
+   podman push ${LOCAL_REGISTRY}/ceph/ceph:v16.2.7 --tls-verify=false
    ```
 
 1. Clean up after yourself and log off the bastion host:

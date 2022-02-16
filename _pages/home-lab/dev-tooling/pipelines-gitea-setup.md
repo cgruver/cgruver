@@ -43,6 +43,10 @@ __Note:__  __*If you have not installed Gitea, you need to do that first*__: [In
 
    ![Create Organization](images/gitea-create-organization.png)
 
+1. From the new Organization, select `View Demo` on the right hand side of the screen:
+
+   ![demo team](images/gitea-demo-org.png)
+
 1. From the new Organization, select the `Owners` Team from the `Teams` menu on the right hand of the screen:
 
    ![Owners Team](images/gitea-demo-organization.png)
