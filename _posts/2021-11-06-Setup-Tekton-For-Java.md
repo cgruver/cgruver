@@ -14,6 +14,11 @@ This is what it's all about my friends!  Deploying running code.
 
 There are four parts to this section.  Execute them in order:
 
+__Note:__ Prerequisites:
+
+* [Install Gitea](/home-lab/gitea-with-pi/)
+* [Install OpenShift Pipelines](/home-lab/tekton-install/)
+
 1. Set up our cluster with the last few pieces to make Tekton usable:
 
    [Cluster Setup](/home-lab/pipelines-cluster-setup/)
