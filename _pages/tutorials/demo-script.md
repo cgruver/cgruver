@@ -11,6 +11,11 @@ permalink: /tutorials/demo-script/
 
 1. Create convention driven pipelines that require no modification by dev teams.
 
+1. Demonstrate secure CI/CD practices
+
+   * TLS communications with trusted certs
+   * Webhook validation
+
 1. Allow for appropriate configuration for common application needs
 
    * Environment through ConfigMaps and Secrets
@@ -109,10 +114,15 @@ Make the `pipeline` service account aware of the secret:
 oc patch sa pipeline --type json --patch '[{"op": "add", "path": "/secrets/-", "value": {"name":"gitea-secret"}}]' -n app-demo
 ```
 
-```
+Create an application
+
+```bash
 quarkus create app --maven --java=11 --no-wrapper --package-name=fun.is.quarkus.demo fun.is.quarkus:app-demo:0.1
 ```
 
+Put the application into Gitea:
+
+```bash
 cd app-demo
 git init
 git branch -m trunk
@@ -121,9 +131,17 @@ git commit -m "init"
 
 git remote add origin https://gitea.${LAB_DOMAIN}:3000/demo/app-demo
 git push --set-upstream origin trunk
+```
 
+Set up the application with the CI/CD Pipeline
+
+```bash
 oc process app-demo//create-rolling-replace-quarkus-fast-jar-app -p GIT_REPOSITORY=https://gitea.${LAB_DOMAIN}:3000/demo/app-demo -p GIT_BRANCH=trunk | oc apply -n app-demo -f -
+```
 
+Trigger a build
+
+```bash
 echo "test-1" >> test.txt
 git add .
 git commit -m test-1
