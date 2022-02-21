@@ -12,25 +12,40 @@ tags:
 ---
 ## Introduction To Tekton
 
+In this tutorial, I am going to summarize a lot of information, and then focus on running code examples.
+
+The intent is to get you up and running quickly with more than just a "Hello World".  I'm going to walk you through all of the pieces of the Tekton ecosystem that you will need to build a full CI/CD pipeline for you code.
+
 You can find a lot of great information about OpenShift Pipelines here: 
 
-* OpenShift Official Documentation:
+* __OpenShift Official Documentation:__
   * [OCP 4.9 Pipelines](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.9/html/cicd/pipelines){:target="_blank"}
-* Upstream Tekton Project:
+* __Upstream Tekton Project:__
   * [Tekton Pipelines](https://github.com/tektoncd/pipeline){:target="_blank"}
   * [Tekton Triggers](https://github.com/tektoncd/triggers){:target="_blank"}
 
-In this tutorial, I am going to summarize a lot of information, and then focus on running code examples.
-
 For the code examples, you will need access to an OpenShift cluster with the OpenShift Pipelines Operator installed.
 
-Let's get some vocabulary out of the way first.  I'll include links to the upstream documentation for each item:
+## Time for some Vocabulary
+
+Let's get the Tekton vocabulary out of the way first.  I'll include links to the upstream documentation for each item:
+
+There are two main components to Tekton - Pipelines & Triggers
 
 ### Tekton Pipelines:
 
-1. __[Task](https://github.com/tektoncd/pipeline/blob/main/docs/tasks.md){:target="_blank"}__
+Let's cover the components of Pipelines first:
 
-   __Note:__ When you look at the documentation, take care to note that [PipelineResources](https://github.com/tektoncd/pipeline/blob/main/docs/resources.md){:target="_blank"} are deprecated.  Don't use them.  I'll be showing you how to build pipelines without them.
+Pipelines is composed of the Tekton elements that will actually orchestrate and run your code builds, tests, and deployments.  It is made up of four main components:
+
+1. Task
+1. TaskRun
+1. Pipeline
+1. PipelineRun
+
+Here is a brief description of each, with a link to the upstream documentation:
+
+1. __[Task](https://github.com/tektoncd/pipeline/blob/main/docs/tasks.md){:target="_blank"}__
 
    * Task is the basic unit-of-work for Tekton
    * A Task is composed of [Steps](https://github.com/tektoncd/pipeline/blob/main/docs/tasks.md#defining-steps){:target="_blank"}
@@ -46,6 +61,8 @@ Let's get some vocabulary out of the way first.  I'll include links to the upstr
   
    ![TektonTask](/_pages/tutorials/images/TektonTask.png)
 
+   __Note:__ When you look at the documentation, take care to note that [PipelineResources](https://github.com/tektoncd/pipeline/blob/main/docs/resources.md){:target="_blank"} are deprecated.  Don't use them.  I'll be showing you how to build pipelines without them.
+    
 1. __[TaskRun](https://github.com/tektoncd/pipeline/blob/main/docs/taskruns.md){:target="_blank"}__
 
    A TaskRun creates an instance of a Task with specified parameter values, and runs it in a Pod
@@ -64,6 +81,18 @@ Let's get some vocabulary out of the way first.  I'll include links to the upstr
 
 ### Tekton Triggers
 
+Triggers is the event driven side of Tekton.  These elements put the `C` in CI/CD.
+
+Triggers has 5 main components:
+
+1. TriggerTemplate
+1. TriggerBinding
+1. Trigger
+1. EventListener
+1. Interceptor
+
+Here is a brief description of each, with a link to the upstream documentation:
+
 1. __[TriggerTemplate](https://github.com/tektoncd/triggers/blob/main/docs/triggertemplates.md){:target="_blank"}__
 
    A TriggerTemplate defines the Pipeline and/or Task resources, and the parameters which are passed to them
@@ -71,10 +100,6 @@ Let's get some vocabulary out of the way first.  I'll include links to the upstr
 1. __[TriggerBinding](https://github.com/tektoncd/triggers/blob/main/docs/triggerbindings.md){:target="_blank"}__
 
    A TriggerBinding links values from a webhook payload to parameters that are passed to a TriggerTemplate
-
-1. __[Interceptor](https://github.com/tektoncd/triggers/blob/main/docs/interceptors.md){:target="_blank"}__
-
-   An Interceptor is used to perform validation or value-add activities on a webhook payload before it is passed to the TriggerTemplate for the execution of pipelines and or tasks
 
 1. __[Trigger](https://github.com/tektoncd/triggers/blob/main/docs/triggers.md){:target="_blank"}__
 
@@ -84,11 +109,17 @@ Let's get some vocabulary out of the way first.  I'll include links to the upstr
 
    An EventListener receives the webhook payload and passes it to one or more Triggers.  The EventListener is the only component in Tekton that is a long running process.  It runs as a Pod in the Namespace that it was created in.
 
+1. __[Interceptor](https://github.com/tektoncd/triggers/blob/main/docs/interceptors.md){:target="_blank"}__
+
+   An Interceptor is used to perform validation or value-add activities on a webhook payload before it is passed to the TriggerTemplate for the execution of pipelines and or tasks
+
 ### Pictorial View
 
 __Here's an overview of all of the pieces, and how they are accociated:__
 
 ![TektonOverview](/_pages/tutorials/images/TektonOverview.png)
+
+__Note:__ We'll talk later about Workspaces & PVCs
 
 ## Examples with Code:
 
@@ -100,7 +131,7 @@ Now, let's learn by doing.  You will need your workstation set up with the follo
 * OpenShift Command line Tools
 * Quarkus Command Line Tools
 
-__Note:__ This tutorial assumes that you are using a Mac OS or Linux based workstation.  If you are on a Windows based system, you may be able to use Git Bash in Visual Studio Code.
+__Note:__ This tutorial assumes that you are using a workstation with a `bash` or `zsh` shell.  If you are on a Windows based system, you may be able to use Git Bash in Visual Studio Code.
 
 ### Start with the basics - Let's create a Task and run it
 
