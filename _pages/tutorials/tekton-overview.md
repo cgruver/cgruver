@@ -382,9 +382,57 @@ The `spec:` of this Task has several elements:
 
    Remember our `stepTemplate`?  That's what creates the volumeMount in our buildah container.
 
+So, what did our Task actually do?
+
+Take a look at the shell script that the step: `build-image` in our Task executed.
+
+I've added comments to explain each line.  Some of these comments were also logged by the TaskRun that you created above.  That was purely to give us something interesting to look at.
+
+```bash
+#!/bin/bash
+
+# Set an env var for BUILDAH_ISOLATION
+export BUILDAH_ISOLATION=chroot
+# Set an env var for the image that will be created.
+# $(context.taskRun.namespace) will resolve to the namespace (project) that we are in.
+# $(params.app-name) will resolve to the value of the app-name parameter that is passed to the Task by the TaskRun.
+export DESTINATION_IMAGE="image-registry.openshift-image-registry.svc:5000/$(context.taskRun.namespace)/$(params.app-name):latest"
+# Set arguments for buildah"
+BUILDAH_ARGS="--storage-driver vfs"
+# Create a new container from the ubi-minimal 8.5 image"
+CONTAINER=$( buildah ${BUILDAH_ARGS} from registry.access.redhat.com/ubi8/ubi-minimal:8.5 )
+# Create a simple application for the new container to run"
+cat << EOF > ./test.sh
+#!/bin/bash
+echo "---- hello there! ----"
+sleep 5
+echo "---- goodbye for now. ----"
+exit 0
+EOF
+chmod 750 ./test.sh
+# Copy the simple application to the new container"
+buildah ${BUILDAH_ARGS} copy ${CONTAINER} ./test.sh /application.sh
+# Set the entry point for the new container"
+buildah ${BUILDAH_ARGS} config --entrypoint '["/application.sh"]' ${CONTAINER}
+# Add a label to the new container"
+buildah ${BUILDAH_ARGS} config --label APP_LABEL="Hello This Is My Label" --author="Tekton" ${CONTAINER}
+# Save the new container image"
+buildah ${BUILDAH_ARGS} commit ${CONTAINER} ${DESTINATION_IMAGE}
+# Disconnect from the new container image"
+buildah ${BUILDAH_ARGS} unmount ${CONTAINER}
+# Push the new container image to the cluster image registry"
+buildah ${BUILDAH_ARGS} push ${DESTINATION_IMAGE} docker://${DESTINATION_IMAGE}
+```
+
+We used the `buildah` cli to create a new container image from `registry.access.redhat.com/ubi8/ubi-minimal:8.5` and pushed that image to the internal OpenShift image registry.
+
+## Now, Let's Get On With It
+
 ### Add a step to the Task that runs the new container image in a Pod
 
-We just demonstrated a pretty basic Tekton Task.  Let's make it a bit more complex by adding a step to the Task that will create the Pod which we just created manually.
+We just demonstrated a pretty basic Tekton Task.  Albeit, with a fairly complex container build.  I like to give you something more meaty than a `Hello World`.  
+
+So, now let's make it a bit more complex by adding a step to the Task that will create the Pod which we just created manually.
 
 1. Add the following content to a file named `multi-step-task.yaml`
 
