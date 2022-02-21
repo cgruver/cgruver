@@ -282,6 +282,10 @@ The `login` command will issue `oc login` against the selected domain cluster.
 
 The `dns` subcommand will reset the Mac OS DNS client.  This is sometimes necessary to clear the cache.
 
+### `labcli --git-secret -n=<kube namespace>`
+
+The `git-secret` subcommand will create a basic auth secret for your git service account and assign it to the `pipeline` service account in the designated namespace.
+
 ## `labcli` Configuration Files
 
 There are two YAML configuration files that are used by the `labcli` utilities for deploying the infrastructure for you home lab:
@@ -299,6 +303,8 @@ netmask: 255.255.255.0
 centos-mirror: rsync://mirror.cogentco.com/CentOS/
 # Gitea release to install on Bastion Host
 gitea-version: 1.15.9
+# URL of your git server
+git-url: https://gitea.my.awesome.lab:3000
 # OpenWRT version to install on the Bastion Host
 openwrt-version: 21.02.1
 # Region Network Configurations
