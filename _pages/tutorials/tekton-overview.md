@@ -229,7 +229,7 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
 
    You should see your new Task listed in the output.
 
-1. Now let's run the Task with a TaksRun:
+1. Now let's run the Task with a TaskRun:
 
    ```bash
    cat << EOF | oc apply -n my-app -f -
@@ -620,6 +620,8 @@ Now, let's redo the lask task run with the cli.
 
    __Note:__ When you use the cli to create a TaskRun, it gets a randomized name.
 
+### WIP, WIP, WIP
+
 ### Now, let's create a Pipeline that will both build and run our new container image
 
 1. Create a Task that will create a Pod from the new container image:
@@ -654,6 +656,7 @@ Now, let's redo the lask task run with the cli.
          EOF
    ```
 
+### WIP, WIP, WIP
 ### Quarkus Application
 
 ```bash
