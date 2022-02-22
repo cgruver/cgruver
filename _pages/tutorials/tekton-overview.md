@@ -16,7 +16,7 @@ __Note: Work-In-Progress__
 
 In this tutorial, I am going to summarize a lot of information, and then focus on running code examples.
 
-The intent is to get you up and running quickly with more than just a "Hello World".  I'm going to walk you through all of the pieces of the Tekton ecosystem that you will need to build a full CI/CD pipeline for you code.
+The intent is to get you up and running quickly with more than just a "Hello World".  I'm going to walk you through all of the pieces of the Tekton ecosystem that you will need to build a full CI/CD pipeline for your code.
 
 You can find a lot of great information about OpenShift Pipelines here: 
 
@@ -27,6 +27,18 @@ You can find a lot of great information about OpenShift Pipelines here:
   * [Tekton Triggers](https://github.com/tektoncd/triggers){:target="_blank"}
 
 For the code examples, you will need access to an OpenShift cluster with the OpenShift Pipelines Operator installed.
+
+If you have a beefy developer workstation, then [Code Ready Containers](https://cloud.redhat.com/openshift/create/local){:target="_blank"} may work for you.
+
+I also have some lab tutorials that you may be interested in: [https://upstreamwithoutapaddle.com](https://upstreamwithoutapaddle.com){:target="_blank"}
+
+If you use Code Ready Containers, you need to give it at least 12GB of RAM:
+
+```bash
+crc setup
+crc config set memory 12288
+crc start
+```
 
 ## Time for some Vocabulary
 
@@ -227,6 +239,11 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
    oc get tasks -n my-app
    ```
 
+   ```bash
+   NAME                AGE
+   buildah-demo-task   5s
+   ```
+
    You should see your new Task listed in the output.
 
 1. Now let's run the Task with a TaskRun:
@@ -249,7 +266,7 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
 1. Watch the logs of your TaskRun
 
    ```bash
-   oc logs -f my-buildah-demo-task-run-pod -n my-app
+   oc logs -f $(oc get taskrun my-buildah-demo-task-run -o jsonpath='{.status.podName}' -n my-app) -n my-app
    ```
 
    __Note:__ If you see an error like this:
@@ -261,7 +278,15 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
    That's OK.  It just means that you were too fast for your cluster.  The Pod for the TaskRun is still initializing.  There are no logs to see yet.
 
    Run the above command again until you see the logs.
- 
+
+   __Note:__  I snuck in a trick with the `oc` command that you might not be familiar with...
+
+   The pod started by the TaskRun may have a randomized name.  I used `-o jsonpath=` to extract the pod name from the TaskRun.
+
+   ```bash
+   oc get taskrun my-buildah-demo-task-run -o jsonpath='{.status.podName}' -n my-app
+   ```
+
 1. Run the container image that you just created in a Pod:
 
    ```bash
@@ -274,7 +299,7 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
      restartPolicy: Never
      containers:
      - name: my-demo-app-container
-       image: image-registry.openshift-image-registry.svc:5000/my-app/test:latest
+       image: image-registry.openshift-image-registry.svc:5000/my-app/my-demo-app:latest
    EOF
    ```
 
@@ -354,7 +379,7 @@ The `spec:` of this Task has several elements:
    ...
    ```
 
-   Steps have quite a few attributes that can be defined.  In this example, I've shown you a few of them.  You will note that their definition looks a lot like a `Pod` or `Deployment` specification.
+   Steps have quite a few attributes that can be defined.  In this example, I've shown you a very few of them.  You will note that their definition looks a lot like a `Pod` or `Deployment` specification.
 
    | | |
    |`name:`|Every step has a unique name in the task.  This name is also what will be assigned to the container that is created to run the step.|
@@ -365,6 +390,7 @@ The `spec:` of this Task has several elements:
    |`env:`|Sets the environment for the container. In this step we are setting the value of our user's home directory to `/workspace`.  `/workspace` is a special volumeMount that gives the steps in your Task a common place to store state during the execution of the Task.  There is a lot more to explore with `Workspaces`.|
    |`workingDir:`|This attribute is specifying that when our container runs the script that we specified earlier, it will run with the current working directory set to `/workspace`.|
 
+   Refer to the upstream [Task](https://github.com/tektoncd/pipeline/blob/main/docs/tasks.md){:target="_blank"} documentation for all of the attributes that can be used in a `step`.
 
 1. `volumes` is a list of Pod volumes which can be mounted into one or more containers that run in the Task.
 
@@ -426,13 +452,31 @@ buildah ${BUILDAH_ARGS} push ${DESTINATION_IMAGE} docker://${DESTINATION_IMAGE}
 
 We used the `buildah` cli to create a new container image from `registry.access.redhat.com/ubi8/ubi-minimal:8.5` and pushed that image to the internal OpenShift image registry.
 
-## Now, Let's Get On With It
+I created this particular example for a couple of reasons:
+
+1. I'm just a huge fan of the `buildah` cli for image manipulation.  You will note that we built a container image without a `.Docker` file.
+2. I want you to see the tremendous flexibility of Tekton.  If there's a container for it, you can do it...  If there's not a container for it, you can build your own!
+
+Finally, when we created the Pod to run our new container image, it automatically executed from the entry point that we specified.  Thus, the output of our container was:
+
+```bash
+---- hello there! ----
+---- goodbye for now. ----
+```
+
+## Now, Let's Make It More Complex
 
 ### Add a step to the Task that runs the new container image in a Pod
 
-We just demonstrated a pretty basic Tekton Task.  Albeit, with a fairly complex container build.  I like to give you something more meaty than a `Hello World`.  
+We just demonstrated a pretty basic Tekton Task.  Albeit, with a fairly complex container build.  
 
 So, now let's make it a bit more complex by adding a step to the Task that will create the Pod which we just created manually.
+
+1. Clean up the pod that we created, so that we can run it again.
+
+   ```bash
+   oc delete pod my-demo-app-pod
+   ```
 
 1. Add the following content to a file named `multi-step-task.yaml`
 
@@ -460,11 +504,8 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
          #!/bin/bash
          export BUILDAH_ISOLATION=chroot
          DESTINATION_IMAGE="image-registry.openshift-image-registry.svc:5000/$(context.taskRun.namespace)/$(params.app-name):latest"
-         echo "**** Set arguments for buildah"
          BUILDAH_ARGS="--storage-driver vfs"
-         echo "**** Create a new container from the ubi-minimal 8.5 image"
          CONTAINER=$( buildah ${BUILDAH_ARGS} from registry.access.redhat.com/ubi8/ubi-minimal:8.5 )
-         echo "**** Create a simple application for the new container to run"
          cat << EOF > ./test.sh
          #!/bin/bash
          echo "---- hello there! ----"
@@ -473,17 +514,11 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
          exit 0
          EOF
          chmod 750 ./test.sh
-         echo "**** Copy the simple application to the new container"
          buildah ${BUILDAH_ARGS} copy ${CONTAINER} ./test.sh /application.sh
-         echo "**** Set the entry point for the new container"
          buildah ${BUILDAH_ARGS} config --entrypoint '["/application.sh"]' ${CONTAINER}
-         echo "**** Add a label to the new container"
          buildah ${BUILDAH_ARGS} config --label APP_LABEL="Hello This Is My Label" --author="Tekton" ${CONTAINER}
-         echo "**** Save the new container image"
          buildah ${BUILDAH_ARGS} commit ${CONTAINER} ${DESTINATION_IMAGE}
-         echo "**** Disconnect from the new container image"
          buildah ${BUILDAH_ARGS} unmount ${CONTAINER}
-         echo "**** Push the new container image to the cluster image registry"
          buildah ${BUILDAH_ARGS} push ${DESTINATION_IMAGE} docker://${DESTINATION_IMAGE}
        env:
        - name: user.home
@@ -512,7 +547,7 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
 1. Create the new task:
 
    ```bash
-   oc apply -f multi-step-task.yaml
+   oc apply -f multi-step-task.yaml -n my-app
    ```
 
 1. Run the new task:
@@ -537,10 +572,11 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
    __Note:__ This time we have to specify which container we want to see the logs from.  Since there are two steps in this Task, there will be two containers which run in the Pod.  The containers will have the same name as the Task step which they are running.
 
    ```bash
-   oc logs -f multi-step-task-run-pod -c step-build-image -n my-app
+   oc logs -f $(oc get taskrun multi-step-task-run -o jsonpath='{.status.podName}' -n my-app) -c step-build-image -n my-app
+   oc logs -f $(oc get taskrun multi-step-task-run -o jsonpath='{.status.podName}' -n my-app) -c step-create-pod -n my-app
    ```
 
-## Wait! There's a CLI for This
+## But Wait! --- There's a CLI for This
 
 OK, OK, let's pause here for a minute.  I've been showing you how to do everything with the `oc` cli.  However, there is a Tekton specific CLI that will make some things easier.
 
@@ -606,7 +642,18 @@ Now, let's redo the lask task run with the cli.
 
    __Now, wasn't that nice?__
 
-1. Create a TaskRun using the `tkn` cli:
+1. Verfiy that your new pod ran:
+
+   ```bash
+   oc logs my-demo-app-pod -n my-app
+   ```
+
+   ```bash
+   ---- hello there! ----
+   ---- goodbye for now. ----
+   ```
+
+1. You can also use the `tkn` cli to create an instance of a TaskRun:
 
    ```bash
    tkn task start multi-step-task -p app-name=my-other-app -n my-app
@@ -620,19 +667,78 @@ Now, let's redo the lask task run with the cli.
 
    __Note:__ When you use the cli to create a TaskRun, it gets a randomized name.
 
-### WIP, WIP, WIP
+1. Finally, verify that the pod created by the new TaskRun completed:
 
-### Now, let's create a Pipeline that will both build and run our new container image
+   ```bash
+   oc logs my-other-app-pod -n my-app
+   ```
 
-1. Create a Task that will create a Pod from the new container image:
+### We're getting familiar with Tasks, let's move on to creating a Pipeline
 
-   Add the following content to a file named `second-task.yaml`
+Let's separate the steps in our multi step Task into two separate Tasks, and orchestrate them with a Pipeline.
+
+1. Create the Task to build the container image:
+
+   Add the following content to a file named `build-task.yaml`
 
    ```yaml
    apiVersion: tekton.dev/v1beta1
    kind: Task
    metadata:
-     name: create-pod-task
+     name: build-image
+   spec:
+     params:
+     - name: app-name
+       type: string
+       description: The application name
+     stepTemplate:
+       volumeMounts:
+       - name: varlibc
+         mountPath: /var/lib/containers
+     steps:
+     - name: build-image
+       image: quay.io/buildah/stable:latest
+       securityContext:
+         runAsUser: 1000
+       imagePullPolicy: IfNotPresent
+       script: |
+         #!/bin/bash
+         export BUILDAH_ISOLATION=chroot
+         DESTINATION_IMAGE="image-registry.openshift-image-registry.svc:5000/$(context.taskRun.namespace)/$(params.app-name):latest"
+         BUILDAH_ARGS="--storage-driver vfs"
+         CONTAINER=$( buildah ${BUILDAH_ARGS} from registry.access.redhat.com/ubi8/ubi-minimal:8.5 )
+         cat << EOF > ./test.sh
+         #!/bin/bash
+         echo "---- hello there! ----"
+         sleep 5
+         echo "---- goodbye for now. ----"
+         exit 0
+         EOF
+         chmod 750 ./test.sh
+         buildah ${BUILDAH_ARGS} copy ${CONTAINER} ./test.sh /application.sh
+         buildah ${BUILDAH_ARGS} config --entrypoint '["/application.sh"]' ${CONTAINER}
+         buildah ${BUILDAH_ARGS} config --label APP_LABEL="Hello This Is My Label" --author="Tekton" ${CONTAINER}
+         buildah ${BUILDAH_ARGS} commit ${CONTAINER} ${DESTINATION_IMAGE}
+         buildah ${BUILDAH_ARGS} unmount ${CONTAINER}
+         buildah ${BUILDAH_ARGS} push ${DESTINATION_IMAGE} docker://${DESTINATION_IMAGE}
+       env:
+       - name: user.home
+         value: /workspace
+       workingDir: "/workspace"
+     volumes:
+     - name: varlibc
+       emptyDir: {}
+   ```
+
+1. Create a Task that will create a Pod from the new container image:
+
+   Add the following content to a file named `pod-task.yaml`
+
+   ```yaml
+   apiVersion: tekton.dev/v1beta1
+   kind: Task
+   metadata:
+     name: create-pod
    spec:
      params:
      - name: app-name
@@ -656,7 +762,206 @@ Now, let's redo the lask task run with the cli.
          EOF
    ```
 
+1. Create the Tasks in your OpenShift project:
+
+   ```bash
+   oc apply -f build-task.yaml -n my-app
+   oc apply -f pod-task.yaml -n my-app
+   ```
+
+1. Verfy that the two new Tasks appear in your project:
+
+   ```bash
+   oc get tasks -n my-app
+   ```
+
+   ```bash
+   NAME                AGE
+   build-image         7s
+   buildah-demo-task   3h26m
+   create-pod          15s
+   multi-step-task     80m
+   ```
+
+1. Do it again with the `tkn` cli:
+
+   ```bash
+   tkn task list -n my-app
+   ```
+
+   ```bash
+   NAME                DESCRIPTION   AGE
+   build-image                       51 minutes ago
+   buildah-demo-task                 4 hours ago
+   create-pod                        51 minutes ago
+   multi-step-task                   2 hours ago
+   ```
+
+   It's always nice to have multiple ways to get to the same answer...
+
+OK.  We've got our two Tasks.  Let's wire them together with a Pipeline:
+
+1. Create a YAML definition for the Pipeline:
+
+   Add the following to a file named `build-run-pipeline.yaml`
+
+   ```yaml
+   apiVersion: tekton.dev/v1beta1
+   kind: Pipeline
+   metadata:
+     name: build-container-run-pod
+   spec:
+     params:
+     - name: app-name
+       type: string
+       description: The application name
+     - name: run-it
+       type: string
+       description: Should I run the new container image?
+     tasks:
+     - name: build
+       taskRef:
+         name: build-image
+       params:
+       - name: app-name
+         value: $(params.app-name)
+     - name: run
+       taskRef:
+         name: create-pod
+       runAfter:
+       - build
+       when:
+       - input: "$(params.run-it)"
+         operator: in
+         values: ["yes-please"]
+       params:
+       - name: app-name
+         value: $(params.app-name)
+   ```
+
+1. Add the Pipeline to your OpenShift Project:
+
+   ```bash
+   oc apply -f build-run-pipeline.yaml -n my-app
+   ```
+
+1. Verify that is was created properly:
+
+   ```bash
+   oc get pipeline -n my-app
+   ```
+
+   ```bash
+   NAME                      AGE
+   build-container-run-pod   78s
+   ```
+
+   __Note:__ I've been subtly showing you something here.  The names of the YAML files are arbitrary.  It's the `metadata.name` value that matters.
+
+1. Oh yeah...  We have the `tkn` cli too:
+
+   ```bash
+   tkn pipeline list -n my-app
+   ```
+
+   ```bash
+   NAME                      AGE             LAST RUN   STARTED   DURATION   STATUS
+   build-container-run-pod   4 minutes ago   ---        ---       ---        ---
+   ```
+
+   Hey!  That has more info in it!  Nice!
+
+1. Before we talk about what's in our new Pipeline, let's run it:
+
+   ```bash
+   cat << EOF | oc apply -n my-app -f -
+   apiVersion: tekton.dev/v1beta1
+   kind: PipelineRun
+   metadata:
+     name: my-app-pipeline-run
+     labels:
+       app-name: my-app-pipeline
+   spec:
+     serviceAccountName: pipeline
+     pipelineRef: 
+       name: build-container-run-pod
+     params:
+     - name: app-name
+       value: my-app
+     - name: run-it
+       value: no-thanks
+   EOF
+   ```
+
+1. You can watch the logs:
+
+   ```bash
+   tkn pipelinerun logs my-app-pipeline-run -f -n my-app
+   ```
+
+1. You can check the status:
+
+   ```bash
+   tkn pipelinerun describe my-app-pipeline-run -n my-app
+   ```
+
+1. Wait for it...
+
+1. Did you catch that?
+
+1. Look closely...  
+
+   You will see that only one Task ran.
+
+   The PipelineRun completed successfully, but only ran the `build` task.  It did not run the Pod!
+
+1. Let's try again: (Yes, I'm going somewhere with this.)
+
+   ```bash
+   cat << EOF | oc apply -n my-app -f -
+   apiVersion: tekton.dev/v1beta1
+   kind: PipelineRun
+   metadata:
+     name: my-app-pipeline-run-take-two
+     labels:
+       app-name: my-app-pipeline
+   spec:
+     serviceAccountName: pipeline
+     pipelineRef: 
+       name: build-container-run-pod
+     params:
+     - name: app-name
+       value: my-app
+     - name: run-it
+       value: yes-please
+   EOF
+   ```
+
+1. Watch the logs:
+
+   ```bash
+   tkn pipelinerun logs my-app-pipeline-run-take-two -f -n my-app
+   ```
+
+1. Check the status:
+
+   ```bash
+   tkn pipelinerun describe my-app-pipeline-run-take-two -n my-app
+   ```
+
+1. Note that this time, both Tasks ran.
+
+   ```bash
+   oc logs my-app-pod
+   ```
+
+   ```bash
+   ---- hello there! ----
+   ---- goodbye for now. ----
+   ```
+
 ### WIP, WIP, WIP
+
 ### Quarkus Application
 
 ```bash
