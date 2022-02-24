@@ -62,7 +62,7 @@ Let's get the Tekton vocabulary out of the way first.  I'll include links to the
 
 There are two main components to Tekton - Pipelines & Triggers
 
-### Tekton Pipelines:
+### Tekton Pipelines
 
 Let's cover the components of Pipelines first:
 
@@ -157,7 +157,7 @@ __Here's an overview of all of the pieces, and how they are accociated:__
 
 __Note:__ We'll talk later about Workspaces & PVCs.
 
-## It's Time To Write Some Code:
+## It's Time To Write Some Pipeline Code:
 
 Now, let's learn by doing.
 

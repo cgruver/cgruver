@@ -1,6 +1,6 @@
 ---
 title: "OpenShift Pipelines (Tekton) - Triggers"
-description: "Coding Basic Tekton Triggers"
+description: "The Basics of Tekton Triggers"
 sitemap: true
 published: true
 permalink: /tutorials/tekton-triggers/

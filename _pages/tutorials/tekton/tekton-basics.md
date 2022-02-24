@@ -8,7 +8,9 @@ tags:
   - openshift pipelines
   - tekton
 ---
-## Start with the basics - Let's create a Task and run it
+## Start with the basics - Tasks & Pipelines
+
+### Let's create a Task and run it
 
 __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli tool.  You will also need to log into the cluster console from a browser.
 
@@ -164,11 +166,13 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
    oc logs -f my-demo-app-pod -c my-demo-app-container
    ```
 
-### Wait, What Just Happened?
+## Wait, What Just Happened?
 
 OK, that was a very quick dive right into the guts of a fairly complex example.
 
-Let's pause for a minute and take it apart, looking at the elements in the Task:
+Let's pause for a minute and take it apart, looking at the elements in the Task and TaskRun:
+
+### Task
 
 The Task is an example of a Kubernetes CustomResource, defined by a [CustomerResourceDefinition](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/){:target="_blank"}
 
@@ -263,6 +267,22 @@ The `spec:` of this Task has several elements:
 
    Remember our `stepTemplate`?  That's what creates the volumeMount in our buildah container.
 
+### TaskRun
+
+TaskRun is also a Kubernetes CustomResource.
+
+Just like the Task, it begins with a header.  The meat of the TaskRun, is in the `spec:`
+
+Our TaskRun has two elements that we are using:
+
+1. `taskRef:` Literally a reference to the `metadata.name` of the Task that we want to run.
+
+1. `params:` A list of parameters, parameter name & value, to pass to the Task.
+
+Ours is a pretty minimal TaskRun.  Refer to the upstream documentation for more info: [TaskRun](https://github.com/tektoncd/pipeline/blob/main/docs/taskruns.md){:target="_blank"}
+
+### Examine the Task Further
+
 So, what did our Task actually do?
 
 Take a look at the shell script that the step: `build-image` in our Task executed.
@@ -310,7 +330,7 @@ We used the `buildah` cli to create a new container image from `registry.access.
 I created this particular example for a couple of reasons:
 
 1. I'm just a huge fan of the `buildah` cli for image manipulation.  You will note that we built a container image without a `.Docker` file.
-2. I want you to see the tremendous flexibility of Tekton.  If there's a container for it, you can do it...  If there's not a container for it, you can build your own!
+2. I want you to see the tremendous flexibility of Tekton.  If there's a container for it, you can do it...  If there's not a container for it, you can build your own.
 
 Finally, when we created the Pod to run our new container image, it automatically executed from the entry point that we specified.  Thus, the output of our container was:
 
@@ -815,9 +835,11 @@ OK.  We've got our two Tasks.  Let's wire them together with a Pipeline:
    ---- goodbye for now. ----
    ```
 
-### Time To Examine the Pipeline and PipelineRun
+## Time To Examine the Pipeline and PipelineRun
 
 Just like Task & TaskRun, Pipeline & PipelineRun are examples of CustomResources that enhance the Kubernetes API.
+
+### Pipeline Details
 
 Let's take a look at our Pipeline first:
 
@@ -876,4 +898,42 @@ The `spec:` in our Pipeline, has two elements.
 
    Take a look at the Upstream documentation to understand the full depth and flexibility available in a [Pipeline](https://github.com/tektoncd/pipeline/blob/main/docs/pipelines.md){:target="_blank"}.  You can build some serious [Rube Goldberg Devices](https://en.wikipedia.org/wiki/Rube_Goldberg_machine){:target="_blank"} with Pipelines.  So please, for the love of all that is beautiful and good, be careful.  ;-)
 
-## WIP - WIP - WIP
+1. `workspaces:` We haven't talked about these yet.  But, I'm going to mention them anyway.
+
+   Workspaces are a mechanism by which Tasks can share state information.  The workspaces are actually defined in a PipelineRun, and can be associated with a PersistentVolumeClaim, a Kubernetes Secret, or a ConfigMap.
+
+   More on workspaces later.
+
+### PipelineRun Details
+
+Now, let's look at the PipelineRun:
+
+Our PipelineRun is a fairly minimal example.  It has three elements:
+
+1. `serviceAccountName:`  This declares the namespace scoped service-account that we want the Pods, of our Tasks in our Pipeline to run under.  __Note:__ This can also be declared as a list by `serviceAccountNames:` in order to specify different service-accounts at the Task level.
+
+1. `pipelineRef:` A reference to the `metadata.name` of the Pipeline that we want to run.
+
+1. `param:` The list of parameters to pass to the Pipeline.
+
+__Note:__  We ran our Pipeline twice, with different values for the parameter `run-it`.  We did this to demonstrate the task guard logic in a Pipeline.
+
+* With the value of `run-it=no-thanks`, the task guard logic evaluated to false, and thus the guarded task, `run` was skipped.
+* With the value of `run-it=yes-please`, the task guard logic evaluated to true, and thus the guarded task, `run` was executed after the `build` task.
+
+## Summary
+
+OK.  Let's pause for a minute and take stock.
+
+We have covered the basics of the execution side of Tekton:
+
+* Task
+* TaskRun
+* Pipeline
+* PipelineRun
+
+## What's Next
+
+Let's take a quick pause and tour the OpenShift Console W.R.T Pipelines:
+
+Go here for that tour: [OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/)
