@@ -8,6 +8,21 @@ tags:
   - openshift pipelines
   - tekton
 ---
+## There's a Console Too
+
+Let's pause from our CLI work for a moment and take a look at the OpenShift Web Console as it relates to Pipelines.
+
+I know, I know...  
+
+You really don't care about the GUI right?  
+
+You're all in on the CLI.  
+
+Never fear, we'll get back to the CLI soon enough...
+
+;-)
+
+## WIP - WIP - WIP
 
 ![Console](/_pages/tutorials/images/Developer-Perspective.png)
 
