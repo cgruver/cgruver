@@ -29,7 +29,7 @@ It is that need, that this first post in the series is dedicated to.
 
 I have simplified the lab setup in order to make it easier for you to create and tear down OpenShift clusters and the infrastructure that supports them.
 
-__Introducing: `labcli`__ Check it out here: [Lab CLI](/home-lab/labcli/)
+## __Introducing: `labcli`__ Check it out here: [Lab CLI](/home-lab/labcli/)
 
 I used it this week to build this three region OpenShift setup: __3__ clusters, __3__ compute nodes each, plus a __Single Node OpenShift__ cluster for the management plane:
 
