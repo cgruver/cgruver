@@ -1,14 +1,15 @@
 ---
-title: "OpenShift Pipelines (Tekton) - Triggers"
-description: "The Basics of Tekton Triggers"
+title: "OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea"
+description: "Tekton Triggers with Gitea and an Interceptor"
 sitemap: true
 published: true
-permalink: /tutorials/tekton-triggers/
+permalink: /tutorials/tekton-triggers-gitea/
 tags:
   - openshift pipelines
   - tekton
+  - gitea webhook
 ---
-### WIP, WIP, WIP
+## WIP - WIP - WIP
 
 ### Quarkus Application
 

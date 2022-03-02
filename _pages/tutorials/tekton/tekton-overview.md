@@ -53,6 +53,7 @@ You can find a lot of great information about OpenShift Pipelines here:
    * Git
    * OpenShift Command line Tools
    * Quarkus Command Line Tools
+   * Curl
 
 1. __Note:__ This tutorial assumes that you are using a workstation with a `bash` or `zsh` shell.  If you are on a Windows based system, you may be able to use Git Bash in Visual Studio Code.
 

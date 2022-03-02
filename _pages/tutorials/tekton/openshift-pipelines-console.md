@@ -60,4 +60,4 @@ So, let's do that next.  Then we'll write some code!  I promise.
 
 ## Tekton Triggers
 
-Go here for the next lesson: [OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers/)
+Go here for the next lesson: [OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers-basics/)
