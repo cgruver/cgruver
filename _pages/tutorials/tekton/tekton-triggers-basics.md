@@ -310,6 +310,16 @@ spec:
     ref: my-app-trigger-template
 ```
 
+Our Trigger `spec:` has three elements:
+
+1. `interceptors:` This would be a list of one or more interceptors that pre-process the webhook payload before releasing it to the TriggerTemplate.
+
+   We'll illustrate Interceptors in the next exercise.
+
+1. `bindings:` This is a list of one or more TriggerBindings to map data from the webhook to params that the TriggerTemplate can use.
+
+1. `template:` This is a reference to the TriggerTemplate that defines the actions triggered by a webhook received by the EventListener.
+
 ### EventListener
 
 ```yaml
@@ -323,8 +333,14 @@ spec:
   - triggerRef: my-app-trigger
 ```
 
+Our EventListener `spec:` has two elements:
+
+1. `serviceAccountName:` The namespace scoped service account that we want the Tasks or Pipelines to run as.  __Note:__ `pipeline` is the default service account, but I included it here just to be explicit.
+
+1. `triggers:` A list of triggers that the EventListener will invoke.  __Note:__ This can be a list of both `triggerRef:` to externally defined Trigger objects, or inline defined `trigger:` objects.  See the docs for more info.
+
 ## Now Let's Write Some Code and Build an App
 
 Go to the next section, where we will set up Gitea as our SCM, write some code (generate it actually...), and create a real webhook!
 
-[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea](/tutorials/tekton-triggers-gitea/)
+__[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea](/tutorials/tekton-triggers-gitea/)__

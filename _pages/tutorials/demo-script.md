@@ -147,3 +147,50 @@ git add .
 git commit -m test-1
 git push
 ```
+
+Add some configuration for the Deployment:
+
+```bash
+quarkus ext add quarkus-smallrye-health
+
+mkdir -p deploy-config/patch
+
+cat << EOF > deploy-config/patch/deployment-patch.yaml
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: --DEPLOY_NAME--
+        resources:
+          requests:
+            memory: 512Mi
+            cpu:    500m
+          limits:
+            memory: 512Mi
+            cpu:    1
+        readinessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /q/health/live
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+      terminationGracePeriodSeconds: 15
+EOF
+
+git add .
+git commit -m health
+git push
+```

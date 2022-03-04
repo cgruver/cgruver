@@ -222,8 +222,9 @@ Let's install in along side OpenShift Pipelines.
 1. Build and install the interceptor:
 
    ```bash
+   cp ~/.config/containers/auth.json ~/.docker/config.json
    export KO_DOCKER_REPO=${LOCAL_REGISTRY}/tekton
-   ko resolve --platform=linux/amd64 --preserve-import-paths -t latest -f ./config | oc apply -f -
+   ko resolve --platform=linux/amd64 --base-import-paths -t latest -f ./config | oc apply -f -
    ```
 
 Now, it's time to set up Gitea and Nexus for the Quarkus application that we're going to build.

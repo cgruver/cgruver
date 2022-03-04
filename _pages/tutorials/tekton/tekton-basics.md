@@ -936,4 +936,4 @@ We have covered the basics of the execution side of Tekton:
 
 Let's take a quick pause and tour the OpenShift Console W.R.T Pipelines:
 
-Go here for that tour: [OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/)
+Go here for that tour: __[OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/)__
