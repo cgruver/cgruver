@@ -218,7 +218,7 @@ Now, invoke the trigger:
 
    You should see the Pipeline start a run.
 
-   ![Pipeline Trigger Run](/_pages/tutorials/images/Triggered-PipelineRun.png)
+   ![Pipeline Trigger Run](/_pages/tutorials/tekton/images/Triggered-PipelineRun.png)
 
 Pretty neat, right?
 

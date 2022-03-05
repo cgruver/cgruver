@@ -45,7 +45,7 @@ Here is a brief description of each, with a link to the upstream documentation:
        * Volumes
        * etc...
   
-   ![TektonTask](/_pages/tutorials/images/TektonTask.png)
+   ![TektonTask](/_pages/tutorials/tekton/images/TektonTask.png)
 
    __Note:__ When you look at the documentation, take care to note that [PipelineResources](https://github.com/tektoncd/pipeline/blob/main/docs/resources.md){:target="_blank"} are deprecated.  Don't use them.  I'll be showing you how to build pipelines without them.
 
@@ -107,7 +107,7 @@ Here is a brief description of each, with a link to the upstream documentation:
 
 __Here's an overview of all of the pieces, and how they are accociated:__
 
-![TektonOverview](/_pages/tutorials/images/TektonOverview.png)
+![TektonOverview](/_pages/tutorials/tekton/images/TektonOverview.png)
 
 __Note:__ We'll talk later about Workspaces & PVCs.
 

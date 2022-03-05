@@ -22,33 +22,75 @@ Never fear, we'll get back to the CLI soon enough...
 
 ;-)
 
-## WIP - WIP - WIP
+### Pipelines In The OpenShift Web Console
 
-![Console](/_pages/tutorials/images/Developer-Perspective.png)
+1. If you are currently in the `Developer` perspective, switch to the `Administrator` perspective:
 
-![Console](/_pages/tutorials/images/Switch-Perspective.png)
+   ![Console](/_pages/tutorials/tekton/images/Developer-Perspective.png)
 
-![Console](/_pages/tutorials/images/Admin-Perspective.png)
+   ![Console](/_pages/tutorials/tekton/images/Switch-Perspective.png)
 
-![Console](/_pages/tutorials/images/Project-Overview.png)
+   ![Console](/_pages/tutorials/tekton/images/Admin-Perspective.png)
 
-![Console](/_pages/tutorials/images/Expand-Pipelines.png)
+   You should now see additional options in the left-hand nav bar.
 
-![Console](/_pages/tutorials/images/View-Tasks.png)
+1. From the left-hand nav bar, select `Home -> Projects`, then select the `my-app` project.
 
-![Console](/_pages/tutorials/images/View-TaskRuns.png)
+   You should now see the overview of the `my-app` project.
 
-![Console](/_pages/tutorials/images/View-ClusterTasks.png)
+   ![Console](/_pages/tutorials/tekton/images/Project-Overview.png)
 
-![Console](/_pages/tutorials/images/View-Pipelines.png)
+1. Now select `Pipelines` in the left-hand nav bar.
 
-![Console](/_pages/tutorials/images/View-PipelineRuns.png)
+   ![Console](/_pages/tutorials/tekton/images/Expand-Pipelines.png)
 
-![Console](/_pages/tutorials/images/PipelineRun-Details.png)
+   You should see an expanded list with `Pipelines`, `Tasks`, and `Triggers`.
 
-![Console](/_pages/tutorials/images/PipelineRun-Details-2.png)
+1. Select `Pipelines` from the expanded view in the left-hand nav:
 
-## WIP - WIP - WIP
+   From here, you can use the horizontal tabs to explore `Pipelines`, `PipelineRuns`, `PipelineResources`, and `Conditions`.
+
+   __Note:__ PipelineResources are deprecated.  Don't use them.
+
+   We haven't discussed `Conditions` yet.  We'll save that for later.
+
+1. Look at the `Pipelines`:
+
+   ![Console](/_pages/tutorials/tekton/images/View-Pipelines.png)
+
+   Clicking into an item in the list of Pipelines will show you the details of that pipeline:
+
+   ![Console](/_pages/tutorials/tekton/images/Pipeline-Menu.png)
+
+   The stacked dot menu at the far right of each pipeline object in the list will expand to show you more options.
+
+   Selecting `start` allows you to manually start a PipelineRun by providing the parameter values.
+
+   ![Console](/_pages/tutorials/tekton/images/Start-Pipeline.png)
+
+1. Look at the `PipelineRuns`:
+
+   ![Console](/_pages/tutorials/tekton/images/View-PipelineRuns.png)
+
+   Clicking into an item in the list of PipelineRuns will show you the details of that run:
+
+   ![Console](/_pages/tutorials/tekton/images/PipelineRun-Details.png)
+
+   ![Console](/_pages/tutorials/tekton/images/PipelineRun-Details-2.png)
+
+1. Select `Tasks` from the expanded view in the left-hand nav:
+
+   From here, you can use the horizontal tabs to explore `Tasks`, `TaskRuns`, and `ClusterTasks`
+
+   ![Console](/_pages/tutorials/tekton/images/View-Tasks.png)
+
+   ![Console](/_pages/tutorials/tekton/images/View-TaskRuns.png)
+
+   ![Console](/_pages/tutorials/tekton/images/View-ClusterTasks.png)
+
+   Clicking on any item in the list, will give you a detailed view of that item.
+
+## So... that's the Console
 
 We still haven't written any application code... compiled it...  or, deployed it.
 
@@ -58,6 +100,4 @@ We also need to put the `C` into CI/CD.
 
 So, let's do that next.  Then we'll write some code!  I promise.
 
-## Tekton Triggers
-
-Go here for the next lesson: [OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers-basics/)
+Go here for the next lesson: __[OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers-basics/)__
