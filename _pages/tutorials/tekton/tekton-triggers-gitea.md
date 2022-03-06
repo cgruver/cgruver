@@ -9,7 +9,21 @@ tags:
   - tekton
   - gitea webhook
 ---
-## WIP - WIP - WIP
+## Get the demo artifacts that I have prepared for you
+
+I have prepared some resources for this part of the tutorial.  Clone the following project:
+
+```bash
+
+git clone https://github.com/cgruver/tutorial-resources.git
+```
+
+## Set up a Git server for our SCM
+
+In resources that you cloned have provided a demo Deployment of Gitea for us to use.  Check out Gitea here: [https://gitea.io/en-us/](https://gitea.io/en-us/){:target="_blank"}
+
+Let's install that first.
+
 
 ### Quarkus Application
 

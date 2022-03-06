@@ -61,7 +61,9 @@ This tutorial is broken up into chapters.  Each chapter builds on the previous o
 
 1. __[OpenShift Pipelines (Tekton) - Overview](/tutorials/tekton-overview/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Basics](/tutorials/tekton-basics/){:target="_blank"}__
+1. __[OpenShift Pipelines (Tekton) - Basics - Tasks](/tutorials/tekton-basics-tasks/){:target="_blank"}__
+
+1. __[OpenShift Pipelines (Tekton) - Basics - Pipelines](/tutorials/tekton-basics-pipelines/){:target="_blank"}__
 
 1. __[OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/){:target="_blank"}__
 

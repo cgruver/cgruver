@@ -115,4 +115,4 @@ __Note:__ We'll talk later about Workspaces & PVCs.
 
 Now, let's learn by doing:
 
-__[OpenShift Pipelines (Tekton) - Basics](/tutorials/tekton-basics/)__
+__[OpenShift Pipelines (Tekton) - Basics - Tasks](/tutorials/tekton-basics-tasks/)__

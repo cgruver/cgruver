@@ -100,4 +100,4 @@ We also need to put the `C` into CI/CD.
 
 So, let's do that next.  Then we'll write some code!  I promise.
 
-Go here for the next lesson: __[OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers-basics/)__
+Go here for the next lesson: __[OpenShift Pipelines (Tekton) - Triggers Basics](/tutorials/tekton-triggers-basics/)__

@@ -1,5 +1,5 @@
 ---
-title: "OpenShift Pipelines (Tekton) - Triggers"
+title: "OpenShift Pipelines (Tekton) - Triggers Basics"
 description: "The Basics of Tekton Triggers"
 sitemap: true
 published: true
