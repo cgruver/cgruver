@@ -46,6 +46,30 @@ You can find a lot of great information about OpenShift Pipelines here:
 
 1. You will also need to have the OpenShift Pipelines Operator installed in your cluster.  Install it via Operator Hub, or if you are following one of my lab tutorials, you can install it from the upstream Tekton project here: [Install Tekton Pipelines](/home-lab/tekton-install/){:target="_blank"}
 
+   If you are installing via Operator Hub, you need to log into your cluster as a cluster admin user.
+
+   1. Navigate to `Operator Hub` in the left-hand nav menu:
+      
+      ![Operator](/_pages/tutorials/tekton/images/Operator-Hub.png)
+    
+   1. Type `pipelines` into the search dialog:
+
+      ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Search.png)
+
+    1. Select the `Red Hat OpenShift Pipelines` operator and select `Install`
+
+       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Pipelines.png)
+
+    1. Select `Install`:
+
+       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Install-Pipelines.png)
+
+    1. Wait for the installation to complete:
+
+       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Installing.png)
+
+       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Installed.png)
+
 1. Your workstation will need to be set up with the following tools:
 
    * OpenJDK 11
