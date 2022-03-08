@@ -31,6 +31,7 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
 
    ```bash
    git clone https://github.com/cgruver/tutorial-resources.git
+   cd tutorial-resources
    ```
 
 ### The obligatory `Hello World`
