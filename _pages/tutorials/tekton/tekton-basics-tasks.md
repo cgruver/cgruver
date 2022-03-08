@@ -72,6 +72,24 @@ Do this:
    oc logs -f $(oc get taskrun hello-world-task-run-1 -o jsonpath='{.status.podName}' -n my-app) -n my-app
    ```
 
+   __Note:__ If you see an error like this:
+
+   ```bash
+   Error from server (BadRequest): container "step-hello" in pod "hello-world-task-run-1" is waiting to start: PodInitializing
+   ```
+
+   That's OK.  It just means that you were too fast for your cluster.  The Pod for the TaskRun is still initializing.  There are no logs to see yet.
+
+   Run the above command again until you see the logs.
+
+   __Note:__  I snuck in a trick with the `oc` command that you might not be familiar with...
+
+   The pod started by the TaskRun may have a randomized name.  I used `-o jsonpath=` to extract the pod name from the TaskRun.
+
+   ```bash
+   oc get taskrun my-buildah-demo-task-run -o jsonpath='{.status.podName}' -n my-app
+   ```
+
 ### That was so much fun, we should do it again
 
 1. Create the task:
@@ -97,7 +115,8 @@ Do this:
 1. Watch the logs:
 
    ```bash
-   oc logs -f $(oc get taskrun hello-world-task-run-2 -o jsonpath='{.status.podName}' -n my-app) -n my-app
+   oc logs -f $(oc get taskrun hello-world-task-run-2 -o jsonpath='{.status.podName}' ) -c step-hello -n my-app -n my-app
+   oc logs -f $(oc get taskrun hello-world-task-run-2 -o jsonpath='{.status.podName}' ) -c step-goodbye -n my-app -n my-app
    ```
 
 ### Pause Now, and Look at what we did
@@ -175,7 +194,7 @@ We watched the logs with some `oc` cli magic.
 1. Create the Task in your `my-app` project:
 
    ```bash
-   oc apply -f first-real-task.yaml -n my-app
+   oc apply -f ./basics/first-real-task.yaml -n my-app
    ```
 
 1. Verify that the task exists in your namespace:
@@ -185,8 +204,10 @@ We watched the logs with some `oc` cli magic.
    ```
 
    ```bash
-   NAME                AGE
-   buildah-demo-task   5s
+   NAME                 AGE
+   buildah-demo-task    8s
+   hello-world-task-1   10m
+   hello-world-task-2   4m12s
    ```
 
    You should see your new Task listed in the output.
@@ -214,7 +235,7 @@ We watched the logs with some `oc` cli magic.
    oc logs -f $(oc get taskrun my-buildah-demo-task-run -o jsonpath='{.status.podName}' -n my-app) -n my-app
    ```
 
-   __Note:__ If you see an error like this:
+   __Note: Remember...__ If you see an error like this:
 
    ```bash
    Error from server (BadRequest): container "step-build-image" in pod "my-buildah-demo-task-run-pod" is waiting to start: PodInitializing
@@ -223,14 +244,6 @@ We watched the logs with some `oc` cli magic.
    That's OK.  It just means that you were too fast for your cluster.  The Pod for the TaskRun is still initializing.  There are no logs to see yet.
 
    Run the above command again until you see the logs.
-
-   __Note:__  I snuck in a trick with the `oc` command that you might not be familiar with...
-
-   The pod started by the TaskRun may have a randomized name.  I used `-o jsonpath=` to extract the pod name from the TaskRun.
-
-   ```bash
-   oc get taskrun my-buildah-demo-task-run -o jsonpath='{.status.podName}' -n my-app
-   ```
 
 1. Run the container image that you just created in a Pod:
 
@@ -565,6 +578,15 @@ Now, let's redo the lask task run with the cli.
    ```bash
    tkn taskrun list -n my-app
    ```
+
+   ```bash
+   NAME                       STARTED          DURATION     STATUS
+   multi-step-task-run        1 minute ago     19 seconds   Succeeded
+   my-buildah-demo-task-run   2 minutes ago    18 seconds   Succeeded
+   hello-world-task-run-2     8 minutes ago    6 seconds    Succeeded
+   hello-world-task-run-1     13 minutes ago   44 seconds   Succeeded
+   ```
+
 
 1. Delete all of the previous taskruns:
 
