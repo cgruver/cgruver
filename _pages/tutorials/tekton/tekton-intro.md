@@ -91,6 +91,6 @@ This tutorial is broken up into chapters.  Each chapter builds on the previous o
 
 1. __[OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Triggers](/tutorials/tekton-triggers-basics/){:target="_blank"}__
+1. __[OpenShift Pipelines (Tekton) - Triggers Basics](/tutorials/tekton-triggers-basics/){:target="_blank"}__
 
 1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea](/tutorials/tekton-triggers-gitea/){:target="_blank"}__

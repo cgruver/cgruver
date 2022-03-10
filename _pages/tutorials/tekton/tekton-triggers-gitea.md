@@ -9,21 +9,58 @@ tags:
   - tekton
   - gitea webhook
 ---
-## Get the demo artifacts that I have prepared for you
+### Install Gitea and the interceptor
 
-I have prepared some resources for this part of the tutorial.  Clone the following project:
+1. Install a Gitea server to be our SCM for this demo
 
-```bash
+   In resources that you cloned I have provided a demo Deployment of Gitea for us to use.  Check out Gitea here: [https://gitea.io/en-us/](https://gitea.io/en-us/){:target="_blank"}
 
-git clone https://github.com/cgruver/tutorial-resources.git
-```
+   Let's install that first.  __Note:__ This assumes that you are using Code Ready Containers.  If you are not, then you will need to modify the PersistentVolumeClaim in this YAML file.
 
-## Set up a Git server for our SCM
+   ```bash
+   oc new-project gitea
+   oc apply -f ~/tekton-tutorial/gitea-demo/gitea-server.yaml -n gitea
+   ```
 
-In resources that you cloned have provided a demo Deployment of Gitea for us to use.  Check out Gitea here: [https://gitea.io/en-us/](https://gitea.io/en-us/){:target="_blank"}
+   Create a edge terminated TLS route for Gitea
 
-Let's install that first.
+   ```bash
+   oc create route edge gitea --service=gitea-http -n gitea
+   ```
 
+1. Install the Gitea Tekton Interceptor:
+
+   __Note:__ Log into your OpenShift cluster as a cluster admin for this part.
+
+   If you are using CRC then do this:
+
+   ```bash
+   crc console --credentials
+   ```
+
+   Use the password in the output to log into the cluster:
+
+   ```bash
+   crc login -u kubeadmin https://api.crc.testing:6443
+   ```
+
+   Create the Interceptor:
+
+   ```bash
+   oc apply -f ~/tekton-tutorial/gitea-demo/gitea-interceptor.yaml -n openshift-pipelines
+   ```
+
+   ```bash
+   oc create route edge gitea-interceptor --service=gitea-interceptor -n openshift-pipelines
+   ```
+
+### Configure Gitea
+
+   Get the URL for the Gitea route:
+
+   ```bash
+   GITEA_URL=$(oc get route gitea -o=jsonpath='{.spec.host}' -n gitea)
+   ```
 
 ### Quarkus Application
 

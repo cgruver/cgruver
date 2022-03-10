@@ -34,8 +34,7 @@ __Recap from the Intro:__ A fully configured Tekton Trigger is composed of five 
 
 ### Create a basic webhook trigger:
 
-1. Add the following YAML to a file named `first-trigger.yaml`
-
+1. Take a look at the file named `first-trigger.yaml`
 
    ```yaml
    apiVersion: triggers.tekton.dev/v1beta1
@@ -113,7 +112,7 @@ __Recap from the Intro:__ A fully configured Tekton Trigger is composed of five 
 1. Add these objects to your OpenShift project:
 
    ```bash
-   oc apply -f first-trigger.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/first-trigger.yaml -n my-app
    ```
 
 1. Note that you now have another Pod running:

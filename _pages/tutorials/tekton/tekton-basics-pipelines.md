@@ -100,8 +100,8 @@ Let's separate the steps in our multi step Task into two separate Tasks, and orc
 1. Create the Tasks in your OpenShift project:
 
    ```bash
-   oc apply -f ./basics/build-task.yaml -n my-app
-   oc apply -f ./basics/pod-task.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/build-task.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/pod-task.yaml -n my-app
    ```
 
 1. Verfy that the two new Tasks appear in your project:
@@ -111,11 +111,13 @@ Let's separate the steps in our multi step Task into two separate Tasks, and orc
    ```
 
    ```bash
-   NAME                AGE
-   build-image         7s
-   buildah-demo-task   3h26m
-   create-pod          15s
-   multi-step-task     80m
+   NAME                 AGE
+   build-image          13s
+   buildah-demo-task    14m
+   create-pod           110s
+   hello-world-task-1   25m
+   hello-world-task-2   18m
+   multi-step-task      11m
    ```
 
 1. Do it again with the `tkn` cli:
@@ -125,11 +127,13 @@ Let's separate the steps in our multi step Task into two separate Tasks, and orc
    ```
 
    ```bash
-   NAME                DESCRIPTION   AGE
-   build-image                       51 minutes ago
-   buildah-demo-task                 4 hours ago
-   create-pod                        51 minutes ago
-   multi-step-task                   2 hours ago
+   NAME                 DESCRIPTION   AGE
+   build-image                        21 seconds ago
+   buildah-demo-task                  14 minutes ago
+   create-pod                         1 minute ago
+   hello-world-task-1                 25 minutes ago
+   hello-world-task-2                 18 minutes ago
+   multi-step-task                    11 minutes ago
    ```
 
    It's always nice to have multiple ways to get to the same answer...
@@ -177,7 +181,7 @@ OK.  We've got our two Tasks.  Let's wire them together with a Pipeline:
 1. Add the Pipeline to your OpenShift Project:
 
    ```bash
-   oc apply -f ./basics/build-run-pipeline.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/build-run-pipeline.yaml -n my-app
    ```
 
 1. Verify that is was created properly:

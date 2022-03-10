@@ -20,18 +20,11 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
    oc new-project my-app
    ```
 
-1. Create a directory for the files that we'll be creating.
-
-   ```bash
-   mkdir ~/tekton-tutorial
-   cd tekton-tutorial
-   ```
-
 1. Clone the Github project with the code samples that I have prepared for you:
 
    ```bash
-   git clone https://github.com/cgruver/tutorial-resources.git
-   cd tutorial-resources
+   git clone https://github.com/cgruver/tutorial-resources.git ~/tekton-tutorial
+   cd ~/tekton-tutorial
    ```
 
 ### The obligatory `Hello World`
@@ -49,7 +42,7 @@ Do this:
 1. Create the task:
 
    ```bash
-   oc apply -n my-app -f ./basics/hello-world-task-1.yaml
+   oc apply -n my-app -f ~/tekton-tutorial/basics/hello-world-task-1.yaml
    ```
 
 1. Run it:
@@ -95,7 +88,7 @@ Do this:
 1. Create the task:
 
    ```bash
-   oc apply -n my-app -f ./basics/hello-world-task-2.yaml
+   oc apply -n my-app -f ~/tekton-tutorial/basics/hello-world-task-2.yaml
    ```
 
 1. Run it:
@@ -194,7 +187,7 @@ We watched the logs with some `oc` cli magic.
 1. Create the Task in your `my-app` project:
 
    ```bash
-   oc apply -f ./basics/first-real-task.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/first-real-task.yaml -n my-app
    ```
 
 1. Verify that the task exists in your namespace:
@@ -523,7 +516,7 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
 1. Create the new task:
 
    ```bash
-   oc apply -f ./basics/multi-step-task.yaml -n my-app
+   oc apply -f ~/tekton-tutorial/basics/multi-step-task.yaml -n my-app
    ```
 
 1. Run the new task:
