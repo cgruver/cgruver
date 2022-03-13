@@ -59,8 +59,7 @@ __Note:__  __*If you have not installed Gitea, you need to do that first*__: [In
 
    Create a team as shown for the demo service account:
 
-   ![Create Team - 1](images/gitea-create-team-page1.png)
-   ![Create Team -2](images/gitea-create-team-page2.png)
+   ![Create Team - 1](images/gitea-create-team.png)
 
 1. Go back to the `demo` Organization and select the new `demo-sa` Team from the right hand menu:
 

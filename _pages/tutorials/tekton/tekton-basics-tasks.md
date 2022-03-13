@@ -23,7 +23,7 @@ __Note:__ You need to be logged into your OpenShift cluster with the `oc` cli to
 1. Clone the Github project with the code samples that I have prepared for you:
 
    ```bash
-   git clone https://github.com/cgruver/tutorial-resources.git ~/tekton-tutorial
+   git clone https://github.com/cgruver/tekton-tutorial-resources.git ~/tekton-tutorial
    cd ~/tekton-tutorial
    ```
 

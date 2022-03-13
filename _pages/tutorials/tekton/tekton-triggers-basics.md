@@ -342,4 +342,4 @@ Our EventListener `spec:` has two elements:
 
 Go to the next section, where we will set up Gitea as our SCM, write some code (generate it actually...), and create a real webhook!
 
-__[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea](/tutorials/tekton-triggers-gitea/)__
+__[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Cluster Setup](/tutorials/tekton-triggers-gitea-setup/)__
