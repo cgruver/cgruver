@@ -11,52 +11,77 @@ tags:
 ---
 ## Set Up The Cluster Resources
 
-First we need to install a Gitea server and a Tekton Interceptor for Gitea
+Before we create an application and CI/CD resources for it, we need to setup and configure some resources:
+
+1. Install a Gitea server
+
+1. Set up our OpenShift cluster to trust the TLS cert on Routes
+
+1. Configure Gitea organization and teams for this demo
+
+1. Install a Tekton Interceptor for Gitea
 
 ### Install a Gitea server to be our SCM for this demo
 
-   In resources that you cloned I have provided a demo Deployment of Gitea for us to use.  Check out Gitea here: [https://gitea.io/en-us/](https://gitea.io/en-us/){:target="_blank"}
+In resources that you cloned I have provided a demo Deployment of Gitea for us to use.  Check out Gitea here: [https://gitea.io/en-us/](https://gitea.io/en-us/){:target="_blank"}
 
-   Let's install that first.  __Note:__ This assumes that you are using Code Ready Containers.  If you are not, then you will need to modify the PersistentVolumeClaim in this YAML file.
+Let's install that first.  __Note:__ This assumes that you are using Code Ready Containers.  If you are not, then you will need to modify the PersistentVolumeClaim in this YAML file.
+
+1. Create a Namespace for the Gitea server:
 
    ```bash
    oc new-project gitea
+   ```
+
+1. Create the Gitea server:
+
+   ```bash
    oc apply -f ~/tekton-tutorial/gitea-demo/gitea-server.yaml -n gitea
    ```
 
-   Create a edge terminated TLS route for Gitea
+1. Create a edge terminated TLS route for Gitea
 
    ```bash
    oc create route edge gitea --service=gitea-http -n gitea
    ```
 
-### Install the Gitea Tekton Interceptor:
+### Trust the Cluster Cert on the Gitea Route
 
-   __Note:__ Log into your OpenShift cluster as a cluster admin for this part.
-
-   If you are using CRC then do this:
+1. Grab the self-signed certificate from the Gitea Route:
 
    ```bash
-   crc console --credentials
+   ROUTE_CERT=$(openssl s_client -showcerts -connect $(oc get route gitea -o=jsonpath='{.spec.host}' -n gitea):443 </dev/null 2>/dev/null|openssl x509 -outform PEM | while read line; do echo "    $line"; done)
    ```
 
-   Use the password in the output to log into the cluster:
+1. Create a ConfigMap in the `openshift-config` namespace
 
    ```bash
-   crc login -u kubeadmin https://api.crc.testing:6443
+   cat << EOF | oc apply -n openshift-config -f -
+   apiVersion: v1
+   kind: ConfigMap
+   metadata:
+     name: demo-ca
+   data:
+     ca-bundle.crt: |
+       # CRC Route Cert
+   ${ROUTE_CERT}
+
+   EOF
    ```
 
-   Create the Interceptor:
+1. Patch the default Proxy instance for the OpenShift cluster:
+
+   __Note:__ This will cause Code Ready Containers to stop.  In a real cluster this would be a rolling restart of your nodes.
 
    ```bash
-   oc apply -f ~/tekton-tutorial/gitea-demo/gitea-interceptor.yaml -n openshift-pipelines
+   oc patch proxy cluster --type=merge --patch '{"spec":{"trustedCA":{"name":"demo-ca"}}}'
    ```
+
+1. Restart Code Ready Containers:
 
    ```bash
-   oc create route edge gitea-interceptor --service=gitea-interceptor -n openshift-pipelines
+   crc start
    ```
-
-__Note:__ If you are curious, the code for the Interceptor is here: [https://github.com/cgruver/gitea-interceptor](https://github.com/cgruver/gitea-interceptor)
 
 ### Configure Gitea
 
@@ -129,47 +154,55 @@ __Note:__ If you are curious, the code for the Interceptor is here: [https://git
 
    ![Add User to Team](images/gitea-add-team-member.png)
 
-## Trust the Cluster Cert on the Gitea Route
+1. Logout of Gitea.
 
-1. Grab the self-signed certificate from the Gitea Route:
+### Create Credentials For Your Gitea `devuser` Account
 
-   ```bash
-   ROUTE_CERT=$(openssl s_client -showcerts -connect $(oc get route gitea -o=jsonpath='{.spec.host}' -n gitea):443 </dev/null 2>/dev/null|openssl x509 -outform PEM | while read line; do echo "    $line"; done)
-   ```
+1. Log into the Gitea server with the userid `devuser` and password `password`
 
-1. Create a ConfigMap in the `openshift-config` namespace
+   ![Gitea Devuser](images/gitea-devuser-login.png)
 
-   ```bash
-   cat << EOF | oc apply -n openshift-config -f -
-   apiVersion: v1
-   kind: ConfigMap
-   metadata:
-     name: demo-ca
-   data:
-     ca-bundle.crt: |
-       # CRC Route Cert
-   ${ROUTE_CERT}
+1. You will be prompted to create a new password:
 
-   EOF
-   ```
+   ![Gitea Devuser](images/gitea-devuser-newpwd.png)
 
-1. Patch the default Proxy instance for the OpenShift cluster:
+1. Password successfully updated:
 
-   __Note:__ This will cause Code Ready Containers to stop.  In a real cluster this would be a rolling restart of your nodes.
+   ![Gitea Devuser](images/gitea-devuser-pwd-updated.png)
+
+### Install the Gitea Tekton Interceptor:
+
+1. __Note:__ You will need to be logged in as a cluster administrator for this step.
+
+   If you are using CRC then do this:
 
    ```bash
-   oc patch proxy cluster --type=merge --patch '{"spec":{"trustedCA":{"name":"demo-ca"}}}'
+   crc console --credentials
    ```
 
-1. Restart Code Ready Containers:
+   Use the password in the output to log into the cluster:
 
    ```bash
-   crc start
+   crc login -u kubeadmin https://api.crc.testing:6443
    ```
+
+1. Create the Interceptor:
+
+   ```bash
+   oc apply -f ~/tekton-tutorial/gitea-demo/gitea-interceptor.yaml -n openshift-pipelines
+   ```
+
+1. Create a edge terminated TLS route for the Interceptor:
+
+   ```bash
+   oc create route edge gitea-interceptor --service=gitea-interceptor -n openshift-pipelines
+   ```
+
+__Note:__ If you are curious, the code for the Interceptor is here: [https://github.com/cgruver/gitea-interceptor](https://github.com/cgruver/gitea-interceptor)
 
 ## Install The Pipeline Resources
 
-__Note:__ You will need to be logged in as a cluster administrator for this step
+__Note:__ You will need to be logged in as a cluster administrator for this step.
 
 1. Install the provided Templates into the `openshift` namespace:
 
@@ -183,10 +216,6 @@ __Note:__ You will need to be logged in as a cluster administrator for this step
    oc apply -f ~/tekton-tutorial/gitea-demo/pipeline-manifests/clusterTasks/
    ```
 
-1. Add a Pipeline to our demo app project
+Now, let's create a Quarkus application and deploy it!
 
-   ```bash
-   oc apply -f ~/tekton-tutorial/gitea-demo/pipeline-manifests/java-pipeline.yaml
-   ```
-
-__[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Demo](/tutorials/tekton-triggers-gitea-demo/)__
+__[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Quarkus Demo](/tutorials/tekton-triggers-gitea-demo/)__

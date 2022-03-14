@@ -95,4 +95,4 @@ This tutorial is broken up into chapters.  Each chapter builds on the previous o
 
 1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Cluster Setup](/tutorials/tekton-triggers-gitea-setup/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Demo](/tutorials/tekton-triggers-gitea-demo/){:target="_blank"}__
+1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Quarkus Demo](/tutorials/tekton-triggers-gitea-demo/){:target="_blank"}__
