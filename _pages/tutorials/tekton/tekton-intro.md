@@ -10,8 +10,6 @@ tags:
   - tekton triggers
   - Gitea Webhooks
 ---
-## __Note: Work-In-Progress__ Some sections are incomplete, and there are plenty of spelling and grammar errors
-
 ## Introduction To Tekton
 
 In this tutorial, I am going to summarize a lot of information, and then focus on running code examples.
@@ -49,22 +47,22 @@ You can find a lot of great information about OpenShift Pipelines here:
    If you are installing via Operator Hub, you need to log into your cluster as a cluster admin user.
 
    1. Navigate to `Operator Hub` in the left-hand nav menu:
-      
+
       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub.png)
-    
+
    1. Type `pipelines` into the search dialog:
 
       ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Search.png)
 
-    1. Select the `Red Hat OpenShift Pipelines` operator and select `Install`
+   1. Select the `Red Hat OpenShift Pipelines` operator and select `Install`
 
        ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Pipelines.png)
 
-    1. Select `Install`:
+   1. Select `Install`:
 
        ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Install-Pipelines.png)
 
-    1. Wait for the installation to complete:
+   1. Wait for the installation to complete:
 
        ![Operator](/_pages/tutorials/tekton/images/Operator-Hub-Installing.png)
 

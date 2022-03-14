@@ -120,9 +120,9 @@ tags:
    oc process openshift//create-rolling-replace-quarkus-fast-jar-app -p GIT_REPOSITORY=https://$(oc get route gitea -o=jsonpath='{.spec.host}' -n gitea)/demo/app-demo -p GIT_BRANCH=main | oc create -n app-demo -f -
    ```
 
-### Pause And Look At What Was Deployed:
+### Pause And Look At What Was Deployed
 
-The `create-rolling-replace-quarkus-fast-jar-app` Template created a TaskRun of the ClusterTask `create-trigger` that was installed as part of the manifests you installed. 
+The `create-rolling-replace-quarkus-fast-jar-app` Template created a TaskRun of the ClusterTask `create-trigger` that was installed as part of the manifests you installed.
 
 The TaskRun used the parameters that we passed in and created several resources for you:
 
@@ -150,7 +150,7 @@ The TaskRun used the parameters that we passed in and created several resources 
 
    ![Create Trigger](images/gitea-demo-webhook.png)
 
-At this point, we have: 
+At this point, we have:
 
 * A Git repo with code in it
 * An OpenShift project ready to receive a running application
@@ -264,3 +264,11 @@ We've got all of the basic elements of CI/CD...   So, let's run it!  Then we'll 
    git commit -m health
    git push
    ```
+
+1. Explore the new Deployment.
+
+   Note that there are now 2 replicas, and that the health and liveness probes are pointing to the SmallRye Health endpoints.
+
+## Now, let's Explore all the Pieces and Parts
+
+WIP - WIP - WIP
