@@ -10,11 +10,11 @@ categories:
 ---
 So...  It's Pi day...  I would be remiss if I did not give you a link to all of my Raspberry Pi pages...
 
-[OpenWRT With a Slice of Pi](/home-lab/bastion-pi/)
+[OpenWRT With a Slice of Pi](/home-lab/bastion-pi/){:target="_blank"}
 
-[Sonatype Nexus, With a Slice of Pi](/home-lab/nexus-pi/)
+[Sonatype Nexus, With a Slice of Pi](/home-lab/nexus-pi/){:target="_blank"}
 
-[Gitea - "Git with a cup of tea"... and a slice of Pi](/home-lab/gitea-with-pi/)
+[Gitea - "Git with a cup of tea"... and a slice of Pi](/home-lab/gitea-with-pi/){:target="_blank"}
 
 Yeah...  that's a tired pun...  sorry about that.
 
