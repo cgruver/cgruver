@@ -24,6 +24,8 @@ You can find a lot of great information about OpenShift Pipelines here:
   * [Tekton Pipelines](https://github.com/tektoncd/pipeline){:target="_blank"}
   * [Tekton Triggers](https://github.com/tektoncd/triggers){:target="_blank"}
 
+If you are familiar with Jenkins, but new to Tekton, this link may also help: [OpenShift - Migrating from Jenkins to Tekton](https://docs.openshift.com/container-platform/4.9/cicd/jenkins-tekton/migrating-from-jenkins-to-tekton.html){:target="_blank"}
+
 ### Pre-Requisites
 
 1. For the code examples, you will need access to an OpenShift cluster with the OpenShift Pipelines Operator installed.
