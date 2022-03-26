@@ -6,8 +6,8 @@ sitemap: true
 published: true
 tags:
   - git
-  - raspberry pi
   - openwrt
+  - gitea on raspberry pi
 ---
 ### Let's install Gitea on our Bastion host
 

@@ -15,8 +15,10 @@ lab-projects:
       url: /home-lab/lab-intro/
     - title: "KVM Based Lab"
       url: /home-lab/kvm-lab-intro/
-    - title: Bare Metal Lab
+    - title: "Bare Metal Lab"
       url: /home-lab/bare-metal-intro/
+    - title: "Bare Metal Single Node"
+      url: /home-lab/bare-metal-sno-introduction/
     - title: "Add Worker Nodes"
       url: /home-lab/worker-nodes/
     - title: "Add Ceph Storage Provider"

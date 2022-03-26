@@ -22,8 +22,10 @@ We'll start small, and grow from there:
 
 Of course...  small is relative.  So, at this point you can make a choice; virtualized infrastructure or bare-metal.
 
-Take a look at both, choose one, and carry on.
+Take a look at the links below, choose one, and carry on.
 
-1. __[KVM based OpenShift lab](/home-lab/kvm-lab-intro/)__
+1. __[KVM based OpenShift lab](/home-lab/kvm-lab-intro/){:target="_blank"}__
 
-1. __[Bare Metal OpenShift lab](/home-lab/bare-metal-intro/)__
+1. __[Bare Metal OpenShift lab](/home-lab/bare-metal-intro/){:target="_blank"}__
+
+1. __[Single Node OpenShift - Bare Metal](/home-lab/bare-metal-sno-introduction/){:target="_blank"}__
