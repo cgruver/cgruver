@@ -360,6 +360,9 @@ The second YAML file defines the infrastructure for provisioning an OpenShift Cl
 cluster:
   # Name of the cluster
   name: okd4
+  # CIDR Info for the Cluster
+  cluster-cidr: 10.100.0.0/14
+  service-cidr: 172.30.0.0/16
   # Location of the pull secret
   secret-file: /home/user/okd-lab/pull_secret.json
   # URL to the registry used to mirror the OpenShift install images
@@ -374,17 +377,23 @@ cluster:
   butane-spec-version: 1.3.0
   # The OpenShift release to install
   release: 4.8.0-0.okd-2021-11-14-052418
+  # The HA Proxy IP address to assign on the router
+  ingress-ip-addr: 10.11.12.2
 # KVM Hosts provisioned in the region
 kvm-hosts:
+    # The hostname to assign to the KVM host
   - host-name: kvm-host01
+    # The MAC Address of the machine
     mac-addr: 1c:69:7a:6f:ef:56
-    ip-octet: 200
+    # The IP Address to assign to the KVM host
+    ip-addr: 10.11.12.200
+    # The physical discs installed on the machine
     disks:
       disk1: nvme0n1
       disk2: NA
   - host-name: kvm-host02
     mac-addr: 1c:69:7a:6f:ba:21
-    ip-octet: 201
+    ip-addr: 10.11.12.201
     disks:
       disk1: nvme0n1
       disk2: NA
@@ -397,7 +406,7 @@ bootstrap:
   # The MAC address to assign to the bootstrap node if metal=true, auto-populated if metal=false
   mac-addr: "52:54:00:a1:b2:c3"
   # The IP address to assign to the bootstrap node
-  ip-addr: 10.11.11.49
+  ip-addr: 10.11.12.49
   # The boot device to use if metal=true, not needed if metal=false
   boot-dev: sda
   # The network bridge device to use if metal=true, not needed if metal=false
@@ -478,4 +487,12 @@ compute-nodes:
   mac-addr: "1c:69:fe:dc:ba:21"
   boot-dev: sda
   ip-addr: 10.11.12.72
+# Device and Node information for installing Ceph with the Rook Operator
+rook-ceph-nodes:
+- host: okd4-worker-0
+  disk: sdb
+- host: okd4-worker-1
+  disk: sdb
+- host: okd4-worker-2
+  disk: sdb
 ```
