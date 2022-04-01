@@ -2516,3 +2516,58 @@ wireless.wifinet2.network='lan'
 wireless.wifinet2.key='WelcomeToMyLab'
 
 ```
+
+### Install K8ssandra
+
+Label worker nodes for affinity:
+
+```bash
+for i in 0 1 2
+do
+  oc label nodes okd4-worker-${i}.${LAB_DOMAIN} "topology.kubernetes.io/zone=az-${i}"
+done
+```
+
+```bash
+cat << EOF > user-monitoring.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    enableUserWorkload: true
+EOF
+
+oc apply -f user-monitoring.yaml
+```
+
+```bash
+helm repo add k8ssandra https://helm.k8ssandra.io/stable
+helm repo update
+oc new-project k8ssandra
+helm install -n k8ssandra -f k8ssandra/k8ssandra.yaml k8ssandra k8ssandra/k8ssandra
+
+# Commented out, not necessary.
+# oc adm policy add-scc-to-user nonroot -z k8ssandra-cass-operator -n k8ssandra
+# oc adm policy add-scc-to-user nonroot -z k8ssandra-cleaner-k8ssandra -n k8ssandra
+# oc adm policy add-scc-to-user nonroot -z k8ssandra-reaper-operator -n k8ssandra
+# oc adm policy add-scc-to-user nonroot -z default -n k8ssandra
+
+# Stargate requires anyuid...  Need to fix this...
+oc adm policy add-scc-to-user anyuid -z default -n k8ssandra
+```
+
+```bash
+pip3 install cqlsh==6.0.0b4
+```
+
+```bash
+CQL_USER=$(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.username}" | base64 --decode)
+CQL_PWD=$(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.password}" | base64 --decode)
+oc port-forward svc/k8ssandra-dc1-stargate-service 8080 8081 8082 9042 &
+cqlsh -u ${CQL_USER} -p ${CQL_PWD}
+
+cqlsh -u $(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.username}" | base64 --decode) -p $(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.password}" | base64 --decode)
+```
