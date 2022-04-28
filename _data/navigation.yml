@@ -2,23 +2,19 @@
 main:
   - title: "About Me"
     url: /about/
-  - title: "Lab Projects"
-    url: /lab-projects/
   - title: "Lab CLI"
     url: /home-lab/labcli/
   - title: "Videos"
     url: /videos/
 lab-projects:
-  - title: "Home Lab Projects:"
+  - title: "Build Your Lab:"
     children:
     - title: "Home Lab Introduction"
       url: /home-lab/lab-intro/
-    - title: "KVM Based Lab"
-      url: /home-lab/kvm-lab-intro/
-    - title: "Bare Metal Lab"
-      url: /home-lab/bare-metal-intro/
-    - title: "Bare Metal Single Node"
-      url: /home-lab/bare-metal-sno-introduction/
+    - title: "Lab Gear"
+      url: /home-lab/lab-gear/
+  - title: "Expand Your Lab"
+    children:
     - title: "Add Worker Nodes"
       url: /home-lab/worker-nodes/
     - title: "Add Ceph Storage Provider"
@@ -29,20 +25,6 @@ lab-projects:
     children:
     - title: "OpenShift Pipelines (Tekton) - Tutorial"
       url: /tutorials/tekton-intro/
-  - title: "CI/CD Tekton Demo:"
-    children:
-    - title: "GitTea"
-      url: /home-lab/gitea-with-pi/
-    - title: "Install Tekton Pipelines"
-      url: /home-lab/tekton-install/  
-    - title: "Cluster Setup"
-      url: /home-lab/pipelines-cluster-setup/
-    - title: "Gitea Setup"
-      url: /home-lab/pipelines-gitea-setup/
-    - title: "OpenShift Project Setup"
-      url: /home-lab/pipelines-project-setup/
-    - title: "Quarkus Build & Deploy"
-      url: /home-lab/quarkus-gitea-webhook-demo/
   - title: "Random Projects:"
     children:
     - title: "CodeReady Containers for OKD"

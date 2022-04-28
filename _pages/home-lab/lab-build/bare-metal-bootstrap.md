@@ -68,17 +68,17 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
 
    1. Click on the wifi icon in the top right of your screen.
 
-      ![Network Preferences](/_pages/home-lab/bare-metal/images/network-preferences.png)
+      ![Network Preferences](images/network-preferences.png)
 
    1. In the bottom left of the pop up, select the menu dropdown and click on `Set Service Order`
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/set-service-order.png)
+      ![Set Service Order](images/set-service-order.png)
 
    1. Drag `WiFi` to the top.
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/service-order.png)
+      ![Set Service Order](images/service-order.png)
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/wifi-first.png)
+      ![Set Service Order](images/wifi-first.png)
 
    1. Click `OK` then click `Apply`
 
@@ -105,7 +105,3 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
    sudo make PREFIX=/opt/vde install
    sudo make install BRIDGED=${BOOTSTRAP_BRIDGE}
    ```
-
-1. Now, you are ready to configure your edge router.
-
-   __[Edge Router](/home-lab/edge-router/)__

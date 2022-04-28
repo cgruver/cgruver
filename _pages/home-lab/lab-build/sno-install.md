@@ -7,6 +7,111 @@ tags:
   - bare metal okd install
   - bare metal kubernetes single node cluster
 ---
+We're going to install an OpenShift OKD SNO cluster on a bare metal server.  The bootstrap node will run on your workstation.  This particular tutorial is biased towards a MacBook workstation.  However, you can easily modify this to run the bootstrap node on Fedora or other Linux flavor.
+
+There is also a feature for installing SNO with "bootstrap-in-place" which does not require a bootstrap node.  It is not quite ready for our purposes yet, so we're still going to use a bootstrap node to initiate the install.
+
+Look for a future post with Bootstrap In Place.
+
+1. Install some tools on your workstation:
+
+   ```bash
+   brew install qemu autoconf automake wolfssl
+   ```
+
+
+
+### Set Up Your Workstation for Bootstrap
+
+1. Now, we need to set up our MacBook to run the bootstrap node:
+
+1. Plug in your USB-C network adapter and identify the device:
+
+   1. Run this to list all of your devices:
+
+      ```bash
+      networksetup -listallhardwareports
+      ```
+
+   1. Look for the USB entry:
+
+      Mine looked like this:
+
+      ```bash
+      Hardware Port: USB 10/100/1G/2.5G LAN
+      Device: en6
+      Ethernet Address: 00:e0:4c:84:ca:aa
+      ```
+
+   1. Note the `Device` name, and set a variable:
+
+      ```bash
+      BOOTSTRAP_BRIDGE=en6
+      ```
+
+   1. Add this device to your lab configuration:
+
+      ```bash
+      yq e ".bootstrap.bridge-dev = \"${BOOTSTRAP_BRIDGE}\"" -i ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+      ```
+
+      You should see an entry in `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` for the bridge-dev now:
+
+      ```yaml
+      ...
+        butane-spec-version: 1.3.0
+        release: ${OKD_VERSION}
+      bootstrap:
+        metal: true
+        mac-addr: "52:54:00:a1:b2:c3"
+        boot-dev: sda
+        ...
+        bridge-dev: en6
+        ...
+      ```
+
+1. Set your WiFi to be the primary internet link:
+
+   1. Click on the wifi icon in the top right of your screen.
+
+      ![Network Preferences](/_pages/home-lab/bare-metal/images/network-preferences.png)
+
+   1. In the bottom left of the pop up, select the menu dropdown and click on `Set Service Order`
+
+      ![Set Service Order](/_pages/home-lab/bare-metal/images/set-service-order.png)
+
+   1. Drag `WiFi` to the top.
+
+      ![Set Service Order](/_pages/home-lab/bare-metal/images/service-order.png)
+
+      ![Set Service Order](/_pages/home-lab/bare-metal/images/wifi-first.png)
+
+   1. Click `OK` then click `Apply`
+
+1. Now, install VDE for bridged networking:
+
+   ```bash
+   mkdir -p ${OKD_LAB_PATH}/work-dir
+   cd ${OKD_LAB_PATH}/work-dir
+   git clone https://github.com/virtualsquare/vde-2.git
+   cd vde-2
+   autoreconf -fis
+   ./configure --prefix=/opt/vde
+   make
+   sudo make install
+   ```
+
+1. Finally, set up the network bridge device:
+
+   ```bash
+   cd ${OKD_LAB_PATH}/work-dir
+   git clone https://github.com/lima-vm/vde_vmnet
+   cd vde_vmnet
+   make PREFIX=/opt/vde
+   sudo make PREFIX=/opt/vde install
+   sudo make install BRIDGED=${BOOTSTRAP_BRIDGE}
+   ```
+
 ### Preparing for the Installation
 
 Since we are simulating a secure data center environment, let's deny internet access to our internal network:
@@ -16,67 +121,13 @@ Since we are simulating a secure data center environment, let's deny internet ac
    There is a function that we added to our shell when we set up the workstation.  It allows you to switch between different lab domain contexts so that you can run multiple clusters with potentially different releases of OpenShift.
 
    ```bash
-   labctx sno
+   labctx dev
    ```
 
 1. Add a firewall rule to block internet bound traffic from the internal router:
 
    ```bash
    labcli --disconnect
-   ```
-
-### Create OpenShift image mirror:
-
-From your workstation, do the following:
-
-
-1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
-
-   ```bash
-   labcli --pull-secret
-   ```
-
-1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
-
-   ```bash
-   labcli --mirror 
-   ```
-
-   __Note:__ If you see X509 errors, and you are on a MacBook, you might have to open KeyChain and trust the Nexus cert.  Then run the above command again.
-
-   The final output should look something like:
-
-   ```bash
-   Success
-   Update image:  nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
-   Mirror prefix: nexus.my.awesome.lab:5001/okd
-   Mirror prefix: nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
-
-   To use the new mirrored repository to install, add the following section to the install-config.yaml:
-
-   imageContentSources:
-   - mirrors:
-     - nexus.my.awesome.lab:5001/okd
-     source: quay.io/openshift/okd
-   - mirrors:
-     - nexus.my.awesome.lab:5001/okd
-     source: quay.io/openshift/okd-content
-
-
-   To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
-
-   apiVersion: operator.openshift.io/v1alpha1
-   kind: ImageContentSourcePolicy
-   metadata:
-     name: example
-   spec:
-     repositoryDigestMirrors:
-     - mirrors:
-       - nexus.my.awesome.lab:5001/okd
-       source: quay.io/openshift/okd
-     - mirrors:
-       - nexus.my.awesome.lab:5001/okd
-       source: quay.io/openshift/okd-content    
    ```
 
 ### Create the OpenShift install manifests, Fedora CoreOS ignition files, and the iPXE boot files
@@ -168,7 +219,7 @@ From your workstation, do the following:
    You will see the following, when the bootstrap is complete:
 
    ```bash
-   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4-snc.sno.my.awesome.lab:6443... 
+   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4-snc.dev.my.awesome.lab:6443... 
    DEBUG Still waiting for the Kubernetes API: an error on the server ("") has prevented the request from succeeding 
    INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
    INFO Waiting up to 30m0s for bootstrapping to complete... 
@@ -216,7 +267,7 @@ From your workstation, do the following:
    DEBUG OpenShift console route is admitted          
    INFO Install complete!                            
    INFO To access the cluster as the system:admin user when using 'oc', run 'export KUBECONFIG=/Users/yourhome/okd-lab/okd-install-dir/auth/kubeconfig' 
-   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4-snc.sno.my.awesome.lab 
+   INFO Access the OpenShift web-console here: https://console-openshift-console.apps.okd4-snc.dev.my.awesome.lab 
    INFO Login to the console with user: "kubeadmin", and password: "AhnsQ-CGRqg-gHu2h-rYZw3" 
    DEBUG Time elapsed per stage:                      
    DEBUG Cluster Operators: 13m49s                    
@@ -257,7 +308,7 @@ From your workstation, do the following:
    __If you ever forget the password for your cluster admin account, you can access your cluster with the `kubeadmin` token that we saved in the file:__ `${OKD_LAB_PATH}/lab-config/okd4-snc.${SUB_DOMAIN}.${LAB_DOMAIN}/kubeconfig`
 
    ```bash
-   labctx sno
+   labctx dev
    export KUBECONFIG=${KUBE_INIT_CONFIG}
    ```
 
@@ -298,7 +349,7 @@ OpenShift supports multiple authentication methods, from enterprise SSO to very 
    oc delete secrets kubeadmin -n kube-system
    ```
 
-1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4-snc.sno.my.awesome.lab`
+1. Now you can point your browser to the url listed at the completion of install: i.e. `https://console-openshift-console.apps.okd4-snc.dev.my.awesome.lab`
 
    ```bash
    labcli --console

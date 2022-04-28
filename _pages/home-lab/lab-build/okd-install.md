@@ -1,5 +1,5 @@
 ---
-permalink: /home-lab/install-okd/
+permalink: /home-lab/install-okd-kvm/
 title: Installing OpenShift
 description: Installing UPI OpenShift on Intel NUC with OKD
 tags:
@@ -8,26 +8,95 @@ tags:
   - kubernetes install
   - kvm
 ---
+### Create OpenShift image mirror
+
+From your workstation, do the following:
+
+1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
+
+   ```bash
+   labcli --pull-secret
+   ```
+
+1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
+
+   ```bash
+   labcli --mirror 
+   ```
+
+   __Note:__ If you see X509 errors, and you are on a MacBook, you might have to open KeyChain and trust the Nexus cert.  Then run the above command again.
+
+   The final output should look something like:
+
+   ```bash
+   Success
+   Update image:  nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
+   Mirror prefix: nexus.my.awesome.lab:5001/okd
+   Mirror prefix: nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
+
+   To use the new mirrored repository to install, add the following section to the install-config.yaml:
+
+   imageContentSources:
+   - mirrors:
+     - nexus.my.awesome.lab:5001/okd
+     source: quay.io/openshift/okd
+   - mirrors:
+     - nexus.my.awesome.lab:5001/okd
+     source: quay.io/openshift/okd-content
+
+
+   To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
+
+   apiVersion: operator.openshift.io/v1alpha1
+   kind: ImageContentSourcePolicy
+   metadata:
+     name: example
+   spec:
+     repositoryDigestMirrors:
+     - mirrors:
+       - nexus.my.awesome.lab:5001/okd
+       source: quay.io/openshift/okd
+     - mirrors:
+       - nexus.my.awesome.lab:5001/okd
+       source: quay.io/openshift/okd-content    
+   ```
 
 ## We are now ready to fire up our OpenShift cluster
 
-1. Select the Lab subdomain that you want to work with:
+1. Deploy the configuration in preparation for the install:
 
    ```bash
-   labctx
+   labcli --deploy -c -d=dev
    ```
 
-1. Start the nodes:
+1. Disconnect the lab domain from the internet:
 
    ```bash
-   startNodes.sh -b -d=${SUB_DOMAIN}
-   startNodes.sh -m -d=${SUB_DOMAIN}
+   labcli --disconnect -d=dev
    ```
+
+1. Start the bootstrap node:
+
+   ```bash
+   labcli --start -b -d=dev
+   ```
+
+1. __KVM Based Control-Plane:__
+
+   Start the control-plane nodes:
+
+   ```bash
+   labcli --start -m -d=dev
+   ```
+
+1. __Bare Metal Cluster or SNO:__
+
+   Hit the power button on the control-plane NUCs
 
 1. Monitor the bootstrap process:
 
    ```bash
-   openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for bootstrap-complete --log-level debug
+   labcli --monitor -b -d=dev
    ```
 
    __Note:__ This command does not affect to install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
@@ -56,7 +125,7 @@ tags:
 1. When the bootstrap process is complete, remove the bootstrap node:
 
    ```bash
-   destroyNodes.sh -b -d=${SUB_DOMAIN}
+   labcli --destroy -b -d=dev
    ```
 
    This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
@@ -64,7 +133,7 @@ tags:
 1. Monitor the installation process:
 
    ```bash
-   openshift-install --dir=${OKD_LAB_PATH}/okd-install-dir wait-for install-complete --log-level debug
+   labcli --monitor -i -d=dev
    ```
 
 1. Fix for a stuck MCO
@@ -74,7 +143,7 @@ tags:
    See: [https://github.com/openshift/okd/issues/963](https://github.com/openshift/okd/issues/963)
 
    ```bash
-   export KUBECONFIG="${OKD_LAB_PATH}/okd-install-dir/auth/kubeconfig"
+   labenv -k
    oc delete mc 99-master-okd-extensions 99-okd-master-disable-mitigations
    ```
 
@@ -94,6 +163,28 @@ tags:
    DEBUG Time elapsed per stage:                      
    DEBUG Cluster Operators: 13m49s                    
    INFO Time elapsed: 13m49s
+   ```
+
+1. Post Install:
+
+   ```bash
+   labcli --post -d=dev
+   ```
+
+1. Add Users:
+
+   Add a cluster-admin user:
+
+   __Note:__ You can ignore the warning: `Warning: User 'admin' not found`
+
+   ```bash
+   labcli --user -i -a -u=admin -d=dev
+   ```
+
+   Add a non-privileged user:
+
+   ```bash
+   labcli --user -u=devuser -d=dev
    ```
 
 __[OpenShift Post Install Tasks](/home-lab/post-install-okd/)__

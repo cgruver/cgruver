@@ -10,26 +10,6 @@ tags:
   - mv1000
   - brume
 ---
-We are now going to set up the following capabilities for your OpenShift home lab:
-
-* OpenWRT Router #1 (GL.iNet GL-MV1000W Travel Router)
-  * Edge internet access
-  * Edge DNS services
-  * Edge Firewall
-  * Wireless access to your lab
-* OpenWRT Router #2 (GL.iNet GL-MV1000 Travel Router)
-  * PXE Boot for bare metal hosts and for OpenShift nodes
-  * Internal Lab DNS Server
-  * Internal Firewall
-  * HA-Proxy Network Load Balancer for the OpenShift cluster
-* OpenWRT Bastion Server (Raspberry Pi 4b 8GB)
-  * CentOS Stream repository mirror
-  * Sonatype Nexus - Registry and Artifact Repository
-  * Gitea - Source Code Management
-
-The network topology will look like this illustration:
-
-![Network topology](/_pages/home-lab/images/NetworkTopology.png)
 
 All of these devices will be running the OpenWRT linux distribution. Find out more here: [https://openwrt.org](https://openwrt.org)
 
@@ -83,7 +63,7 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
    labcli --router -s -e
    ```
 
-   __Note:__   If you want to see the details of what the init and config scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/)
+   __Note:__   If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/)
 
 ### Configure the Internal Network Router
 
@@ -100,7 +80,7 @@ This configuration is very similar to setting up the edge router.
 1. Initialize the router configuration:
 
    ```bash
-   labcli --router -i -d=sno
+   labcli --router -i -d=dev
    ```
 
    When the configuration is complete, the router will reboot.
@@ -114,18 +94,18 @@ This configuration is very similar to setting up the edge router.
    Ensure that you can connect to the router:
 
    ```bash
-   ping router.sno.my.awesome.lab
+   ping router.dev.my.awesome.lab
    ```
 
    Now, complete the router configuration:
 
    ```bash
-   labcli --router -s -d=sno
+   labcli --router -s -d=dev
    ```
 
    When the configuration is complete, the router will reboot.
 
-   __Note:__  If you want to see the details of what the init and config scripts are doing, I have a page with the manual instructions here: [Internal Network Router Configuration](/home-lab/internal-router/) 
+   __Note:__  If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Internal Network Router Configuration](/home-lab/internal-router/)
 
 ### Configure the Raspberry Pi
 
@@ -167,6 +147,12 @@ We are going to use the edge router that we set up previously to configure the O
    labcli --pi -n
    labcli --pi -g
    ```
+
+   __Note:__  If you want to see the details of what labcli scripts are doing, I have pages with the manual instructions here:
+
+   [Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT](/home-lab/nexus-pi/)
+
+   [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/)
 
 1. Nexus will take a while to start for the first time.
 
@@ -331,6 +317,10 @@ The `?` in the top right hand corner of the Nexus screen will take you to their 
 
       ![Nexus User](images/NexusUser.png)
 
-We're now ready to start the installation of SNO.
+We're now ready to start the installation of OpenShift.
 
-[Deploy a Single Node Cluster](/home-lab/bare-metal-install-sno/)
+* Install KVM Based OpenShift
+
+* [Install Single Node OpenShift](/home-lab/bare-metal-install-sno/)
+
+* [Install Bare Metal OpenShift](/home-lab/bare-metal-install-okd/)
