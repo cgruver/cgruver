@@ -77,6 +77,25 @@ Let's install that first.  __Note:__ This assumes that you are using Code Ready 
    oc patch proxy cluster --type=merge --patch '{"spec":{"trustedCA":{"name":"demo-ca"}}}'
    ```
 
+1. Wait for Code Ready Containers to shutdown:
+
+   Run the following command:
+
+   ```bash
+   crc status
+   ```
+
+   Wait until it indicates that the CRC VM has stopped.
+
+   ```bash
+   CRC VM:          Stopped
+   OpenShift:       Stopped (v4.10.9)
+   Podman:          
+   Disk Usage:      0B of 0B (Inside the CRC VM)
+   Cache Usage:     17.6GB
+   Cache Directory: /Users/charrogruver/.crc/cache
+   ```
+
 1. Restart Code Ready Containers:
 
    ```bash
@@ -102,7 +121,7 @@ Let's install that first.  __Note:__ This assumes that you are using Code Ready 
 
    You will be prompted to change the admin user's password.
 
-   __Note:__ You also have a developer user, `devuser` who's initial password is also `password`.
+   __Note:__ You also have a developer user, `developer` who's initial password is also `password`.
 
 1. Select `Site Administration` from the drop down menu in the top right corner:
 
@@ -136,7 +155,7 @@ Let's install that first.  __Note:__ This assumes that you are using Code Ready 
 
    ![Owners Team](images/gitea-demo-organization.png)
 
-1. Add your `devuser` account as a Team member:
+1. Add your `developer` account as a Team member:
 
    ![Add Dev User](images/gitea-add-devuser-to-team.png)
 
@@ -156,9 +175,9 @@ Let's install that first.  __Note:__ This assumes that you are using Code Ready 
 
 1. Logout of Gitea.
 
-### Create Credentials For Your Gitea `devuser` Account
+### Create Credentials For Your Gitea `developer` Account
 
-1. Log into the Gitea server with the userid `devuser` and password `password`
+1. Log into the Gitea server with the userid `developer` and password `password`
 
    ![Gitea Devuser](images/gitea-devuser-login.png)
 

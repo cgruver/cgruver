@@ -83,16 +83,18 @@ If you are familiar with Jenkins, but new to Tekton, this link may also help: [O
 
 This tutorial is broken up into chapters.  Each chapter builds on the previous one, so please follow them in order.
 
-1. __[OpenShift Pipelines (Tekton) - Overview](/tutorials/tekton-overview/){:target="_blank"}__
+1. __[Overview](/tutorials/tekton-overview/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Basics - Tasks](/tutorials/tekton-basics-tasks/){:target="_blank"}__
+1. __[Basics - Tasks](/tutorials/tekton-basics-tasks/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Basics - Pipelines](/tutorials/tekton-basics-pipelines/){:target="_blank"}__
+1. __[Basics - Pipelines](/tutorials/tekton-basics-pipelines/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Console](/tutorials/openshift-pipelines-console/){:target="_blank"}__
+1. __[Console](/tutorials/openshift-pipelines-console/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Triggers Basics](/tutorials/tekton-triggers-basics/){:target="_blank"}__
+1. __[Triggers Basics](/tutorials/tekton-triggers-basics/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Cluster Setup](/tutorials/tekton-triggers-gitea-setup/){:target="_blank"}__
+1. __[Triggers with a cup of Gitea - Cluster Setup](/tutorials/tekton-triggers-gitea-setup/){:target="_blank"}__
 
-1. __[OpenShift Pipelines (Tekton) - Triggers with a cup of Gitea - Quarkus Demo](/tutorials/tekton-triggers-gitea-demo/){:target="_blank"}__
+1. __[Triggers with a cup of Gitea - Quarkus Demo](/tutorials/tekton-triggers-gitea-demo/){:target="_blank"}__
+
+1. __[Triggers with a cup of Gitea - Branch Demo](/tutorials/tekton-triggers-gitea-demo-2/){:target="_blank"}__

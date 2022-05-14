@@ -13,7 +13,7 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
 
 1. Install Qemu and some dev tools.
 
-   _Note:_ You will likely have to install Xcode CLI tools. 
+   _Note:_ You will likely have to install Xcode CLI tools.
 
    ```bash
    brew install qemu autoconf automake wolfssl
@@ -105,3 +105,11 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
    sudo make PREFIX=/opt/vde install
    sudo make install BRIDGED=${BOOTSTRAP_BRIDGE}
    ```
+
+### Resetting The Bridge Device
+
+It will be necessary to reset the bridge device from time to time after a reboot, or unplugging the NIC.
+
+```bash
+labcli --reset-nic
+```

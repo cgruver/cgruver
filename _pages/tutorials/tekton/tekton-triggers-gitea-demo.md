@@ -112,7 +112,7 @@ tags:
    git push --set-upstream origin main
    ```
 
-   When prompted, enter the credentials that you created for your gitea `devuser`
+   When prompted, enter the credentials that you created for your gitea user: `developer`
 
 1. Create the Tekton resources for your new application:
 

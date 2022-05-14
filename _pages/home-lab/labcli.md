@@ -21,8 +21,7 @@ You can get the utilities from: [https://github.com/cgruver/kamarotos](https://g
 1. Prepare your lab working directory:
 
    ```bash
-   export OKD_LAB_PATH=${HOME}/okd-lab
-   mkdir ${OKD_LAB_PATH}
+   mkdir ${HOME}/okd-lab
    ```
 
 1. Install the `yq` command for YAML file manipulation.  My lab utilities are dependent on it:
@@ -34,30 +33,26 @@ You can get the utilities from: [https://github.com/cgruver/kamarotos](https://g
 1. Clone the utiliy code repo:
 
    ```bash
-   git clone https://github.com/cgruver/kamarotos.git ${OKD_LAB_PATH}/kamarotos
+   git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
    ```
 
 1. Install the utility scripts:
 
    ```bash
-   cp ${OKD_LAB_PATH}/kamarotos/bin/* ${OKD_LAB_PATH}/bin
-   chmod 700 ${OKD_LAB_PATH}/bin/*
+   cp ${HOME}/okd-lab/kamarotos/bin/* ${HOME}/okd-lab/bin
+   chmod 700 ${HOME}/okd-lab/bin/*
    ```
 
 1. Edit your shell `rc` (`.bashrc` or `.zshrc`) file to enable the utilities in the path, and load that lab functions into the shell:
 
    ```bash
-   export OKD_LAB_PATH=${HOME}/okd-lab
-   export PATH=$PATH:${OKD_LAB_PATH}/bin
-   export LAB_CONFIG_FILE=${OKD_LAB_PATH}/lab-config/lab.yaml
-   . ${OKD_LAB_PATH}/bin/labctx.env
+   export LAB_CONFIG_FILE=${HOME}/okd-lab/lab-config/lab.yaml
+   . ${HOME}/okd-lab/bin/labEnv.sh
    ```
 
 1. Log off and back on to set the variables.
 
-## Lab CLI Documentation: `labctx` & `labcli`
-
-## `labctx`
+## `labctx` function
 
 `labctx` is used to set local environment variables in your shell that the `labcli` command uses to interact with a given domain in your lab.
 
@@ -101,6 +96,18 @@ By passing an argument indicating the domain that you want to manage, `labctx` w
 ```bash
 labctx dc2
 ```
+
+## `labenv` function
+
+The `labenv` function is used to set or unset the appropriate shell environment variables for your lab.  It has four subcommands.
+
+`labenv [-e | -k | -c] [-d=lab-domain]`
+
+1. `labenv -e`
+
+1. `labenv -k`
+
+1. `labenv -c`
 
 ## `labcli`
 

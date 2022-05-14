@@ -187,4 +187,46 @@ From your workstation, do the following:
    labcli --user -u=devuser -d=dev
    ```
 
-__[OpenShift Post Install Tasks](/home-lab/post-install-okd/)__
+### Add Worker Nodes:
+
+1. Add Worker nodes:
+
+   ```bash
+   labcli --deploy -w
+   ```
+
+   KVM:
+
+   ```bash
+   labcli --start -w
+   ```
+
+   ```bash
+   labcli --csr
+   ```
+
+1. Configure control-plane nodes as Infrastructure nodes:
+
+   ```bash
+   labcli --config-infra
+   ```
+
+### Add Ceph Storage Provisioner
+
+1. Mirror Ceph Images
+
+   ```bash
+   labcli --ceph -m
+   ```
+
+1. Install Rook Operator with Ceph cluster:
+
+   ```bash
+   labcli --ceph -i
+   ```
+
+1. Configure the internal image registry for a Ceph PVC
+
+   ```bash
+   labcli --ceph -r
+   ```
