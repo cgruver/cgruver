@@ -185,10 +185,6 @@ Let's install that first.  __Note:__ This assumes that you are using Code Ready 
 
    ![Gitea Devuser](images/gitea-devuser-newpwd.png)
 
-1. Password successfully updated:
-
-   ![Gitea Devuser](images/gitea-devuser-pwd-updated.png)
-
 ### Install the Gitea Tekton Interceptor:
 
 1. __Note:__ You will need to be logged in as a cluster administrator for this step.

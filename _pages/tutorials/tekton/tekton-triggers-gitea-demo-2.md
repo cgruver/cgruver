@@ -13,31 +13,103 @@ tags:
 
 __[Triggers with a cup of Gitea - Cluster Setup](/tutorials/tekton-triggers-gitea-setup/){:target="_blank"}__
 
-## Create a Kubernetes Namespace from a Git branch creation webhook event
+## Set Up The Namespace Provisioner
 
-```bash
-oc new-project namespace-provisioner
-```
+1. Create a Namespace
 
-```bash
-oc create sa provisioner -n namespace-provisioner
-oc adm policy add-cluster-role-to-user self-provisioner -z provisioner -n namespace-provisioner
-```
+   ```bash
+   oc new-project namespace-provisioner
+   ```
 
-```bash
-cat < EOF | oc apply -n namespace-provisioner -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trusted-ca
-  labels:
-    config.openshift.io/inject-trusted-cabundle: 'true'
-EOF
-```
+1. Create a service account with self-provisioner privileges
 
-```bash
-oc apply -f ~/tekton-tutorial/gitea-demo/namespace-provisioner/
-```
+   ```bash
+   oc create sa provisioner -n namespace-provisioner
+   oc adm policy add-cluster-role-to-user self-provisioner -z provisioner -n namespace-provisioner
+   ```
+
+1. Create a ConfigMap for the CA bundle that includes our Gitea server
+
+   ```bash
+   cat << EOF | oc apply -n namespace-provisioner -f -
+   apiVersion: v1
+   kind: ConfigMap
+   metadata:
+     name: trusted-ca
+     labels:
+       config.openshift.io/inject-trusted-cabundle: 'true'
+   EOF
+   ```
+
+1. Create the Tekton Task and Trigger objects
+
+   ```bash
+   oc apply -f ~/tekton-tutorial/gitea-demo/namespace-provisioner/ -n namespace-provisioner
+   ```
+
+1. Expose the Trigger via a Secured Route
+
+   ```bash
+   SVC_NAME=$(oc get el ns-prov-trigger-listener -o=jsonpath='{.status.configuration.generatedName}')
+   oc create route edge ${SVC_NAME} --service=${SVC_NAME}
+   ```
+
+## Create the Gitea Webhook
+
+   ```bash
+   echo "https://$(oc get route ${SVC_NAME} -o=jsonpath='{.spec.host}')"
+   ```
+
+1. ![Gitea Devuser](images/gitea-ns-prov-login.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-select-organization.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-select-settings.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-select-add-webhook.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-create-webhook.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-add-webhook.png)
+
+1. ![Gitea Devuser](images/gitea-ns-prov-webhook-added.png)
+
+### Create A Quarkus Application
+
+1. Create a basic Quarkus REST service:
+
+   We're using the Quarkus CLI for this step.  Check it out here: [https://quarkus.io/guides/cli-tooling](https://quarkus.io/guides/cli-tooling)
+
+   ```bash
+   quarkus create app --maven --java=11 --no-wrapper --package-name=fun.is.quarkus.demo fun.is.quarkus:app-demo:0.1
+   ```
+
+1. Initialize a git repository for the demo app code:
+
+   ```bash
+   cd app-demo
+   git init -b main
+   git add .
+   git commit -m "initial commit"
+   ```
+
+1. Add the Gitea server as a remote origin:
+
+   ```bash
+   git remote add origin https://$(oc get route gitea -o=jsonpath='{.spec.host}' -n gitea)/demo/app-demo
+   ```
+
+1. Push the demo code to our Gitea instance:
+
+   ```bash
+   GIT_SSL_NO_VERIFY=true git push --set-upstream origin main
+   ```
+
+   When prompted, enter the credentials that you created for your gitea user: `developer`
+
+
+
+
 
 ```json
 {
