@@ -127,7 +127,7 @@ We are going to use the edge router that we set up previously to configure the O
 
 1. Power on the Pi.
 
-1. Ensure that they Pi is on line:
+1. Ensure that the Pi is on line:
 
    ```bash
    ping bastion.my.awesome.lab
