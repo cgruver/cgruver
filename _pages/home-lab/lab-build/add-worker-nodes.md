@@ -3,6 +3,31 @@ title: Add Worker Nodes
 permalink: /home-lab/add-worker-nodes/
 description: Add worker nodes to OpenShift cluster with OKD
 ---
+## Refactor In Progress To Use The Lab CLI - The Original Instructions are Below
+
+1. Add Worker nodes:
+
+   ```bash
+   labcli --deploy -w
+   ```
+
+   KVM:
+
+   ```bash
+   labcli --start -w
+   ```
+
+   ```bash
+   labcli --csr
+   ```
+
+1. Configure control-plane nodes as Infrastructure nodes:
+
+   ```bash
+   labcli --config-infra
+   ```
+
+## Original Instructions
 
 You can add KVM or Bare Metal worker nodes to your cluster.  It's also possible to mix and match them.
 
@@ -321,25 +346,3 @@ Since we now have three dedicated worker nodes for our applications, let's move 
    ```
 
 ### That's it!  We now have three more nodes in our cluster.
-
-1. Add Worker nodes:
-
-   ```bash
-   labcli --deploy -w
-   ```
-
-   KVM:
-
-   ```bash
-   labcli --start -w
-   ```
-
-   ```bash
-   labcli --csr
-   ```
-
-1. Configure control-plane nodes as Infrastructure nodes:
-
-   ```bash
-   labcli --config-infra
-   ```

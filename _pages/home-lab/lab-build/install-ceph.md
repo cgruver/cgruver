@@ -7,7 +7,27 @@ tags:
   - disconnected install
   - podman on openwrt
 ---
-## Prerequisites
+## Refactor In Progress To Use The Lab CLI - The Original Instructions are Below
+
+1. Mirror Ceph Images
+
+   ```bash
+   labcli --ceph -m
+   ```
+
+1. Install Rook Operator with Ceph cluster:
+
+   ```bash
+   labcli --ceph -i
+   ```
+
+1. Configure the internal image registry for a Ceph PVC
+
+   ```bash
+   labcli --ceph -r
+   ```
+
+## Original Instructions
 
 Ideally, you need a full cluster for this deployment; 3 master and 3 worker nodes.  Additionally, you need to give the worker nodes a second disk that will be used by Ceph.  If you followed the guide for adding working nodes here; [Add Worker Nodes](/home-lab/worker-nodes/), then you are good to proceed.  If not, you will need to recreate your cluster and add a second drive to the three dual role, master/worker nodes.
 
@@ -227,22 +247,3 @@ The first thing that we are going to do is mirror the Rook Operator and Ceph Sto
    ```
 
 __You just created a Ceph cluster and bound your image registry to a Persistent Volume!__
-
-
-1. Mirror Ceph Images
-
-   ```bash
-   labcli --ceph -m
-   ```
-
-1. Install Rook Operator with Ceph cluster:
-
-   ```bash
-   labcli --ceph -i
-   ```
-
-1. Configure the internal image registry for a Ceph PVC
-
-   ```bash
-   labcli --ceph -r
-   ```
