@@ -1,5 +1,5 @@
 ---
-permalink: /home-lab/install-okd-kvm/
+permalink: /home-lab/install-okd-lab/
 title: Installing OpenShift
 description: Installing UPI OpenShift on Intel NUC with OKD
 tags:
@@ -8,59 +8,6 @@ tags:
   - kubernetes install
   - kvm
 ---
-### Create OpenShift image mirror
-
-From your workstation, do the following:
-
-1. Create the pull secret for Nexus.  Use the username and password that we created with admin authority on the `okd` repository that we created.
-
-   ```bash
-   labcli --pull-secret
-   ```
-
-1. Now mirror the OKD images into the local Nexus: __This can take a while.  Be patient__
-
-   ```bash
-   labcli --mirror 
-   ```
-
-   __Note:__ If you see X509 errors, and you are on a MacBook, you might have to open KeyChain and trust the Nexus cert.  Then run the above command again.
-
-   The final output should look something like:
-
-   ```bash
-   Success
-   Update image:  nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
-   Mirror prefix: nexus.my.awesome.lab:5001/okd
-   Mirror prefix: nexus.my.awesome.lab:5001/okd:4.9.0-0.okd-2021-12-12-025847
-
-   To use the new mirrored repository to install, add the following section to the install-config.yaml:
-
-   imageContentSources:
-   - mirrors:
-     - nexus.my.awesome.lab:5001/okd
-     source: quay.io/openshift/okd
-   - mirrors:
-     - nexus.my.awesome.lab:5001/okd
-     source: quay.io/openshift/okd-content
-
-
-   To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
-
-   apiVersion: operator.openshift.io/v1alpha1
-   kind: ImageContentSourcePolicy
-   metadata:
-     name: example
-   spec:
-     repositoryDigestMirrors:
-     - mirrors:
-       - nexus.my.awesome.lab:5001/okd
-       source: quay.io/openshift/okd
-     - mirrors:
-       - nexus.my.awesome.lab:5001/okd
-       source: quay.io/openshift/okd-content    
-   ```
-
 ## We are now ready to fire up our OpenShift cluster
 
 1. Deploy the configuration in preparation for the install:
@@ -187,46 +134,12 @@ From your workstation, do the following:
    labcli --user -u=devuser -d=dev
    ```
 
-### Add Worker Nodes:
+## Grow Your Lab
 
-1. Add Worker nodes:
+### Add Worker Nodes
 
-   ```bash
-   labcli --deploy -w
-   ```
-
-   KVM:
-
-   ```bash
-   labcli --start -w
-   ```
-
-   ```bash
-   labcli --csr
-   ```
-
-1. Configure control-plane nodes as Infrastructure nodes:
-
-   ```bash
-   labcli --config-infra
-   ```
+[Add worker nodes to OpenShift cluster with OKD](/home-lab/add-worker-nodes/)
 
 ### Add Ceph Storage Provisioner
 
-1. Mirror Ceph Images
-
-   ```bash
-   labcli --ceph -m
-   ```
-
-1. Install Rook Operator with Ceph cluster:
-
-   ```bash
-   labcli --ceph -i
-   ```
-
-1. Configure the internal image registry for a Ceph PVC
-
-   ```bash
-   labcli --ceph -r
-   ```
+[Install Ceph Storage with Rook](/home-lab/install-rook-ceph/)

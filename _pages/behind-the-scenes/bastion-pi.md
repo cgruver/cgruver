@@ -8,6 +8,8 @@ tags:
   - centos stream
   - fedora coreos
 ---
+__Note:__ These instructions are superseded with my CLI that I wrote to ease the configuration.  I am retaining these instructions so that the curious among you can see the details behind what the Lab CLI abstracts.
+
 ## Setting up a Raspberry Pi as your lab bastion host
 
 For your bastion host, you will need a Raspberry Pi 4b with 8GB of RAM.  I am using a [Vilros kit from Amazon](https://www.amazon.com/gp/product/B089ZZ8DTV/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1).  You will also need an SD Card of at least 128GB capacity.  Get one with fast read/write speeds as it will be used to serve up RPMs for host installations and images from your Nexus registry.
@@ -388,7 +390,3 @@ __Remove card from router, put it in the Pi, and boot it up.__
    ```bash
    exit
    ```
-
-1. Next, set up Nexus for your lab's image registry:
-
-   __[Sonatype Nexus OSS](/home-lab/nexus-pi/)__

@@ -10,6 +10,9 @@ tags:
   - mv1000
   - brume
 ---
+__Note:__ These instructions are superseded with my CLI that I wrote to ease the configuration.  I am retaining these instructions so that the curious among you can see the details behind what the Lab CLI abstracts.
+
+### Prepare for Edge Network Router Configuration
 
 The operating system running your router is OpenWRT.  Find out more here: [OpenWRT](https://openwrt.org)
 
@@ -369,7 +372,3 @@ Now, we will set up Bind to serve DNS.  We will also disable the DNS functions o
    /etc/init.d/named enable
    /etc/init.d/named start
    ```
-
-1. Now it's time to set up your Bastion host:
-
-   __[Bastion Host](/home-lab/bastion-pi/)__

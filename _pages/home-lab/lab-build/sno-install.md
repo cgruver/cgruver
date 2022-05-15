@@ -19,7 +19,7 @@ Look for a future post with Bootstrap In Place.
    brew install qemu autoconf automake wolfssl
    ```
 
-
+__[Set Up a MacBook for Qemu with Bridged Network](/home-lab/bare-metal-bootstrap/){:target="_blank"}__
 
 ### Set Up Your Workstation for Bootstrap
 

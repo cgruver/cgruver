@@ -1,5 +1,5 @@
 ---
-permalink: /home-lab/bare-metal-install-sno/
+permalink: /home-lab/prepare-bare-metal-sno-okd-install/
 title: Installing Single Node OpenShift on Bare Metal
 description: Installing Single Node OpenShift on Intel NUC with OKD
 tags:
@@ -13,6 +13,14 @@ There is also a feature for installing SNO with "bootstrap-in-place" which does 
 
 Look for a future post with Bootstrap In Place.
 
+## Prepare Your Workstation For Bootstrap
+
+Before you proceed, you need to setup your workstation for running the Bootstrap node.  Or, if you have a NUC available, then you can set it up as a KVM host and run the bootstrap there.  These instructions assume that you are using your workstation.
+
+[Set Up a MacBook for Qemu with Bridged Network](/home-lab/bare-metal-bootstrap/){:target="_blank"}
+
+## Set Up SNO Configuration
+
 1. You need to know two things at this point:
 
    1. The MAC address of your NUC
@@ -24,13 +32,13 @@ Look for a future post with Bootstrap In Place.
    If you have an NVMe drive:
 
    ```bash
-   SSD=nvme0n1
+   SSD=/dev/nvme0n1
    ```
 
    If you have a SATA Drive:
 
    ```bash
-   SSD=sda
+   SSD=/dev/sda
    ```
 
    Now set variables with the MAC addresses from your NUCs:
@@ -64,7 +72,8 @@ Look for a future post with Bootstrap In Place.
      metal: true
      mac-addr: "52:54:00:a1:b2:c3"
      ip-addr: ${BOOTSTRAP_IP}
-     boot-dev: sda
+     boot-dev: /dev/sda
+     bridge-dev: ${BOOTSTRAP_BRIDGE}
      node-spec:
        memory: 12288
        cpu: 2
@@ -74,7 +83,7 @@ Look for a future post with Bootstrap In Place.
      okd-hosts:
      - mac-addr: "${NUC1}"
        boot-dev: ${SSD}
-       sno-install-dev: sda
+       sno-install-dev: ${SSD}
        name: okd4-snc-node
        ip-addr: ${SNO_NODE_IP}
    EOF
@@ -97,14 +106,15 @@ Look for a future post with Bootstrap In Place.
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
-     butane-version: v0.13.1
-     butane-spec-version: 1.3.0
-     release: 4.9.0-0.okd-2021-12-12-025847
+     butane-version: v0.14.0
+     butane-spec-version: 1.4.0
+     release: 4.10.0-0.okd-2022-05-07-021833
    bootstrap:
      metal: true
      mac-addr: "52:54:00:a1:b2:c3"
-     ip-addr: 10.11.12.49
-     boot-dev: sda
+     ip-addr: 10.11.13.49
+     boot-dev: /dev/sda
+     bridge-dev: en6
      node-spec:
        memory: 12288
        cpu: 2
@@ -113,8 +123,12 @@ Look for a future post with Bootstrap In Place.
      metal: true
      okd-hosts:
      - mac-addr: "1c:69:11:22:33:44"
-       boot-dev: sda
-       sno-install-dev: sda
+       boot-dev: /dev/sda
+       sno-install-dev: /dev/sda
        name: okd4-snc-node
-       ip-addr: 10.11.12.200
+       ip-addr: 10.11.13.200
    ```
+
+## Now We are Ready To Prepare a Disconnected Install of OpenShift
+
+__[Preparing to Install OpenShift - Mirror OKD Images](/home-lab/mirror-okd-images/)__

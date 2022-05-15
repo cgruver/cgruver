@@ -61,7 +61,7 @@ __Note:__ You can combine KVM and Bare Metal configurations.  For example, you c
 
 ### Here is a picture of the complete set up
 
-![Home Lab Starter](/_pages/home-lab/images/HomeLab.png)
+![Home Lab Starter](images/HomeLab.png)
 
 ## __Bare Metal__
 
@@ -71,13 +71,13 @@ This project is not for the faint of heart.  It will require some investment.  Y
 
 With the following list of parts, you will be able to power your cluster off of two power supplies, and pack the whole thing up in a slim 15" laptop bag.
 
-It will look like this: 
+It will look like this:
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-lab.jpg)
+![Bare Metal Lab](images/bare-metal-lab.jpg)
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-front.jpg)
+![Bare Metal Lab](images/bare-metal-front.jpg)
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-bag.jpg)
+![Bare Metal Lab](images/bare-metal-bag.jpg)
 
 * [Network adapter for your workstation](https://www.amazon.com/gp/product/B08VN3DGK6/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"}
   * __Note:__ You will not be able to use the WiFi in your MacBook for the bootstrap network bridge.  We'll need a physical adapter.

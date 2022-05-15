@@ -10,6 +10,8 @@ tags:
   - openwrt ipxe boot
   - openwrt dhcp configuration
 ---
+__Note:__ These instructions are superseded with my CLI that I wrote to ease the configuration.  I am retaining these instructions so that the curious among you can see the details behind what the Lab CLI abstracts.
+
 ### Prepare for Internal Network Router Configuration:
 
 1. Select the Lab subdomain that you want to work with:
@@ -581,12 +583,3 @@ tags:
    /etc/init.d/haproxy enable
    reboot
    ```
-
-1. Next, if you are building your cluster on KVM, then install CentOS Stream on your KVM host:
-
-   __[KVM Host Setup](/home-lab/kvm-host-setup/)__
-
-   If you are building a bare-metal cluster, then prepare for the OpenShift install:
-
-   __[Prepare for OpenShift Install](/home-lab/prepare-okd-install/)__
-

@@ -49,6 +49,10 @@ This tutorial assumes that you are running a Unix like operating system on your 
    router: ${EDGE_ROUTER}
    bastion-ip: ${BASTION_HOST}
    netmask: 255.255.255.0
+   centos-mirror: rsync://mirror.facebook.net/centos-stream
+   gitea-version: 1.16.7
+   openwrt-version: 21.02.1
+   git-url: https://gitea.${LAB_DOMAIN}:3000
    sub-domain-configs:
    - name: dev
      router-edge-ip: ${DEV_EDGE_IP}

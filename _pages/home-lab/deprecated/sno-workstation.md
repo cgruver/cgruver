@@ -4,10 +4,6 @@ published: true
 permalink: /home-lab/bare-metal-sno-workstation/
 title: Installing Single Node OpenShift on Bare Metal with Intel NUC
 description: Installing Single Node OpenShift on a Bare Metal Intel NUC with OKD
-tags:
-  - openshift bare metal install
-  - okd single node cluster install
-  - kubernetes bare metal install
 ---
 This page has been deprecated, it has been retained for Search links only.
 

@@ -6,6 +6,7 @@ tags:
   - nexus https
   - java on openwrt
 ---
+__Note:__ These instructions are superseded with my CLI that I wrote to ease the configuration.  I am retaining these instructions so that the curious among you can see the details behind what the Lab CLI abstracts.
 
 ### Installing Nexus on a Raspberry Pi 4B
 
@@ -284,7 +285,3 @@ The `?` in the top right hand corner of the Nexus screen will take you to their 
    1. Create the user as shown:
 
       ![Nexus User](images/NexusUser.png)
-
-1. Next, set up the router for your OpenShift cluster:
-
-   __[Internal Network Router](/home-lab/internal-router/)__

@@ -63,7 +63,7 @@ All of these devices will be running the OpenWRT linux distribution. Find out mo
    labcli --router -s -e
    ```
 
-   __Note:__   If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/)
+   __Note:__   If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/){:target="_blank"}
 
 ### Configure the Internal Network Router
 
@@ -105,7 +105,7 @@ This configuration is very similar to setting up the edge router.
 
    When the configuration is complete, the router will reboot.
 
-   __Note:__  If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Internal Network Router Configuration](/home-lab/internal-router/)
+   __Note:__  If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Internal Network Router Configuration](/home-lab/internal-router/){:target="_blank"}
 
 ### Configure the Raspberry Pi
 
@@ -150,9 +150,9 @@ We are going to use the edge router that we set up previously to configure the O
 
    __Note:__  If you want to see the details of what labcli scripts are doing, I have pages with the manual instructions here:
 
-   [Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT](/home-lab/nexus-pi/)
+   [Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT](/home-lab/nexus-pi/){:target="_blank"}
 
-   [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/)
+   [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/){:target="_blank"}
 
 1. Nexus will take a while to start for the first time.
 
@@ -319,8 +319,6 @@ The `?` in the top right hand corner of the Nexus screen will take you to their 
 
 We're now ready to start the installation of OpenShift.
 
-* Install KVM Based OpenShift
-
-* [Install Single Node OpenShift](/home-lab/bare-metal-install-sno/)
-
-* [Install Bare Metal OpenShift](/home-lab/bare-metal-install-okd/)
+* [Install KVM Based OpenShift](/home-lab/prepare-kvm-okd-install/)
+* [Install Single Node OpenShift](/home-lab/prepare-bare-metal-sno-okd-install/)
+* [Install Bare Metal OpenShift](/home-lab/prepare-bare-metal-okd-install/)

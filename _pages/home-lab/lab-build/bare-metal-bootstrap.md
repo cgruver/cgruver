@@ -40,28 +40,7 @@ Let's set up a MacBook to run the OpenShift Bootstrap node.
    1. Note the `Device` name, and set a variable:
 
       ```bash
-      BOOTSTRAP_BRIDGE=en6
-      ```
-
-   1. Add this device to your lab configuration:
-
-      ```bash
-      yq e ".bootstrap.bridge-dev = \"${BOOTSTRAP_BRIDGE}\"" -i ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
-      ```
-
-      You should see an entry in `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml` for the bridge-dev now:
-
-      ```yaml
-      ...
-      butane-spec-version: 1.3.0
-      okd-version: ${OKD_VERSION}
-      bootstrap:
-        metal: true
-        mac-addr: "52:54:00:a1:b2:c3"
-        boot-dev: sda
-        ...
-        bridge-dev: en6
-        ...
+      export BOOTSTRAP_BRIDGE=en6
       ```
 
 1. Set your WiFi to be the primary internet link:

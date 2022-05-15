@@ -45,22 +45,22 @@ Your Lab can start small, and grow as your needs dictate:
 
 Of course...  small is relative.  So, at this point you need to make a choice; virtualized infrastructure or bare-metal, full cluster or single node.
 
-Take a look at the link below, acquire the gear that you need, and carry on.
+Take a look at the links below, acquire the gear that you need, and carry on.
 
-__Start Here: [OpenShift Home Lab Gear](/home-lab/lab-gear/){:target="_blank"}__
+1. __Start Here:__
 
-After you have selected the gear that you need, follow the guides to set everything up:
+   [OpenShift Home Lab Gear](/home-lab/lab-gear/){:target="_blank"}
 
-1. __[Configure Your Workstation](/home-lab/workstation/){:target="_blank"}__
+1. __Set up Your Workstation:__
 
-1. If you are setting up a Single Node or Full Cluster on Bare Metal:
+   [Configure Your Workstation](/home-lab/workstation/){:target="_blank"}
 
-   __[Set Up a MacBook for Qemu with Bridged Network](/home-lab/bare-metal-bootstrap/){:target="_blank"}__
+1. __Configure Your Network Gear:__
 
-1. __[Set Up Lab Network](/home-lab/network-setup/){:target="_blank"}__
+   [Set Up Lab Network](/home-lab/network-setup/){:target="_blank"}
 
 1. __Install OpenShift__
 
-   * [Install KVM Based OpenShift](/home-lab/install-okd/)
-   * [Install Single Node OpenShift](/home-lab/bare-metal-install-sno/)
-   * [Install Bare Metal OpenShift](/home-lab/bare-metal-install-okd/)
+   * [Install KVM Based OpenShift](/home-lab/prepare-kvm-okd-install/)
+   * [Install Single Node OpenShift](/home-lab/prepare-bare-metal-sno-okd-install/)
+   * [Install Bare Metal OpenShift](/home-lab/prepare-bare-metal-okd-install/)
