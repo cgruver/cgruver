@@ -41,6 +41,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    EDGE_ROUTER=${i1}.${i2}.${i3}.1
    DEV_EDGE_IP=$(echo "${i1}.${i2}.${i3}.2")
    DEV_ROUTER=${i1}.${i2}.$(( ${i3} + 1 )).1
+   DEV_INGRESS=${i1}.${i2}.$(( ${i3} + 1 )).2
    DEV_NETWORK=${i1}.${i2}.$(( ${i3} + 1 )).0
 
    cat << EOF > ${OKD_LAB_PATH}/lab-config/lab.yaml
@@ -79,6 +80,26 @@ This tutorial assumes that you are running a Unix like operating system on your 
      netmask: 255.255.255.0
      cluster-config-file: /home/username/okd-lab/lab-config/dev-cluster.yaml
    ```
+
+1. Now create the header for your cluster configuration file:
+
+   ```bash
+   cat << EOF  > ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   cluster:
+     name: dev
+     cluster-cidr: 10.100.0.0/14
+     service-cidr: 172.30.0.0/16
+     secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
+     local-registry: nexus.${LAB_DOMAIN}:5001
+     proxy-registry: nexus.${LAB_DOMAIN}:5000
+     remote-registry: quay.io/openshift/okd
+     butane-version: v0.14.0
+     butane-spec-version: 1.4.0
+     ingress-ip-addr: ${DEV_INGRESS}.2
+     release: 4.10.0-0.okd-2022-05-07-021833
+   EOF
+
+   We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal.
 
 1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
 
