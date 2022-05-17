@@ -98,6 +98,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
      ingress-ip-addr: ${DEV_INGRESS}.2
      release: 4.10.0-0.okd-2022-05-07-021833
    EOF
+   ```
 
    We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal.
 
