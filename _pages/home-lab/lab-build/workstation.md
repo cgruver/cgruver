@@ -95,7 +95,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
      remote-registry: quay.io/openshift/okd
      butane-version: v0.14.0
      butane-spec-version: 1.4.0
-     ingress-ip-addr: ${DEV_INGRESS}.2
+     ingress-ip-addr: ${DEV_INGRESS}
      release: 4.10.0-0.okd-2022-05-07-021833
    EOF
    ```
