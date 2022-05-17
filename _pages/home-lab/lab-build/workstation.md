@@ -102,6 +102,12 @@ This tutorial assumes that you are running a Unix like operating system on your 
 
    We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal.
 
+1. Create a folder for the scripts that we'll be using:
+
+   ```bash
+   mkdir ${OKD_LAB_PATH}/bin
+   ```
+
 1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
 
    * MacOS:
@@ -113,7 +119,6 @@ This tutorial assumes that you are running a Unix like operating system on your 
    * Linux:
 
      ```bash
-     mkdir ${OKD_LAB_PATH}/bin
      mkdir ${OKD_LAB_PATH}/yq-tmp
      YQ_VER=$(curl https://github.com/mikefarah/yq/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
      wget -O ${OKD_LAB_PATH}/yq-tmp/yq.tar.gz https://github.com/mikefarah/yq/releases/download/${YQ_VER}/yq_linux_amd64.tar.gz
