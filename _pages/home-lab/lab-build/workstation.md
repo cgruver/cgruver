@@ -47,7 +47,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    cat << EOF > ${OKD_LAB_PATH}/lab-config/lab.yaml
    domain: ${LAB_DOMAIN}
    network: ${EDGE_NETWORK}
-   router: ${EDGE_ROUTER}
+   router-ip: ${EDGE_ROUTER}
    bastion-ip: ${BASTION_HOST}
    netmask: 255.255.255.0
    centos-mirror: rsync://mirror.facebook.net/centos-stream
