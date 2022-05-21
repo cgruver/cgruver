@@ -19,7 +19,7 @@ This project is not for the faint of heart.  It will require some investment.  Y
 
 Here is my prototype:
 
-![Bare Metal](/_pages/home-lab/bare-metal/images/bare-metal.jpg)
+![Bare Metal](/_pages/home-lab/lab-build/images/bare-metal.jpg)
 
 The control plane nodes are:  NUC8i3BEK machines with 32GB of RAM and 500GB SATA M.2 SSDs.
 
@@ -29,13 +29,13 @@ I'm going to show you how to build one with 3 nodes.  With the following list of
 
 It will look like this: 
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-lab.jpg)
+![Bare Metal Lab](/_pages/home-lab/lab-build/images/bare-metal-lab.jpg)
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-front.jpg)
+![Bare Metal Lab](/_pages/home-lab/lab-build/images/bare-metal-front.jpg)
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/bare-metal-bag.jpg)
+![Bare Metal Lab](/_pages/home-lab/lab-build/images/bare-metal-bag.jpg)
 
-![Bare Metal Lab](/_pages/home-lab/bare-metal/images/NetworkTopologyBareMetal.png)
+![Bare Metal Lab](/_pages/home-lab/lab-build/images/NetworkTopologyBareMetal.png)
 
 Below is the complete bill of materials for your starter lab.  I've included Amazon.com links to the gear that I have.
 
