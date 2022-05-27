@@ -13,23 +13,25 @@ tags:
 
 All of these devices will be running the OpenWRT linux distribution. Find out more here: [https://openwrt.org](https://openwrt.org)
 
+__Note:__ If at any time you need to reset the router, or any of the below commands fail and need to be rerun, do this:
+
+   Hold the highlighted button for about 10 seconds.  When you first press the button, the left most LED will start to slowly blink.  After about 3-4 seconds it will blink a bit faster.  After about 9-10 seconds it will blink really fast.  At this point, let go of the button.  Your router will factory reset itself.
+
+   ![Reset Router](images/ResetRouter.png)
+
 ### Configure the Edge Router
 
 1. Connect to your edge router:
 
-   Do not connect your router to any other network devices yet.
-
-   Power it on and connect to it from your workstation.
-
-   With the `GL-MV1000W` you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
-
-   Otherwise, connect from your workstation with a network cable.  I generally use a network cable to apply the initial configuration to my GL.iNet routers.
-
-   Ensure that you can ping the router: `ping 192.168.8.1`
+   * Do not connect your router to any other network devices yet.
+   * Power it on and connect to it from your workstation.
+   * With the `GL-MV1000W` or `GL-AR750S` you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
+     Otherwise, connect from your workstation with a network cable.  I generally use a network cable to apply the initial configuration to all of my GL.iNet routers, wireless or not.
+   * Ensure that you can ping the router: `ping 192.168.8.1`
 
 1. Initialize the router configuration:
 
-   You can use the GL.iNet GL-MV1000W either as an access point, or as an access point plus repeater for wireless connection to your home network.
+   You can use the GL.iNet `GL-MV1000W` or `GL-AR750S`  either as an access point, or as an access point plus repeater for wireless connection to your home network.
 
    I highly recommend using a cable to connect the router to your home network.  You will get much faster network speeds than you get in repeater mode.  But, the repeater mode is usable.  Especially when traveling.
 
