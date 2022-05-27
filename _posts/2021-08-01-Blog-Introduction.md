@@ -1,7 +1,7 @@
 ---
 title:  "Let's build an OpenShift Home Lab!"
 date:   2021-08-01 12:00:00 -0400
-description: "Build an OpenShift Home Lab with OKD, OpenWrt, and Raspberry Pi"
+description: "Build a Kubernetes Home Lab / OpenShift Home Lab with OKD, OpenWrt, and Raspberry Pi"
 categories:
   - OpenShift
   - Home Lab
