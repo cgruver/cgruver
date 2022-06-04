@@ -43,20 +43,20 @@ sub-domain-configs:
   network: 10.11.13.0
   # domain netmask
   netmask: 255.255.255.0
-  # path to the OpenShift cluster config file
-  cluster-config-file: /home/username/okd-lab/lab-config/dev-cluster.yaml
+  # Name of the OpenShift cluster config file.  These files are in ${OKD_LAB_PATH}/lab-config/domain-configs
+  cluster-config-file: dev-cluster.yaml
 - name: qa
   router-edge-ip: 10.11.12.3
   router-ip: 10.11.14.1
   network: 10.11.14.0
   netmask: 255.255.255.0
-  cluster-config-file: /home/username/okd-lab/lab-config/qa-cluster.yaml
+  cluster-config-file: qa-cluster.yaml
 - name: prod
   router-edge-ip: 10.11.12.4
   router-ip: 10.11.15.1
   network: 10.11.15.0
   netmask: 255.255.255.0
-  cluster-config-file: /home/username/okd-lab/lab-config/prod-cluster.yaml
+  cluster-config-file: prod-cluster.yaml
 # KVM Hosts provisioned on the Edge LAN network
 kvm-hosts:
   # hostname to assign to the physical host
@@ -87,8 +87,6 @@ cluster:
   # CIDR Info for the Cluster
   cluster-cidr: 10.100.0.0/14
   service-cidr: 172.30.0.0/16
-  # Location of the pull secret
-  secret-file: /home/user/okd-lab/pull_secret.json
   # URL to the registry used to mirror the OpenShift install images
   local-registry: nexus.my.awesome.lab:5001
   # URL to the Nexus group used to proxy remote registries
@@ -99,7 +97,7 @@ cluster:
   butane-version: v0.14.0
   # The version of the Butane specification to use for the ignition files
   butane-spec-version: 1.4.0
-  # The OpenShift release to install
+  # The OpenShift release to install - This entry is created by running: labcli --latest
   release: 4.10.0-0.okd-2022-03-07-131213
   # The HA Proxy IP address to assign on the router
   ingress-ip-addr: 10.11.12.2

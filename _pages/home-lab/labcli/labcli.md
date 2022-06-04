@@ -58,6 +58,21 @@ There are two YAML configuration files that are used by the `labcli` utilities f
 
 [Lab CLI Configuration Files](/home-lab/labcli-files/)
 
+The `examples` directory in the `kamarotos` project contains a sample `lab.yaml` file.  This file is the main configuration file for your lab.  It contains references to "sub domains" that contain the configuration for a specific OpenShift cluster.
+
+The OpenShift cluster configuration files are in `examples/domain-configs`
+
+These files correspond to the following cluster configurations:
+
+| Domain Config File | Description |
+| --- | --- |
+| `kvm-cluster-basic.yaml` | 3 Node cluster with control-plane & worker combined nodes, deployed on a single KVM host. |
+| `kvm-cluster-3-worker.yaml` | 6 Node cluster, 3 control-plane & 3 worker nodes, deployed on 2 KVM hosts. |
+| `sno-kvm.yaml` | Single Node Cluster, deployed on a KVM host. |
+| `sno-bm.yaml` | Single Node Cluster, deployed on a bare metal server |
+| `bare-metal-basic.yaml` | 3 Node cluster with control-plane & worker combined nodes, deployed on 3 bare metal servers |
+| `bare-metal-3-worker.yaml` | 6 Node cluster, 3 control-plane & 3 worker nodes, deployed on 6 bare metal servers |
+
 ## `labctx` function
 
 `labctx` is used to set local environment variables in your shell that the `labcli` command uses to interact with a given domain in your lab.
