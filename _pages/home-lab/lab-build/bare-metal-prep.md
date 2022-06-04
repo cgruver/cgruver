@@ -61,12 +61,11 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
 1. Create a YAML file to define the network and hosts for the OpenShift cluster that we're going to install:
 
    ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
    cluster:
-     name: dev
+     name: okd4
      cluster-cidr: 10.100.0.0/14
      service-cidr: 172.30.0.0/16
-     secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
      local-registry: nexus.${LAB_DOMAIN}:5001
      proxy-registry: nexus.${LAB_DOMAIN}:5000
      remote-registry: quay.io/openshift/okd
@@ -108,10 +107,9 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
 
    ```yaml
    cluster:
-     name: dev
+     name: okd4
      cluster-cidr: 10.100.0.0/14
      service-cidr: 172.30.0.0/16
-     secret-file: /your/home/dir/lab-config/pull_secret.json
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd

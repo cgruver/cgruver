@@ -33,7 +33,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    __I'm being intentionally prescriptive here to help ensure success the first time you try this.__
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/lab-config
+   mkdir -p ${OKD_LAB_PATH}/lab-config/domain-configs
    
    IFS="." read -r i1 i2 i3 i4 <<< "${EDGE_NETWORK}"
 
@@ -60,7 +60,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
      router-ip: ${DEV_ROUTER}
      network: ${DEV_NETWORK}
      netmask: 255.255.255.0
-     cluster-config-file: ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+     cluster-config-file: dev-cluster.yaml
    EOF
    ```
 
@@ -78,18 +78,17 @@ This tutorial assumes that you are running a Unix like operating system on your 
      router-ip: 10.11.13.1
      network: 10.11.13.0
      netmask: 255.255.255.0
-     cluster-config-file: /home/username/okd-lab/lab-config/dev-cluster.yaml
+     cluster-config-file: dev-cluster.yaml
    ```
 
 1. Now create the header for your cluster configuration file:
 
    ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
    cluster:
-     name: dev
+     name: okd4
      cluster-cidr: 10.100.0.0/14
      service-cidr: 172.30.0.0/16
-     secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
      local-registry: nexus.${LAB_DOMAIN}:5001
      proxy-registry: nexus.${LAB_DOMAIN}:5000
      remote-registry: quay.io/openshift/okd
@@ -100,7 +99,7 @@ This tutorial assumes that you are running a Unix like operating system on your 
    EOF
    ```
 
-   We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal.
+   We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal and SNO, vs. full cluster.
 
 1. Create a folder for the scripts that we'll be using:
 

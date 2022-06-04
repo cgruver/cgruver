@@ -52,12 +52,11 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
 1. Create a YAML file to define the network and hosts for the OpenShift cluster that we're going to install:
 
    ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/dev-cluster.yaml
+   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
    cluster:
-     name: dev
+     name: okd4
      cluster-cidr: 10.100.0.0/14
      service-cidr: 172.30.0.0/16
-     secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
      local-registry: nexus.${LAB_DOMAIN}:5001
      proxy-registry: nexus.${LAB_DOMAIN}:5000
      remote-registry: quay.io/openshift/okd
@@ -99,9 +98,9 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
 
    1. If you have an NVME drive installed in the NUC, you do not need to modify anything.
 
-   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml`, and replace `nvme0n1` with `sda`.
+   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml`, and replace `nvme0n1` with `sda`.
 
-   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/dev-cluster.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
+   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
 
 ### Configuration Complete
 
@@ -109,10 +108,9 @@ Your OpenShift cluster configuration YAML file should look something like this:
 
 ```yaml
 cluster:
-  name: dev
+  name: okd4
   cluster-cidr: 10.100.0.0/14
   service-cidr: 172.30.0.0/16
-  secret-file: /your/home/dir/lab-config/pull_secret.json
   local-registry: nexus.my.awesome.lab:5001
   proxy-registry: nexus.my.awesome.lab:5000
   remote-registry: quay.io/openshift/okd

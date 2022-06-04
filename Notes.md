@@ -2469,3 +2469,39 @@ cqlsh -u ${CQL_USER} -p ${CQL_PWD}
 
 cqlsh -u $(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.username}" | base64 --decode) -p $(oc get secret k8ssandra-superuser -n k8ssandra -o jsonpath="{.data.password}" | base64 --decode)
 ```
+
+## Create API Cert:
+
+```bash
+labctx
+WORK_DIR=${OKD_LAB_PATH}/${CLUSTER_NAME}-${SUB_DOMAIN}-${LAB_DOMAIN}/certs
+rm -rf ${WORK_DIR}
+mkdir -p ${WORK_DIR}
+# Create CA
+openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout ${WORK_DIR}/ca.key -out ${WORK_DIR}/ca-cert.pem -sha256 -days 3560 -subj "/C=US/ST=Virginia/L=Roanoke/O=My Lab/OU=Org/CN=${CLUSTER_NAME}.${DOMAIN}" -extensions extensions -config <(echo "[req]"; echo "distinguished_name=req" ; echo '[extensions]' ; echo 'basicConstraints=CA:TRUE' ; echo 'subjectKeyIdentifier=hash' ; echo 'authorityKeyIdentifier=keyid,issuer')
+# Create CSR
+openssl req -new -newkey rsa:4096 -sha256 -nodes -keyout ${WORK_DIR}/api.key -out ${WORK_DIR}/api.csr -subj "/C=US/ST=Virginia/L=Roanoke/O=My Lab/OU=Org/CN=${CLUSTER_NAME}.${DOMAIN}"
+# Sign CSR
+openssl x509 -req -in ${WORK_DIR}/api.csr -CA ${WORK_DIR}/ca-cert.pem -CAkey ${WORK_DIR}/ca.key -CAcreateserial -out ${WORK_DIR}/api-cert.pem -days 3560 -extensions san -extfile <(echo '[san]' ; echo "subjectAltName=DNS:api.${CLUSTER_NAME}.${DOMAIN}")
+# Create Cert Bundle
+cat ${WORK_DIR}/api-cert.pem ${WORK_DIR}/ca-cert.pem > ${WORK_DIR}/api.pem
+# Install the Cert
+oc --kubeconfig=${KUBE_INIT_CONFIG} create secret tls ${CLUSTER_NAME}-api --cert=${WORK_DIR}/api.pem --key=${WORK_DIR}/api.key -n openshift-config
+oc --kubeconfig=${KUBE_INIT_CONFIG} patch apiserver cluster --type=merge -p "{\"spec\":{\"servingCerts\":{\"namedCertificates\":[{\"names\": [\"api.${CLUSTER_NAME}.${DOMAIN}\"],\"servingCertificate\":{\"name\":\"${CLUSTER_NAME}-api\"}}]}}}"
+```
+
+```bash
+openssl x509 -noout -text -in /tmp/okd-api.${SUB_DOMAIN}.${LAB_DOMAIN}.crt 
+
+sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" ${WORK_DIR}/ca-cert.pem
+```
+
+```bash
+openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout ${WORK_DIR}/key.pem -out ${WORK_DIR}/api-cert.pem -sha256 -days 3560 -subj "/C=US/ST=Virginia/L=Roanoke/O=My Lab/OU=Org/CN=${CLUSTER_NAME}.${DOMAIN}" -extensions san -config <(echo "[req]"; echo "distinguished_name=req" ; echo '[san]'; echo "subjectAltName=DNS:api.${CLUSTER_NAME}.${DOMAIN}")
+
+openssl req -x509 -newkey rsa:4096 -keyout ${WORK_DIR}/key.pem -out ${WORK_DIR}/api-cert.pem -sha256 -days 1825 -subj "/C=US/ST=Virginia/L=Roanoke/O=My Lab/OU=Org" -config <(echo "[req]"; echo "distinguished_name=req" ; echo "x509_extensions=extensions ; echo '[extensions]'; echo "subjectAltName=DNS:api.${CLUSTER_NAME}.${DOMAIN}") -nodes
+
+oc --kubeconfig=${KUBE_INIT_CONFIG} create secret tls ${CLUSTER_NAME}-api --cert=${WORK_DIR}/api-cert.pem --key=${WORK_DIR}/key.pem -n openshift-config
+oc --kubeconfig=${KUBE_INIT_CONFIG} patch apiserver cluster --type=merge -p "{\"spec\":{\"servingCerts\":{\"namedCertificates\":[{\"names\": [\"api.${CLUSTER_NAME}.${DOMAIN}\"],\"servingCertificate\":{\"name\":\"${CLUSTER_NAME}-api\"}}]}}}"
+
+```

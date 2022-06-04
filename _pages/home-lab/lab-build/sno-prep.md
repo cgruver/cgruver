@@ -62,7 +62,6 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
      name: okd4-snc
      cluster-cidr: 10.88.0.0/14
      service-cidr: 172.20.0.0/16
-     secret-file: ${OKD_LAB_PATH}/lab-config/pull_secret.json
      local-registry: nexus.${LAB_DOMAIN}:5001
      proxy-registry: nexus.${LAB_DOMAIN}:5000
      remote-registry: quay.io/openshift/okd
@@ -102,7 +101,6 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
      name: okd4-snc
      cluster-cidr: 10.88.0.0/14
      service-cidr: 172.20.0.0/16
-     secret-file: /Users/userId/lab-config/pull_secret.json
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
