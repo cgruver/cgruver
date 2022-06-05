@@ -1,9 +1,114 @@
 ---
-title: Introducing The Cajun Navy
-permalink: /cajun-navy/intro/
+title: Introducing The Cajun Navy Response System
+permalink: /cajun-navy-response-system/intro/
 sitemap: false
 published: false
 ---
+This work is inspired by, and principally based on [Emergency Response Demo](https://erdemo.io).  For a working application, follow that link.
+
+I am doing this re-write principally for my own education.
+
+I am writing this application with the Quarkus Java framework, using reactive techniques.  The persistence layer will be provided by a three node Cassandra cluster, deployed with the [K8ssandra](https://github.com/k8ssandra/k8ssandra) project.
+
+## How it will work:
+
+1. A disaster is registered
+    1. Shelters
+    1. Inclusion Zones
+1. Incidents are registered (Asynchronous Activity)
+    1. Victims
+1. Responders enroll (Asynchronous Activity)
+1. Responders are assigned to Incidents
+    1. Missions
+
+### Services:
+
+1. ___[Disaster Service](https://github.com/cgruver-cajun-navy/disaster)___
+
+    * Registers a disaster
+    * Responds to the creation of Incidents and creates Missions with available Responders
+    * Records the rescue status of Victim to Shelters
+    * Manages the prioritization of Incidents when there are not enough Responders 
+
+1. ___[Incident Service](https://github.com/cgruver-cajun-navy/incident)___
+
+    * Manages Incident State
+
+1. ___[Responder Service](https://github.com/cgruver-cajun-navy/responder)___
+
+    * Manages Responder State
+
+1. ___[Mission Service](https://github.com/cgruver-cajun-navy/mission)___
+
+    * Creates Missions for Responders
+
+### Kafka Topics:
+
+| Topic  | Description | Producer | Consumers |
+| - | - | - | - |
+| incident-reported | | Incident Service | Disaster Service |
+| incident-updated | | Incident Service | |
+| incident-update-location | | Disaster Service | Incident Service |
+| incident-update-status | | Disaster Service | Incident Service |
+| incident-assigned | | Disaster Service | Incident Service |
+| | | | |
+| responder-info-update | | Disaster Service | Responder Service |
+| responder-location-update | | Disaster Service | Responder Service, Mission Service |
+| responder-availability-update | | Disaster Service | Responder Service |
+| responder-created | | Responder Service | |
+| responder-updated | | Responder Service | Disaster Service |
+| responder-location-updated | | Responder Service | |
+| | | | |
+| priority-zone-clear | | | Incident Service |
+| mission-command | | Disaster Service | Mission Service |
+| mission-event | | Mission Service | Disaster Service |
+| | | |
+
+### Kafka Topics by Service
+
+| Service | Produces | Consumes |
+| - | - | - |
+| Incident Service | | |
+| | incident-reported | incident-update-location |
+| | incident-updated | incident-update-status |
+| | | incident-assigned |
+| Disaster Service | | |
+| | incident-update-location | incident-reported |
+| | incident-update-status | incident-updated |
+| | incident-assigned | responder-updated |
+| | responder-info-update | responder-created |
+| | responder-location-update | mission-event |
+| | responder-availability-update | victim-rescued |
+| | mission-command |
+| Responder Service | | |
+| | responder-created | responder-info-update |
+| | responder-updated | responder-location-update |
+| | responder-location-updated | responder-availability-update |
+| | | |
+| Mission Service | | |
+| | mission-event | mission-command |
+| | | responder-location-updated |
+
+### Development Roadmap:
+
+1. MVP
+
+    * Record Disaster
+    * Add Shelters
+
+1. Incident
+
+    * Register Incident and associate with Disaster
+
+1. Responder
+
+    * Register Responders and associate with Disaster
+
+1. Assignments
+
+    Assign Responder to Incident
+
+1. TBD
 
 First, let's establish our common domain language.
 
