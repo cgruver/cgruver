@@ -10,19 +10,19 @@ I am doing this re-write principally for my own education.  If you want to come 
 
 Along the way, we'll be using OpenShift as our cloud platform, Cassandra for persistence, Kafka for eventing, and the Quarkus Java framework for coding.
 
-But, first things first.  Let's talk about our Domains and establish our common domain vocabulary.
+But, first things first.  Let's talk about our Domains and establish a common domain vocabulary.
 
-We're going to establish our high level domain vocabulary through an interview style conversation, with Questions which result in answers that define a vocab word for our Domains.
+We're going to establish our high level domain vocabulary through an interview style conversation, with questions which result in answers that define a vocabulary word for our Domains.
 
 ## Defining our Domain Vocabulary
 
-Why are we here?  Because a Disaster has ocurred.
+Why are we here?  Because a Disaster has ocurred, and people need to be rescued.
 
 __Question__: What is a disaster?
 
-__Answer__: A disaster is an event that significantly disrupts the normal operations for a locality.  Now, the locality can be pretty narrow.  For example, your basement...  The washing machine overflows and your sump pump failed.  That's a pretty significant disruption, but not one that is likely to require the attention of the Cajun Navy.  So, let's define locality a bit more broadly.  In our case, a locality represents a population of the order of a town, city, or one or more counties, which may span one or more States.  This is, after all, the Cajun Navy.  So, the examples will be US centric.
+__Answer__: A disaster is an event that significantly disrupts the normal operations for a locality.  Now, the locality can be pretty narrow.  For example, your basement...  The washing machine overflows and your sump pump failed.  That's a pretty significant disruption, but not one that is likely to require the attention of the Cajun Navy.  So, let's define locality a bit more broadly.  In our case, a locality represents a population on the order of a town, city, or one or more counties, which may span one or more States.  This is, after all, the Cajun Navy.  So, the examples will be US centric.
 
-__Domain Vocabulary__: A `Disaster` is an event that significantly disrupts the normal operations for a population of the order of a town, city, or one or more counties, which may span one or more States.
+__Domain Vocabulary__: A `Disaster` is an event that significantly disrupts the normal operations for a population on the order of a town, city, or one or more counties, which may span one or more States.
 
 __Question__: What do we need to do in order to deal with the disaster, in the immediate term?
 
@@ -32,15 +32,15 @@ OK. So, let's focus on that.
 
 __Domain Vocabulary__: Let's call the affected people, `Victims`.
 
-__Question__: What defines a Victim?
+__Question__: What defines a `Victim`?
 
 __Answer__: A `Victim` is an individual who is unable to extricate themselves from a dangerous situation caused by a `Disaster`.
 
-OK, so the goal of our application is to help get `Victims` of a `Disaster` out of danger and to a place of safety?
+OK, so the goal of our application is to help get `Victims` of a `Disaster` out of danger and to a place of safety.
 
 __Question__: What is a place of safety?
 
-__Answer__: A place of saftey is a location that mitigates the immediate effects of the disaster.
+__Answer__: A place of safety is a location that mitigates the immediate effects of the disaster.
 
 __Domain Vocabulary__: Let's call the places of safety, `Shelters`.
 
@@ -48,7 +48,7 @@ __Question__: How will we get `Victims` from where they are to a `Shelter`?
 
 __Answer__: We need someone with the appropriate resources and skills to move them.
 
-__Domain Vocabulary__: Let's call the Victim movers, `Responders`.
+__Domain Vocabulary__: Let's call the `Victim` movers, `Responders`.
 
 __Question__: How will the `Responders` know how to find `Victims` to move?
 
@@ -56,7 +56,7 @@ __Answer__: `Victims` in close proximity should be handled as a unit of work so 
 
 __Domain Vocabulary__: Let's call the units of work, `Incidents`.
 
-__Question__: How will the `Responders` know what route to take in order to get to the `Victims` and move them from an `Incident` to the appropriate `Shelter`?
+__Question__: How will the `Responders` know what route to take in order to retrieve the `Victims` and move them from an `Incident` to the appropriate `Shelter`?
 
 __Answer__: A `Shelter` will be designated for the `Victims` of a given `Incident`, and a route from the `Incident` to the `Shelter` will be provided to the `Responder`.
 
@@ -64,28 +64,30 @@ __Domain Vocabulary__: Let's call the route from `Incident` to `Shelter`, a `Mis
 
 OK...  let's pause for a minute and analyze our domain vocabulary.  So far, we have:
 
-* `Disaster`
-* `Shelter`
-* `Responder`
-* `Victim`
-* `Incident`
-* `Mission`
+| Domain Vocabulary | Description |
+| --- | --- |
+| `Disaster` | An event that significantly disrupts the normal operations for a population on the order of a town, city, or one or more counties, which may span one or more States. |
+| `Victim` | An individual who is unable to extricate themselves from a dangerous situation caused by a `Disaster` |
+| `Shelter` | A location that mitigates the immediate effects of the disaster |
+| `Responder` | Someone with the appropriate resources and skills to move `Victims` to `Shelters` |
+| `Incident` | A group of one or more `Victims` who are in close proximity to be handled as a unit of work |
+| `Mission` | The route from `Incident` to `Shelter` |
 
 The goal of this operation is for `Responders` to move the `Victims` of a `Disaster` from `Incidents` to `Shelters`.
 
 Let's build an app to help realize that goal.
 
-## The High Level Events
+## The Domain Processes
 
-1. A `Disaster` occurs which affects `Victims`.
+1. A `Disaster` is registered.
 
-1. `Shelters` are identified, which are un affected by the `Disaster`, and are able to house `Victims`.
+1. `Shelters` are identified, which are unaffected by the `Disaster`, and are able to house `Victims`.
 
 1. `Victims` indicate their need for assistance.
 
 1. `Responders` indicate their availability to help `Victims`
 
-1. Incidents are created for Victims that are at the same location.
+1. `Incidents` are created for one or more `Victims` that are at the same `location`.
 
 1. An appropriate `Shelter` is identified to accept the `Victims` associated with an `Incident`
 
@@ -93,9 +95,31 @@ Let's build an app to help realize that goal.
 
 1. A `Mission` is assigned to a `Responder`
 
-1. A `Responder` accepts the `Mission`
+1. A `Responder` accepts a `Mission`
 
-1. A `Responder` completes the `Mission` by travelling to the location of the `Incident`, retriving the `Victims`, and moving them to the assigned `Shelter`
+1. A `Responder` completes a `Mission` by traveling to the location of the `Incident`, retrieving the `Victims`, and moving them to the assigned `Shelter`
+
+## The Domain Aggregates
+
+### Disaster
+
+The `Disaster` aggregate defines the geographical boundaries of the area affected by the disaster.  
+
+`Disaster` maintains a relationship with:
+
+* Registered `Shelters`
+* Registered `Responders`
+* Registered `Victims`
+
+A `Disaster` has the following entities:
+
+| Entity | Description |
+| --- | --- |
+| `Impact Zone` | A geographical region where `Incidents` are likely to be registered |
+| `Shelter` | A facility that can accept `Victims` |
+| `Responder` | A rescue team with the skills and resources to rescue `Victims` |
+| `Victim` | An individual impacted by the disaster and in need of rescue |
+
 
 ## WIP...
 
