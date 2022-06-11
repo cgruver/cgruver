@@ -7,6 +7,15 @@ sidebar:
 classes: wide
 header:
   image: /assets/images/Fiat-Wide.jpg
+tags:
+  - openshift
+  - okd
+  - home lab
+  - kubernetes
+  - openwrt
+  - gl.inet
+  - ar750s
+  - mv1000
 ---
 This site is dedicated to sharing the work that I do in my home lab.  I am a huge fan of cloud native application delivery on Kubernetes based platforms.  I specifically focus on [OpenShift Container Platform](https://openshift.com), and its subscription free (community supported) sibling, [OKD](https://okd.io).
 

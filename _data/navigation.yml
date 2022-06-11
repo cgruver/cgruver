@@ -13,6 +13,16 @@ lab-projects:
       url: /home-lab/lab-intro/
     - title: "Lab Gear"
       url: /home-lab/lab-gear/
+    - title: "Configure Your Workstation"
+      url: /home-lab/workstation/
+    - title: "Set Up Lab Network"
+      url: /home-lab/network-setup/
+    - title: "Install KVM Based OpenShift"
+      url: /home-lab/prepare-kvm-okd-install/
+    - title: "Install Single Node OpenShift"
+      url: /home-lab/prepare-bare-metal-sno-okd-install/
+    - title: "Install Bare Metal OpenShift"
+      url: /home-lab/prepare-bare-metal-okd-install/
   - title: "Expand Your Lab"
     children:
     - title: "Add Worker Nodes"
