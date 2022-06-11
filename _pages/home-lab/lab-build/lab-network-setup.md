@@ -23,6 +23,8 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 
 1. Connect to your edge router:
 
+   __Note:__ The `GL-MV1000W` is not currently available, (06-2022), so you will either need to use a `GL-MV1000`, and set up your own lab wifi with a separate access point, or you can use the `GL-AR750S`.
+
    * Do not connect your router to any other network devices yet.
    * Power it on and connect to it from your workstation.
    * With the `GL-MV1000W` or `GL-AR750S` you can connect to the WiFi.  The initial SSID and passphrase are on the back of the router.
@@ -113,7 +115,11 @@ This configuration is very similar to setting up the edge router.
 
 We are going to use the edge router that we set up previously to configure the OS for the Raspberry Pi.
 
+__Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb drive with at least 2-GB capacity.  The thumb drive will be reformatted during this process, so don't use one with important files on it.
+
 1. Insert the SD Card into the edge router.
+
+1. If you are using the `GL-AR750S`, insert the thumb drive into the USB slot.
 
 1. Install and configure OpenWRT on the SD Card:
 
@@ -124,6 +130,8 @@ We are going to use the edge router that we set up previously to configure the O
    This will take a while to complete.
 
 1. Remove the SD Card from the edge router and insert it into the Pi.
+
+1. If you are using the `GL-AR750S`, remove the thumb drive from the USB slot.
 
 1. Connect the network adapter from the Pi to the other LAN port on the edge router.
 

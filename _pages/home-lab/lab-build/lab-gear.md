@@ -5,12 +5,16 @@ description: "Gear for equipping OpenShift and OKD Home Lab with Raspberry Pi, I
 tags:
   - openshift
   - okd
+  - home lab
   - kubernetes
-  - intel nuc
   - openwrt
-  - centos stream
+  - gl-inet
+  - gl.inet
+  - ar750s
+  - mv1000
+  - NUC
+  - Intel
   - raspberry pi
-  - nexus
 ---
 Below is the complete bill of materials for your starter lab.
 
@@ -20,6 +24,7 @@ I've included Amazon.com links to the gear that I have.
 
 * [GL.iNet GL-MV1000W](https://www.amazon.com/gp/product/B08DCFBV3H/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"} (Edge Router with WiFi)
   * __Note:__ You may also be able to use the less expensive [GL.iNet GL-AR750S-Ext](https://www.amazon.com/GL-iNet-GL-AR750S-Ext-pre-Installed-Cloudflare-Included/dp/B07GBXMBQF/ref=sr_1_3?dchild=1&keywords=gl.iNet&qid=1627902663&sr=8-3){:target="_blank"}  But, while it has dual-band WiFi, it is much more limited on internal storage, CPU, and RAM.
+  * If you go with this option, you will also need a USB type A thumb drive with at least 2GB capacity.
 * [GL.iNet GL-MV1000](https://www.amazon.com/gp/product/B07ZJD5BZY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"} (Internal Router)
   * __Note:__ The GL-AR750S-Ext will not work for this function.
 * [Raspberry Pi 4b 8GB](https://www.amazon.com/gp/product/B089ZZ8DTV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"} (Bastion Host)
