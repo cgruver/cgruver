@@ -111,7 +111,7 @@ This configuration is very similar to setting up the edge router.
 
    __Note:__  If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Internal Network Router Configuration](/home-lab/internal-router/){:target="_blank"}
 
-### Configure the Raspberry Pi
+## Configure the Raspberry Pi
 
 We are going to use the edge router that we set up previously to configure the OS for the Raspberry Pi.
 
@@ -151,18 +151,23 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 
    When the configuration is complete, the Pi will reboot.
 
-1. Install Sonatype Nexus and Gitea
+### Install Developer Tools
+
+1. Install Java 8 and Java 11:
 
    ```bash
-   labcli --pi -n
-   labcli --pi -g
+   labcli --dev-tools -j
+   ```
+
+1. Install Sonatype Nexus
+
+   ```bash
+   labcli --dev-tools -n
    ```
 
    __Note:__  If you want to see the details of what labcli scripts are doing, I have pages with the manual instructions here:
 
    [Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT](/home-lab/nexus-pi/){:target="_blank"}
-
-   [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/){:target="_blank"}
 
 1. Nexus will take a while to start for the first time.
 
@@ -187,6 +192,16 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
      rm /tmp/nexus.${LAB_DOMAIN}.cert
      sudo update-ca-trust
      ```
+
+1. Install Gitea
+
+   ```bash
+   labcli --dev-tools -g
+   ```
+
+   __Note:__  If you want to see the details of what labcli scripts are doing, I have pages with the manual instructions here:
+
+   [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/){:target="_blank"}
 
 1. Trust the gitea certs on your workstation:
 
@@ -213,7 +228,7 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 
    Both passwords are initialized to `password`.  You will be prompted to change them when you log in.
 
-### Set up Nexus for image mirroring:
+## Set up Nexus for image mirroring:
 
 1. Log into Nexus:
 

@@ -8,63 +8,77 @@ tags:
   - openshift home lab
   - kubernetes home lab
 ---
-This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux distribution.  If you are running Windows, you might try the Windows Subsystem For Linux.
+__Note:__ This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux distribution.  If you are running Windows, you might try the Windows Subsystem For Linux.  All of my testing is done on Mac OS.
 
-1. Select a domain to use for your lab.  This can be a fake domain, it is just for your internal lab network.
+## Install the `labcli` utilities for the Lab
 
-   For example: `my.awesome.lab`
+I have created a companion project for this blog.  It contains all of the shell functions that I use to ease the task of building and tearing down infrastructure in my lab.
 
-1. Select a network for your edge router.  We'll determine everything else from that address, and we'll be using a `/24` network, i.e. `255.255.255.0`.
+In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since these scripts take on the drudgery of repeated tasks, I chose to name them after the guy that cleans the toilets on a ship...  Thus, the project is named: __καμαρότος__.  That is, kamarótos; Greek for Ship's steward or cabin boy...
 
-   For example: `10.11.12.0`
-
-   __Note:__ Do not use the network of your home router, generally 192.168.0.0 or something similar.  The important thing is to choose a different network.  Use a network from the internal IP ranges of: `192.168.*.0` or `10.*.*.0`.
-
-1. Set a few seed variables for your lab:
+1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   export LAB_DOMAIN="my.awesome.lab"
-   export EDGE_NETWORK="10.11.12.0"
-   export OKD_LAB_PATH=${HOME}/okd-lab
+   mkdir ${HOME}/okd-lab
+   git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
    ```
 
-1. Create your lab configuration YAML file:
-
-   __I'm being intentionally prescriptive here to help ensure success the first time you try this.__
+1. Copy the helper scripts to `${HOME}/okd-lab`:
 
    ```bash
-   mkdir -p ${OKD_LAB_PATH}/lab-config/domain-configs
-   
-   IFS="." read -r i1 i2 i3 i4 <<< "${EDGE_NETWORK}"
-
-   BASTION_HOST=${i1}.${i2}.${i3}.10
-   EDGE_ROUTER=${i1}.${i2}.${i3}.1
-   DEV_EDGE_IP=$(echo "${i1}.${i2}.${i3}.2")
-   DEV_ROUTER=${i1}.${i2}.$(( ${i3} + 1 )).1
-   DEV_INGRESS=${i1}.${i2}.$(( ${i3} + 1 )).2
-   DEV_NETWORK=${i1}.${i2}.$(( ${i3} + 1 )).0
-
-   cat << EOF > ${OKD_LAB_PATH}/lab-config/lab.yaml
-   domain: ${LAB_DOMAIN}
-   network: ${EDGE_NETWORK}
-   router-ip: ${EDGE_ROUTER}
-   bastion-ip: ${BASTION_HOST}
-   netmask: 255.255.255.0
-   centos-mirror: rsync://mirror.facebook.net/centos-stream
-   gitea-version: 1.16.7
-   openwrt-version: 21.02.1
-   git-url: https://gitea.${LAB_DOMAIN}:3000
-   sub-domain-configs:
-   - name: dev
-     router-edge-ip: ${DEV_EDGE_IP}
-     router-ip: ${DEV_ROUTER}
-     network: ${DEV_NETWORK}
-     netmask: 255.255.255.0
-     cluster-config-file: dev-cluster.yaml
-   EOF
+   cp ${HOME}/okd-lab/kamarotos/bin/* ${HOME}/okd-lab/bin
+   chmod 700 ${HOME}/okd-lab/bin/*
    ```
 
-   Your lab configuration YAML file should look something like this:
+1. Copy the prescriptive lab configuration files to ${HOME}/okd-lab/lab-config
+
+   ```bash
+   mkdir -p ${HOME}/okd-lab/lab-config/domain-configs
+   cp ${HOME}/okd-lab/kamarotos/examples/lab.yaml ${HOME}/okd-lab/lab-config/lab.yaml
+   cp ${HOME}/okd-lab/kamarotos/examples/domain-configs/kvm-cluster-basic.yaml ${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
+   ```
+
+1. Add the following to your shell environment:
+
+   Your default shell will be something like `bash` or `zsh`.  Although you might have changed it.
+
+   You need to add the following line to the appropriate shell file in your home directory: `.bashrc`, or `.zshrc`, etc...
+
+   __Bash:__
+
+   ```bash
+   echo ". ${HOME}/okd-lab/bin/labEnv.sh" >> ~/.bashrc
+   ```
+
+   __Zsh:__
+
+   ```bash
+   echo ". ${HOME}/okd-lab/bin/labEnv.sh" >> ~/.zshrc
+   ```
+
+   __Note:__ Take a look at the file `${HOME}/okd-lab/bin/labEnv.sh`.  It will set variables in your shell when you log in, so make sure you are comfortable with what it is setting.  If you don't want to add it to your shell automatically, the you will need to execute `. ${HOME}/okd-lab/bin/labEnv.sh` before running any lab commands.
+
+   It's always a good practice to look at what a downloaded script is doing, since it is running with your logged in privileges...  I know that you NEVER run one of those; `curl some URL | bash`...  without looking at the file first...  right?
+
+   There will be a test later...  :-)
+
+1. __Log off and back on to set the variables.__
+
+## Review the configuration
+
+The documentation for `labcli` is here: [Command Line Interface for your Kubernetes (OpenShift) Home Lab](/home-lab/labcli/)
+
+I'm being intentionally prescriptive here to help ensure success the first time you try this.  I have created a lab configuration for you based on the assumption that you have the minimal equipment for your first lab.  You will need the equipment for a Basic KVM Lab: [Gear For Your Home Lab](/home-lab/lab-gear/)
+
+1. Your lab domain will be:
+
+   `my.awesome.lab`
+
+1. Your lab network will be:
+
+   For example: `10.11.12.0/24`
+
+1. These settings are in: `${HOME}/okd-lab/lab-config/lab.yaml`
 
    ```yaml
    domain: my.awesome.lab
@@ -72,40 +86,67 @@ This tutorial assumes that you are running a Unix like operating system on your 
    router-ip: 10.11.12.1
    bastion-ip: 10.11.12.10
    netmask: 255.255.255.0
+   centos-mirror: rsync://mirror.facebook.net/centos-stream
+   gitea-version: 1.15.9
+   openwrt-version: 21.02.1
+   git-url: https://gitea.my.awesome.lab:3000
    sub-domain-configs:
    - name: dev
-     router-edge-ip: 10.11.12.2
+     router-edge-ip: 10.11.12.15
      router-ip: 10.11.13.1
      network: 10.11.13.0
      netmask: 255.255.255.0
-     cluster-config-file: dev-cluster.yaml
+     cluster-config-file: dev.yaml
    ```
 
-1. Now create the header for your cluster configuration file:
+   __Note:__ If you want different network settings, or a different domain, change this file accordingly.
 
-   ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
+1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
+
+   ```yaml
    cluster:
      name: okd4
-     cluster-cidr: 10.100.0.0/14
-     service-cidr: 172.30.0.0/16
-     local-registry: nexus.${LAB_DOMAIN}:5001
-     proxy-registry: nexus.${LAB_DOMAIN}:5000
+     cluster-cidr: 10.88.0.0/14
+     service-cidr: 172.20.0.0/16
+     local-registry: nexus.my.awesome.lab:5001
+     proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
      butane-version: v0.14.0
      butane-spec-version: 1.4.0
-     ingress-ip-addr: ${DEV_INGRESS}
-     release: 4.10.0-0.okd-2022-05-07-021833
-   EOF
+     ingress-ip-addr: 10.11.13.2
+   kvm-hosts:
+     - host-name: kvm-host01
+       mac-addr: "YOUR_HOST_MAC_HERE"
+       ip-addr: 10.11.13.200
+       disks:
+         disk1: sda
+         disk2: sdb
+   bootstrap:
+     metal: false
+     node-spec:
+       memory: 12288
+       cpu: 4
+       root-vol: 50
+     kvm-host: kvm-host01
+     ip-addr: 10.11.13.49
+   control-plane:
+     metal: false
+     node-spec:
+       memory: 20480
+       cpu: 6
+       root-vol: 100
+     okd-hosts:
+       - kvm-host: kvm-host01
+         ip-addr: 10.11.13.60
+       - kvm-host: kvm-host01
+         ip-addr: 10.11.13.61
+       - kvm-host: kvm-host01
+         ip-addr: 10.11.13.62
    ```
 
-   We'll fill in the rest of this file later, based on your lab setup, KVM vs. Bare Metal and SNO, vs. full cluster.
+   __Note:__ You will need to replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC server.  We'll do that later when we get ready to install OpenShift.
 
-1. Create a folder for the scripts that we'll be using:
-
-   ```bash
-   mkdir ${OKD_LAB_PATH}/bin
-   ```
+   __Note:__ If you want different network settings, or a different domain, change this file accordingly.
 
 1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
 
@@ -125,45 +166,6 @@ This tutorial assumes that you are running a Unix like operating system on your 
      cp ${OKD_LAB_PATH}/yq-tmp/yq_linux_amd64 ${OKD_LAB_PATH}/bin/yq
      chmod 700 ${OKD_LAB_PATH}/bin/yq
      ```
-
-### Install the `labcli` utilities for the Lab
-
-I have created a companion project for this blog.  It contains all of the shell functions that I use to ease the task of building and tearing down infrastructure in my lab.
-
-In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since these scripts take on the drudgery of repeated tasks, I chose to name them after the guy that cleans the toilets on a ship...  Thus, the project is named: __καμαρότος__.  That is, kamarótos; Greek for Ship's steward or cabin boy...
-
-1. Clone the git repository that I have created with helper scripts:
-
-   ```bash
-   git clone https://github.com/cgruver/kamarotos.git ${OKD_LAB_PATH}/kamarotos
-   ```
-
-1. Copy the helper scripts to your `${OKD_LAB_PATH}` directory:
-
-   ```bash
-   cp ${OKD_LAB_PATH}/kamarotos/bin/* ${OKD_LAB_PATH}/bin
-   chmod 700 ${OKD_LAB_PATH}/bin/*
-   ```
-
-1. Add the following to your shell environment:
-
-   Your default shell will be something like `bash` or `zsh`.  Although you might have changed it.
-
-   You need to add the following line to the appropriate shell file in your home directory: `.bashrc`, or `.zshrc`, etc...
-
-   __Bash:__
-
-   ```bash
-   echo ". ${OKD_LAB_PATH}/bin/labEnv.sh" >> ~/.bashrc
-   ```
-
-   __Zsh:__
-
-   ```bash
-   echo ". ${OKD_LAB_PATH}/bin/labEnv.sh" >> ~/.zshrc
-   ```
-
-1. __Log off and back on to set the variables.__
 
 1. If you don't have an SSH key pair configured on your workstation, then create one now:
 

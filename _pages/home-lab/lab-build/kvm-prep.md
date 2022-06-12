@@ -36,116 +36,19 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
    cat ~/.ssh/id_rsa.pub | ssh root@bastion.${LAB_DOMAIN} "cat >> /usr/local/www/install/postinstall/authorized_keys" 
    ```
 
-1. Read the `MAC` address off of the bottom of the NUC and create an environment variable:
+1. Read the `MAC` address off of the bottom of the NUC and add it to the cluster config file:
 
-   ```bash
-   MAC_ADDR=1c:69:7a:6f:ab:12  # Substitute your NUC's MAC Address
-   ```
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC.
 
-1. Set a variable for the cluster network:
-
-   ```bash
-   IFS="." read -r i1 i2 i3 i4 <<< "${DOMAIN_NETWORK}"
-   export NET_PREFIX=${$i1}.${$i2}.${$i3}
-   ```
-
-1. Create a YAML file to define the network and hosts for the OpenShift cluster that we're going to install:
-
-   ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
-   cluster:
-     name: okd4
-     cluster-cidr: 10.100.0.0/14
-     service-cidr: 172.30.0.0/16
-     local-registry: nexus.${LAB_DOMAIN}:5001
-     proxy-registry: nexus.${LAB_DOMAIN}:5000
-     remote-registry: quay.io/openshift/okd
-     butane-version: v0.14.0
-     butane-spec-version: 1.4.0
-     ingress-ip-addr: ${NET_PREFIX}.2
-   bootstrap:
-     metal: false
-     node-spec:
-       memory: 12288
-       cpu: 4
-       root-vol: 50
-     kvm-host: kvm-host01
-     ip-addr: ${NET_PREFIX}.49
-   control-plane:
-     metal: false
-     node-spec:
-       memory: 20480
-       cpu: 6
-       root-vol: 100
-     okd-hosts:
-     - kvm-host: kvm-host01
-       ip-addr: ${NET_PREFIX}.60
-     - kvm-host: kvm-host01
-       ip-addr: ${NET_PREFIX}.61
-     - kvm-host: kvm-host01
-       ip-addr: ${NET_PREFIX}.62
-   kvm-hosts:
-   - host-name: kvm-host01
-     mac-addr: ${MAC_ADDR}
-     ip-addr: ${NET_PREFIX}.200
-     disks:
-       disk1: nvme0n1
-       disk2: NA
-   EOF
-   ```
+   __Note:__ Use lower case letters in the MAC.
 
 1. You need to know whether you have NVME or SATA SSDs in the NUC.
 
    1. If you have an NVME drive installed in the NUC, you do not need to modify anything.
 
-   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml`, and replace `nvme0n1` with `sda`.
+   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `nvme0n1` with `sda`.
 
-   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
-
-### Configuration Complete
-
-Your OpenShift cluster configuration YAML file should look something like this:
-
-```yaml
-cluster:
-  name: okd4
-  cluster-cidr: 10.100.0.0/14
-  service-cidr: 172.30.0.0/16
-  local-registry: nexus.my.awesome.lab:5001
-  proxy-registry: nexus.my.awesome.lab:5000
-  remote-registry: quay.io/openshift/okd
-  butane-version: v0.14.0
-  butane-spec-version: 1.4.0
-  ingress-ip-addr: 10.11.13.2
-bootstrap:
-  metal: false
-  node-spec:
-    memory: 12288
-    cpu: 4
-    root-vol: 50
-  kvm-host: kvm-host01
-  ip-addr: 10.11.13.49
-control-plane:
-  metal: false
-  node-spec:
-    memory: 20480
-    cpu: 6
-    root-vol: 100
-  okd-hosts:
-  - kvm-host: kvm-host01
-    ip-addr: 10.11.13.60
-  - kvm-host: kvm-host01
-    ip-addr: 10.11.13.61
-  - kvm-host: kvm-host01
-    ip-addr: 10.11.13.62
-kvm-hosts:
-- host-name: kvm-host01
-  mac-addr: 1c:69:7a:6f:ab:12
-  ip-addr: 10.11.13.200
-  disks:
-    disk1: nvme0n1
-    disk2: NA
-```
+   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
 
 ## Now We are Ready To Prepare a Disconnected Install of OpenShift
 

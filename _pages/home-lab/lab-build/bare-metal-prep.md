@@ -17,85 +17,27 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
 
 __As before, I'm being intentionally prescriptive here to help ensure success the first time you try this.__
 
-1. Set the shell environment from the lab configuration file that we created earlier:
+1. copy the cluster config file from ${HOME}/okd-lab/kamarotos/examples/domain-configs/bare-metal-basic.yaml:
 
    ```bash
-   labctx dev
+   cd ${HOME}/okd-lab/kamarotos
+   git pull
+   cp ${HOME}/okd-lab/kamarotos/examples/domain-configs/bare-metal-basic.yaml ${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
    ```
 
-1. You need to know two things at this point:
+1. Read the `MAC` address off of the bottom of each NUC and add it to the cluster config file:
 
-   1. The MAC address of each of your NUCs
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of each NUC.
 
-   1. The type of SSD installed, SATA or NVMe
+   __Note:__ Use lower case letters in the MAC.
 
-1. Set some variables with this info:
+1. You need to know whether you have NVME or SATA SSDs in the NUC.
 
-   If you have NVMe drives:
+   1. If you have an NVME drive installed in the NUC, you do not need to modify anything.
 
-   ```bash
-   SSD=/dev/nvme0n1
-   ```
+   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `nvme0n1` with `sda`.
 
-   If you have SATA Drives:
-
-   ```bash
-   SSD=/dev/sda
-   ```
-
-   Now set variables with the MAC addresses from your NUCs:
-
-   ```bash
-   NUC1="1c:69:11:22:aa:bb"
-   NUC2="1c:69:11:22:aa:bb"
-   NUC3="1c:69:11:22:aa:bb"
-   ```
-
-1. Set a variable for the cluster network:
-
-   ```bash
-   IFS="." read -r i1 i2 i3 i4 <<< "${DOMAIN_NETWORK}"
-   export NET_PREFIX=${$i1}.${$i2}.${$i3}
-   ```
-
-1. Create a YAML file to define the network and hosts for the OpenShift cluster that we're going to install:
-
-   ```bash
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
-   cluster:
-     name: okd4
-     cluster-cidr: 10.100.0.0/14
-     service-cidr: 172.30.0.0/16
-     local-registry: nexus.${LAB_DOMAIN}:5001
-     proxy-registry: nexus.${LAB_DOMAIN}:5000
-     remote-registry: quay.io/openshift/okd
-     butane-version: v0.14.0
-     butane-spec-version: 1.4.0
-     ingress-ip-addr: ${NET_PREFIX}.2
-   bootstrap:
-     metal: true
-     mac-addr: "52:54:00:a1:b2:c3"
-     boot-dev: /dev/sda
-     ip-addr: ${NET_PREFIX}.49
-     node-spec:
-       memory: 12288
-       cpu: 2
-       root-vol: 50
-     bridge-dev: ${BOOTSTRAP_BRIDGE}
-   control-plane:
-     metal: true
-     okd-hosts:
-       - mac-addr: ${NUC1}
-         boot-dev: ${SSD}
-         ip-addr: ${NET_PREFIX}.60
-       - mac-addr: ${NUC2}
-         boot-dev: ${SSD}
-         ip-addr: ${NET_PREFIX}.61
-       - mac-addr: ${NUC3}
-         boot-dev: ${SSD}
-         ip-addr: ${NET_PREFIX}.62
-   EOF
-   ```
+   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
 
 1. Set the OpenShift version for the lab to the latest available:
 
@@ -103,7 +45,11 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
    labcli --latest -d=dev
    ```
 
-1. Your OpenShift cluster configuration YAML file should look something like this:
+1. Replace the value of `BOOTSTRAP_BRIDGE`:
+
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml` and replace `BOOTSTRAP_BRIDGE` with the `${BOOTSTRAP_BRIDGE}` that you set in the step: [Prepare Your Workstation For Bootstrap](/home-lab/bare-metal-bootstrap/){:target="_blank"}
+
+1. Your OpenShift cluster configuration YAML file should look similar to this:
 
    ```yaml
    cluster:
@@ -115,7 +61,7 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
      remote-registry: quay.io/openshift/okd
      butane-version: v0.14.0
      butane-spec-version: 1.4.0
-     ingress-ip-addr: ${NET_PREFIX}.2
+     ingress-ip-addr: 10.11.13.2
    bootstrap:
      metal: true
      mac-addr: "52:54:00:a1:b2:c3"

@@ -55,7 +55,7 @@ I've included Amazon.com links to the gear that I have.
 
 __Note:__ You can combine KVM and Bare Metal configurations.  For example, you can deploy your control-plane on a single NUC with KVM, and then add bare metal compute nodes.
 
-## __KVM or Single Node__
+## __Basic KVM or Single Node__
 
 * Intel NUC10i7FNK configured with 64GB RAM, (2 X 32GB) & 1TB NVMe
 

@@ -27,66 +27,32 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
 
    1. The type of SSD installed, SATA or NVMe
 
-1. Set some variables with this info:
-
-   If you have an NVMe drive:
+1. copy the cluster config file from ${HOME}/okd-lab/kamarotos/examples/domain-configs/sno-bm.yaml:
 
    ```bash
-   SSD=/dev/nvme0n1
+   cd ${HOME}/okd-lab/kamarotos
+   git pull
+   cp ${HOME}/okd-lab/kamarotos/examples/domain-configs/sno-bm.yaml ${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
    ```
 
-   If you have a SATA Drive:
+1. Read the `MAC` address off of the bottom of the NUC and add it to the cluster config file:
 
-   ```bash
-   SSD=/dev/sda
-   ```
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC.
 
-   Now set variables with the MAC addresses from your NUCs:
+   __Note:__ Use lower case letters in the MAC.
 
-   ```bash
-   NUC1="1c:69:11:22:aa:bb"
-   ```
+1. You need to know whether you have NVME or SATA SSDs in the NUC.
 
-1. Create a YAML file to define the network and host for the OpenShift cluster that we're going to install:
+   1. If you have an NVME drive installed in the NUC, you do not need to modify anything.
 
-   labctx dev
+   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `nvme0n1` with `sda`.
 
-   ```bash
-   IFS="." read -r i1 i2 i3 i4 <<< "${DOMAIN_NETWORK}"
+   1. If you have more than one drive installed, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/dev.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
 
-   SNO_NODE_IP=${i1}.${i2}.${i3}.200
-   BOOTSTRAP_IP=${i1}.${i2}.${i3}.49
+1. Replace the value of `BOOTSTRAP_BRIDGE`:
 
-   cat << EOF  > ${OKD_LAB_PATH}/lab-config/domain-configs/dev-cluster.yaml
-   cluster:
-     name: okd4-snc
-     cluster-cidr: 10.88.0.0/14
-     service-cidr: 172.20.0.0/16
-     local-registry: nexus.${LAB_DOMAIN}:5001
-     proxy-registry: nexus.${LAB_DOMAIN}:5000
-     remote-registry: quay.io/openshift/okd
-     butane-version: v0.13.1
-     butane-spec-version: 1.3.0
-   bootstrap:
-     metal: true
-     mac-addr: "52:54:00:a1:b2:c3"
-     ip-addr: ${BOOTSTRAP_IP}
-     boot-dev: /dev/sda
-     bridge-dev: ${BOOTSTRAP_BRIDGE}
-     node-spec:
-       memory: 12288
-       cpu: 2
-       root_vol: 50
-   control-plane:
-     metal: true
-     okd-hosts:
-     - mac-addr: "${NUC1}"
-       boot-dev: ${SSD}
-       sno-install-dev: ${SSD}
-       name: okd4-snc-node
-       ip-addr: ${SNO_NODE_IP}
-   EOF
-   ```
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml` and replace `BOOTSTRAP_BRIDGE` with the `${BOOTSTRAP_BRIDGE}` that you set in the step: [Prepare Your Workstation For Bootstrap](/home-lab/bare-metal-bootstrap/){:target="_blank"}
+
 
 1. Set the OpenShift version for the lab to the latest available:
 
@@ -94,7 +60,7 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
    labcli --latest -d=dev
    ```
 
-1. Your OpenShift cluster configuration YAML file should look something like this:
+1. Your OpenShift cluster configuration YAML file should look similar, (but not necessarily exactly), to this:
 
    ```yaml
    cluster:
