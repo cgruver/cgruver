@@ -19,7 +19,7 @@ In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since 
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   mkdir ${HOME}/okd-lab
+   mkdir -p ${HOME}/okd-lab/bin
    git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
    ```
 
