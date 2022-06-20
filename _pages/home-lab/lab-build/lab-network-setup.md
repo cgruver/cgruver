@@ -43,7 +43,7 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
    labcli --router -i -e -wl
    ```
 
-   You will prompted to enter an `SSID` and a passphrase for your new lab network.
+   You will prompted to enter an `ESSID` and a passphrase for your new lab network.
 
    __To use the router in repeater mode, do this instead:__
 
@@ -51,7 +51,9 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
    labcli --router -i -e -wl -ww
    ```
 
-   You will prompted to enter the `SSID` and passphrase for home wireless network, and you will prompted to enter an `SSID` and a passphrase for your new lab network.
+   You will prompted to enter the `ESSID`, `Channel`, and `Passphrase` for the wireless network you are bridging to, and you will prompted to enter an `ESSID` and a passphrase for your new lab network.
+
+   __Note:__ The router will dump a list of the Wireless Networks that it sees.  You can get the channel from that list as well.
 
    When the configuration is complete, the router will reboot.
 
@@ -68,6 +70,14 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
    ```
 
    __Note:__   If you want to see the details of what labcli scripts are doing, I have a page with the manual instructions here: [Edge Network Router Configuration](/home-lab/edge-router/){:target="_blank"}
+
+1. Wait for the router to reboot, and then reconnect to your new lab network.
+
+1. Verify that DNS is working properly:
+
+   ```bash
+   ping google.com
+   ```
 
 ### Configure the Internal Network Router
 
