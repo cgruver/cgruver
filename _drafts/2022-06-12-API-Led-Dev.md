@@ -33,6 +33,16 @@ After following the instructions in this post you will have the following:
    * [Apicurio Studio](https://www.apicur.io/studio/){:target="_blank"} for OpenAPI, and AsyncAPI schema development
 
 Both of the edge network devices will be running OpenWRT.
+## Get Your Lab Gear Together
+
+For this setup, you will need the following:
+
+1. GL.iNet AR-750S Travel Router
+1. Raspberry Pi 4B 8GB
+1. 256GB MicroSD Card
+1. USB Thumb Drive - at least 2GB
+1. 1Gb Etherenet Dongle
+1. 2 or 3 network patch cables, depending on your setup
 
 ## Set Up Your Workstation
 
