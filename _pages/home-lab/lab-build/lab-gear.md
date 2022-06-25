@@ -22,6 +22,12 @@ Below is the complete bill of materials for your starter lab.
 
 I've included Amazon.com links to the gear that I have.
 
+__Note: GL.iNet has discontinued both the GL-MV1000, and the GL-MV1000W.__
+
+I have added support for the [GL-AR750S-Ext](https://www.amazon.com/GL-iNet-GL-AR750S-Ext-pre-Installed-Cloudflare-Included/dp/B07GBXMBQF/ref=sr_1_3?dchild=1&keywords=gl.iNet&qid=1627902663&sr=8-3){:target="_blank"} as your edge router.  But it is not capable enough to be your domain router which needs more memory and CPU to serve both DNS and HA-Proxy.
+
+I am working on adding support for the [Nanopi R4S](https://www.friendlyelec.com/index.php?route=product/product&product_id=284){:target="_blank"}.  It is even more capable than the GL-MV1000.  Unfortunately, the chip shortage has made things difficult to acquire.
+
 * [GL.iNet GL-MV1000W](https://www.amazon.com/gp/product/B08DCFBV3H/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"} (Edge Router with WiFi)
   * __Note:__ You may also be able to use the less expensive [GL.iNet GL-AR750S-Ext](https://www.amazon.com/GL-iNet-GL-AR750S-Ext-pre-Installed-Cloudflare-Included/dp/B07GBXMBQF/ref=sr_1_3?dchild=1&keywords=gl.iNet&qid=1627902663&sr=8-3){:target="_blank"}  But, while it has dual-band WiFi, it is much more limited on internal storage, CPU, and RAM.
   * If you go with this option, you will also need a USB type A thumb drive with at least 2GB capacity.
