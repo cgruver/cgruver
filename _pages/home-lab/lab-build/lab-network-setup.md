@@ -163,12 +163,6 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 
 ### Install Developer Tools
 
-1. Install Java 8 and Java 11:
-
-   ```bash
-   labcli --dev-tools -j
-   ```
-
 1. Install Sonatype Nexus
 
    ```bash
@@ -179,29 +173,21 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 
    [Install Sonatype Nexus on Raspberry Pi 4B with OpenWRT](/home-lab/nexus-pi/){:target="_blank"}
 
+1. Start Nexus
+
+   ```bash
+   ssh root@bastion.${LAB_DOMAIN} "/etc/init.d/nexus start"
+   ```
+
 1. Nexus will take a while to start for the first time.
 
    Go make a nice cup of tea, coffee, or hot beverage of your choice.  Nexus will be up shortly.
 
 1. After Nexus has started, trust the new Nexus cert on your workstation:
 
-   * Mac OS:
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/nexus.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/nexus.${LAB_DOMAIN}.crt
-     ```
-
-   * Linux:
-
-     ```bash
-     openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:5001 </dev/null 2>/dev/null > /tmp/nexus.${LAB_DOMAIN}.cert
-     sudo openssl x509 -outform PEM -in /tmp/nexus.${LAB_DOMAIN}.cert -out /etc/pki/ca-trust/source/anchors/nexus.${LAB_DOMAIN}.crt
-     rm /tmp/nexus.${LAB_DOMAIN}.cert
-     sudo update-ca-trust
-     ```
+   ```bash
+   labcli --trust -n
+   ```
 
 1. Install Gitea
 
@@ -213,21 +199,17 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 
    [Installing Gitea on a Raspberry Pi 4B with OpenWRT](/home-lab/gitea-with-pi/){:target="_blank"}
 
+1. Start Gitea
+
+   ```bash
+   ssh root@bastion.${LAB_DOMAIN} "/etc/init.d/gitea start"
+   ```
+
 1. Trust the gitea certs on your workstation:
 
-   * Mac OS:
-
-     ```bash
-     openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/gitea.${LAB_DOMAIN}.crt
-     sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" /tmp/gitea.${LAB_DOMAIN}.crt
-     ```
-
-   * Linux:
-
-     ```bash
-     openssl s_client -showcerts -connect gitea.${LAB_DOMAIN}:3000 </dev/null 2>/dev/null|openssl x509 -outform PEM > /etc/pki/ca-trust/source/anchors/gitea.${LAB_DOMAIN}.crt
-     update-ca-trust
-     ```
+   ```bash
+   labcli --trust -g
+   ```
 
    The Gitea web console will be at: `https://gitea.${LAB_DOMAIN}:3000`
 

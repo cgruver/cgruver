@@ -8,9 +8,14 @@ tags:
   - kubernetes install
   - kvm
 ---
-## Create The Lab Configuration YAML File
 
-__As before, I'm being intentionally prescriptive here to help ensure success the first time you try this.__
+1. If you did not set up a mirror of the CentOS Stream install files when you set up your Raspberry Pi.  You will need to do that now.
+
+   ```bash
+   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@10.11.12.10 "nohup /root/bin/MirrorSync.sh &"
+   ```
+
+   This will take a while to complete.  Wait until the MirrorSynch process on your Pi is complete.  Depending on network speed, this could take an hour or more.
 
 1. Set the shell environment from the lab configuration file that we created earlier:
 
