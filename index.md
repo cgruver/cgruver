@@ -11,6 +11,7 @@ tags:
   - openshift
   - okd
   - home lab
+  - homelab
   - kubernetes
   - openwrt
   - gl.inet

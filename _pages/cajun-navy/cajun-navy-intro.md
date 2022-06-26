@@ -79,21 +79,21 @@ Let's build an app to help realize that goal.
 
 ## The Domain Processes
 
-1. A `Disaster` is registered.
+1. Register a `Disaster` with at least one `Impact Zone`.
 
-1. `Shelters` are identified, which are unaffected by the `Disaster`, and are able to house `Victims`.
+1. Register a `Shelter` associated with a `Disaster`.
 
-1. `Victims` indicate their need for assistance.
+1. `A Victim` registers for assistance.
 
-1. `Responders` indicate their availability to help `Victims`
+1. A `Responder` indicates their availability to help `Victims`
 
-1. `Incidents` are created for one or more `Victims` that are at the same `location`.
+1. `Incidents` are created for one or more `Victims` that are in close proximity.
 
 1. An appropriate `Shelter` is identified to accept the `Victims` associated with an `Incident`
 
-1. A `Mission` is created to assign an `Incident` to a `Shelter`
+1. Create a `Mission` and assign one or more `Incidents` to a `Shelter`
 
-1. A `Mission` is assigned to a `Responder`
+1. Assign a `Mission` to a `Responder`
 
 1. A `Responder` accepts a `Mission`
 
@@ -107,6 +107,7 @@ The `Disaster` aggregate defines the geographical boundaries of the area affecte
 
 `Disaster` maintains a relationship with:
 
+* Impact Zones
 * Registered `Shelters`
 * Registered `Responders`
 * Registered `Victims`
@@ -119,6 +120,14 @@ A `Disaster` has the following entities:
 | `Shelter` | A facility that can accept `Victims` |
 | `Responder` | A rescue team with the skills and resources to rescue `Victims` |
 | `Victim` | An individual impacted by the disaster and in need of rescue |
+
+### Shelter
+
+### Incident
+
+### Mission
+
+### Responder
 
 
 ## WIP...
