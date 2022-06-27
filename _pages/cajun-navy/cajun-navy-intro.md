@@ -83,7 +83,7 @@ Let's build an app to help realize that goal.
 
 1. Register a `Shelter` associated with a `Disaster`.
 
-1. `A Victim` registers for assistance.
+1. A `Victim` registers for assistance.
 
 1. A `Responder` indicates their availability to help `Victims`
 
@@ -122,6 +122,10 @@ A `Disaster` has the following entities:
 | `Victim` | An individual impacted by the disaster and in need of rescue |
 
 ### Shelter
+
+| Entity | Description |
+| --- | --- |
+
 
 ### Incident
 
