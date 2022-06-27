@@ -74,17 +74,17 @@ __[Set Up a MacBook for Qemu with Bridged Network](/home-lab/bare-metal-bootstra
 
    1. Click on the wifi icon in the top right of your screen.
 
-      ![Network Preferences](/_pages/home-lab/bare-metal/images/network-preferences.png)
+      ![Network Preferences](/_pages/home-lab/lab-build/images/network-preferences.png)
 
    1. In the bottom left of the pop up, select the menu dropdown and click on `Set Service Order`
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/set-service-order.png)
+      ![Set Service Order](/_pages/home-lab/lab-build/images/set-service-order.png)
 
    1. Drag `WiFi` to the top.
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/service-order.png)
+      ![Set Service Order](/_pages/home-lab/lab-build/images/service-order.png)
 
-      ![Set Service Order](/_pages/home-lab/bare-metal/images/wifi-first.png)
+      ![Set Service Order](/_pages/home-lab/lab-build/images/wifi-first.png)
 
    1. Click `OK` then click `Apply`
 
