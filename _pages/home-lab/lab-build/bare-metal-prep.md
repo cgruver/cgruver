@@ -7,6 +7,8 @@ tags:
   - bare metal okd install
   - bare metal kubernetes install
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 ## Prepare Your Workstation For Bootstrap
 
 Before you proceed, you need to setup your workstation for running the Bootstrap node.  Or, if you have a NUC available, then you can set it up as a KVM host and run the bootstrap there.  These instructions assume that you are using your workstation.

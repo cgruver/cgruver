@@ -9,6 +9,8 @@ tags:
   - qemu bridged network on Mac OS
   - qemu on Mac OS
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 Let's set up a MacBook to run the OpenShift Bootstrap node.
 
 1. Install Qemu and some dev tools.

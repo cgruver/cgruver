@@ -7,6 +7,9 @@ tags:
   - bare metal okd install
   - bare metal kubernetes single node cluster
 ---
+
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 We're going to install an OpenShift OKD SNO cluster on a bare metal server.  The bootstrap node will run on your workstation.  This particular tutorial is biased towards a MacBook workstation.  However, you can easily modify this to run the bootstrap node on Fedora or other Linux flavor.
 
 There is also a feature for installing SNO with "bootstrap-in-place" which does not require a bootstrap node.  It is not quite ready for our purposes yet, so we're still going to use a bootstrap node to initiate the install.

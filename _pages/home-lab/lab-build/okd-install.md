@@ -8,6 +8,8 @@ tags:
   - kubernetes install
   - kvm
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 ## We are now ready to fire up our OpenShift cluster
 
 1. Deploy the configuration in preparation for the install:
