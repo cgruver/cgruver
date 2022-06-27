@@ -8,6 +8,8 @@ tags:
   - openshift home lab
   - kubernetes home lab
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 __Note:__ This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux distribution.  If you are running Windows, you might try the Windows Subsystem For Linux.  All of my testing is done on Mac OS.
 
 ## Install the `labcli` utilities for the Lab

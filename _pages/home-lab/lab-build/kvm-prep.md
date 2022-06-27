@@ -8,6 +8,7 @@ tags:
   - kubernetes install
   - kvm
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
 
 1. If you did not set up a mirror of the CentOS Stream install files when you set up your Raspberry Pi.  You will need to do that now.
 

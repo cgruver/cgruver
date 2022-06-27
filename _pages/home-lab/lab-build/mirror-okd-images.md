@@ -7,6 +7,8 @@ tags:
   - okd disconnected install
   - kubernetes disconnected install
 ---
+__Note:__ This is part of a series.  Make sure you started here: [Building a Portable Kubernetes Home Lab with OpenShift - OKD4](/home-lab/lab-intro/)
+
 ### Create OpenShift image mirror
 
 From your workstation, do the following:
