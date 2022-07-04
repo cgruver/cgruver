@@ -18,11 +18,15 @@ We're going to establish our high level domain vocabulary through an interview s
 
 Why are we here?  Because a Disaster has ocurred, and people need to be rescued.
 
+This application is implementing a fictional system based on the coordination of rescue operations loosely termed the Cajun Navy: [https://en.wikipedia.org/wiki/Cajun_Navy](https://en.wikipedia.org/wiki/Cajun_Navy).  It's origins go back to Hurricane Katrina in 2005.
+
+The scenario is that a flood disaster of some sort has occurred and volunteer resources with boats are needed to carry out immediate rescue operations.
+
 __Question__: What is a disaster?
 
 __Answer__: A disaster is an event that significantly disrupts the normal operations for a locality.  Now, the locality can be pretty narrow.  For example, your basement...  The washing machine overflows and your sump pump failed.  That's a pretty significant disruption, but not one that is likely to require the attention of the Cajun Navy.  So, let's define locality a bit more broadly.  In our case, a locality represents a population on the order of a town, city, or one or more counties, which may span one or more States.  This is, after all, the Cajun Navy.  So, the examples will be US centric.
 
-__Domain Vocabulary__: A `Disaster` is an event that significantly disrupts the normal operations for a population on the order of a town, city, or one or more counties, which may span one or more States.
+__Domain Vocabulary__: A `Disaster` is an event that significantly disrupts the normal operations for a population on the order of a town, city, or one or more counties, which may span one or more States.  In the case of this application, the `Disaster` is a flood.
 
 __Question__: What do we need to do in order to deal with the disaster, in the immediate term?
 
