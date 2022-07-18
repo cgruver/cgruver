@@ -2505,3 +2505,11 @@ oc --kubeconfig=${KUBE_INIT_CONFIG} create secret tls ${CLUSTER_NAME}-api --cert
 oc --kubeconfig=${KUBE_INIT_CONFIG} patch apiserver cluster --type=merge -p "{\"spec\":{\"servingCerts\":{\"namedCertificates\":[{\"names\": [\"api.${CLUSTER_NAME}.${DOMAIN}\"],\"servingCertificate\":{\"name\":\"${CLUSTER_NAME}-api\"}}]}}}"
 
 ```
+
+## OpenJDK
+
+```bash
+brew install openjdk@17
+sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+
+```
