@@ -2398,17 +2398,17 @@ wireless.wifinet2.key='WelcomeToMyLab'
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-brew install autoconf automake coreutils gnutls go helm ko jq yq kustomize lftp maven nmap node openjdk@11 podman qemu ruby tektoncd-cli watch wget gh quarkusio/tap/quarkus
+brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@11 podman qemu ruby tektoncd-cli watch wget gh quarkusio/tap/quarkus
 
 gh auth login
 
-sudo ln -sfn /usr/local/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 
 cat << EOF >> ~/.zshrc
 ### Brew Vars
-PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@11/bin:/usr/local/opt/ruby/bin:$PATH"
+PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@11/bin:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 export GUILE_TLS_CERTIFICATE_DIRECTORY=/usr/local/etc/gnutls/
-export CPPFLAGS="-I/usr/local/opt/openjdk@11/include"
+export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
 export LDFLAGS="-L/usr/local/opt/ruby/lib"
 export CPPFLAGS="-I/usr/local/opt/ruby/include"
 export PKG_CONFIG_PATH="/usr/local/opt/ruby/lib/pkgconfig"
