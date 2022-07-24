@@ -1,11 +1,12 @@
 ---
 title: OpenShift Pipelines - Disconnected Install
-description: How To Install OpenShift Pipelines On A Disconnected Network
+description: How To Install OpenShift Pipelines On OKD with a Disconnected Network
 permalink: /home-lab/tekton-install/
 sitemap: true
 published: true
 tags:
   - openshift pipelines
+  - openshift home lab
   - tekton
   - tekton triggers
 ---

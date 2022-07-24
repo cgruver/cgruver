@@ -2513,3 +2513,78 @@ brew install openjdk@17
 sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 
 ```
+
+## Manipulate `POM` with `YQ`
+
+```bash
+mv pom.xml pom.xml.orig
+yq -p=xml '.project.properties += {"org.mapstruct.version":"1.5.2.Final","org.lombok.version":"1.18.24"}' pom.xml.orig | yq '.project.dependencies.dependency += [{"groupId":"org.projectlombok","artifactId":"lombok","version":"${org.lombok.version}"},{"groupId":"org.mapstruct","artifactId":"mapstruct","version":"${org.mapstruct.version}"},{"groupId":"org.mapstruct","artifactId":"mapstruct-processor","version":"${org.mapstruct.version}"}]' | yq -o=xml > pom.xml
+```
+
+```bash
+function addProperty() {
+
+  for i in "$@"
+    do
+      case $i in
+        -p=*|--property=*)
+          PROPERTY="${i#*=}"
+        ;;
+        -v=*|--value=*)
+          VALUE="${i#*=}"
+        ;;
+      esac
+    done
+
+    mv pom.xml pom.xml.orig
+    yq -p=xml ".project.properties += {\"${PROPERTY}\":\"${VALUE}\"}" pom.xml.orig | yq -o=xml > pom.xml
+}
+
+function addDependency() {
+  for i in "$@"
+  do
+    case $i in
+      -g=*|--groupid=*)
+        GROUP_ID="${i#*=}"
+      ;;
+      -a=*|--artifactid=*)
+        ARTIFACT_ID="${i#*=}"
+      ;;
+      -v=*|--version=*)
+        VERSION="${i#*=}"
+      ;;
+    esac
+  done
+  mv pom.xml pom.xml.orig
+  yq -p=xml ".project.dependencies.dependency += [{\"groupId\":\"${GROUP_ID}\",\"artifactId\":\"${ARTIFACT_ID}\",\"version\":\"${VERSION}\"}]' pom.xml.orig | yq -o=xml > pom.xml
+}
+```
+
+## NanoPi Router
+
+```bash
+
+
+opkg update
+opkg install losetup resize2fs
+BOOT="$(sed -n -e "/\s\/boot\s.*$/{s///p;q}" /etc/mtab)"
+DISK="${BOOT%%[0-9]*}"
+PART="$((${BOOT##*[^0-9]}+1))"
+ROOT="${DISK}${PART}"
+LOOP="$(losetup -f)"
+losetup ${LOOP} ${ROOT}
+fsck.ext4 -y ${LOOP}
+resize2fs ${LOOP}
+reboot
+```
+
+## Install Pi
+
+```bash
+OPENWRT_VER=$(yq e ".openwrt-version" ${LAB_CONFIG_FILE})
+wget https://downloads.openwrt.org/releases/${OPENWRT_VER}/targets/bcm27xx/bcm2711/openwrt-${OPENWRT_VER}-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz -O /tmp/openwrt.img.gz
+gunzip /tmp/openwrt.img.gz
+sudo dd if=/tmp/openwrt.img of=/dev/disk2 bs=4M conv=fsync
+diskutil eject /dev/disk2
+
+```

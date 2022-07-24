@@ -218,11 +218,11 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 
    __Note:__ The router will dump a list of the Wireless Networks that it sees.  You can get the channel from that list as well.
 
-   When the configuration is complete, the router will reboot.
+   When the configuration is complete, the router will power off.
+
+1. Power the router back on, and connect the router to your home network router, unless you are using wireless repeater mode.
 
 1. Unplug the ethernet dongle, and connect your workstation to your new lab WiFi network.
-
-1. Connect the router to you home network router, unless you are using wireless repeater mode.
 
 1. Verify that DNS is working properly:
 

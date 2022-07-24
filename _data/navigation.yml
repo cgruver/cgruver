@@ -31,6 +31,8 @@ lab-projects:
       url: /home-lab/install-rook-ceph/
     - title: "Tear Down & Rebuild Cluster"
       url: /home-lab/recreate-cluster/
+    - title: "Install OpenShift Pipelines"
+      url: /home-lab/tekton-install/
   - title: "Tutorials:"
     children:
     - title: "OpenShift Pipelines (Tekton) - Tutorial"
