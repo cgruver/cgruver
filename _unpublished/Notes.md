@@ -2398,7 +2398,7 @@ wireless.wifinet2.key='WelcomeToMyLab'
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@11 podman qemu ruby tektoncd-cli watch wget gh quarkusio/tap/quarkus
+brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman qemu ruby tektoncd-cli watch wget gh quarkusio/tap/quarkus
 
 gh auth login
 
@@ -2406,7 +2406,7 @@ sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVir
 
 cat << EOF >> ~/.zshrc
 ### Brew Vars
-PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@11/bin:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@17/bin:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 export GUILE_TLS_CERTIFICATE_DIRECTORY=/usr/local/etc/gnutls/
 export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
 export LDFLAGS="-L/usr/local/opt/ruby/lib"
