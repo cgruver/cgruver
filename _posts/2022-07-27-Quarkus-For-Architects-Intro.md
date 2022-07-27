@@ -504,4 +504,24 @@ One last thing for today.  Let's have our API return a `JSON` payload instead of
 
 That's it for today.  I'm going to try to keep these short so that I can create at least one post a week in this series.
 
+## PS One More Thing
+
+OK, if you are using Java 17, let's get rid of all of the boilerplate in our `Greeting` object.
+
+Modify `Greeting.java` as follows:
+
+```java
+package org.acme;
+
+import java.util.UUID;
+
+public record Greeting(UUID greetingId, String greeting) {}
+```
+
+Save it, and verify that your test still passes, and that the API output still looks the same.
+
+Nice!  Right!?  Love `record`.  It is awesome.
+
+Now, we're really done.
+
 Next time, we'll build our simple API Server and Client applications.
