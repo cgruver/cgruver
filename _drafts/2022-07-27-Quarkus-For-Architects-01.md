@@ -1,5 +1,5 @@
 ---
-title: "Quarkus for Architects who Sometimes Write Code - Client & Server"
+title: "Quarkus for Architects who Sometimes Write Code - API Server & Client"
 date:   2022-07-28 00:00:00 -0400
 description: "Quarkus Services"
 tags:
