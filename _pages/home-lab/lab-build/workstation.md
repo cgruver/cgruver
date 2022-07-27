@@ -12,6 +12,27 @@ __Note:__ This is part of a series.  Make sure you started here: [Building a Por
 
 __Note:__ This tutorial assumes that you are running a Unix like operating system on your workstation.  i.e. Mac OS, Fedora, or other Linux distribution.  If you are running Windows, you might try the Windows Subsystem For Linux.  All of my testing is done on Mac OS.
 
+## Install `yq`
+
+We will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
+
+* MacOS:
+
+  ```bash
+  brew install yq
+  ```
+
+* Linux:
+
+  ```bash
+  mkdir ${OKD_LAB_PATH}/yq-tmp
+  YQ_VER=$(curl https://github.com/mikefarah/yq/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
+  wget -O ${OKD_LAB_PATH}/yq-tmp/yq.tar.gz https://github.com/mikefarah/yq/releases/download/${YQ_VER}/yq_linux_amd64.tar.gz
+  tar -xzf ${OKD_LAB_PATH}/yq-tmp/yq.tar.gz -C ${OKD_LAB_PATH}/yq-tmp
+  cp ${OKD_LAB_PATH}/yq-tmp/yq_linux_amd64 ${OKD_LAB_PATH}/bin/yq
+  chmod 700 ${OKD_LAB_PATH}/bin/yq
+  ```
+
 ## Install the `labcli` utilities for the Lab
 
 I have created a companion project for this blog.  It contains all of the shell functions that I use to ease the task of building and tearing down infrastructure in my lab.
@@ -149,25 +170,6 @@ I'm being intentionally prescriptive here to help ensure success the first time 
    __Note:__ You will need to replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC server.  We'll do that later when we get ready to install OpenShift.
 
    __Note:__ If you want different network settings, or a different domain, change this file accordingly.
-
-1. Install `yq` we will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
-
-   * MacOS:
-
-     ```bash
-     brew install yq
-     ```
-
-   * Linux:
-
-     ```bash
-     mkdir ${OKD_LAB_PATH}/yq-tmp
-     YQ_VER=$(curl https://github.com/mikefarah/yq/releases/latest | cut -d"/" -f8 | cut -d\" -f1)
-     wget -O ${OKD_LAB_PATH}/yq-tmp/yq.tar.gz https://github.com/mikefarah/yq/releases/download/${YQ_VER}/yq_linux_amd64.tar.gz
-     tar -xzf ${OKD_LAB_PATH}/yq-tmp/yq.tar.gz -C ${OKD_LAB_PATH}/yq-tmp
-     cp ${OKD_LAB_PATH}/yq-tmp/yq_linux_amd64 ${OKD_LAB_PATH}/bin/yq
-     chmod 700 ${OKD_LAB_PATH}/bin/yq
-     ```
 
 1. If you don't have an SSH key pair configured on your workstation, then create one now:
 

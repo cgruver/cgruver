@@ -18,39 +18,55 @@ You can get the utilities from: [https://github.com/cgruver/kamarotos](https://g
 
 ## Install the Utilities
 
-1. Prepare your lab working directory:
+In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since these scripts take on the drudgery of repeated tasks, I chose to name them after the guy that cleans the toilets on a ship...  Thus, the project is named: __καμαρότος__.  That is, kamarótos; Greek for Ship's steward or cabin boy...
+
+1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   mkdir ${HOME}/okd-lab
-   ```
-
-1. Install the `yq` command for YAML file manipulation.  My lab utilities are dependent on it:
-
-   ```bash
-   brew install yq
-   ```
-
-1. Clone the utiliy code repo:
-
-   ```bash
+   mkdir -p ${HOME}/okd-lab/bin
    git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
    ```
 
-1. Install the utility scripts:
+1. Copy the helper scripts to `${HOME}/okd-lab`:
 
    ```bash
    cp ${HOME}/okd-lab/kamarotos/bin/* ${HOME}/okd-lab/bin
    chmod 700 ${HOME}/okd-lab/bin/*
    ```
 
-1. Edit your shell `rc` (`.bashrc` or `.zshrc`) file to enable the utilities in the path, and load that lab functions into the shell:
+1. Copy the initial lab configuration files to ${HOME}/okd-lab/lab-config
 
    ```bash
-   export LAB_CONFIG_FILE=${HOME}/okd-lab/lab-config/lab.yaml
-   . ${HOME}/okd-lab/bin/labEnv.sh
+   mkdir -p ${HOME}/okd-lab/lab-config/domain-configs
+   cp ${HOME}/okd-lab/kamarotos/examples/lab.empty.yaml.yaml ${HOME}/okd-lab/lab-config/lab.yaml
    ```
 
-1. Log off and back on to set the variables.
+1. Add the following to your shell environment:
+
+   Your default shell will be something like `bash` or `zsh`.  Although you might have changed it.
+
+   You need to add the following line to the appropriate shell file in your home directory: `.bashrc`, or `.zshrc`, etc...
+
+   __Bash:__
+
+   ```bash
+   echo ". ${HOME}/okd-lab/bin/labEnv.sh" >> ~/.bashrc
+   ```
+
+   __Zsh:__
+
+   ```bash
+   echo ". ${HOME}/okd-lab/bin/labEnv.sh" >> ~/.zshrc
+   ```
+
+   __Note:__ Take a look at the file `${HOME}/okd-lab/bin/labEnv.sh`.  It will set variables in your shell when you log in, so make sure you are comfortable with what it is setting.  If you don't want to add it to your shell automatically, the you will need to execute `. ${HOME}/okd-lab/bin/labEnv.sh` before running any lab commands.
+
+   It's always a good practice to look at what a downloaded script is doing, since it is running with your logged in privileges...  I know that you NEVER run one of those; `curl some URL | bash`...  without looking at the file first...  right?
+
+   There will be a test later...  :-)
+
+1. __Log off and back on to set the variables.__
+
 
 ## Configuration Files
 

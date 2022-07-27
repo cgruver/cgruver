@@ -56,6 +56,7 @@ defaults:
       share: false
       related: true
       classes: wide
+      show_date: true
       sidebar:
         nav: lab-projects
   # _pages
