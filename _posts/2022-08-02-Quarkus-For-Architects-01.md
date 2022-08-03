@@ -210,7 +210,7 @@ We're also going to ignore testing this week...  So, not TDD...
 
 1. Create the API implementation:
 
-   Create a new Class names `ApiService.java` in the `service` folder.
+   Create a new Class named `ApiService.java` in the `service` folder.
 
    Add the following content:
 
@@ -256,11 +256,11 @@ We're also going to ignore testing this week...  So, not TDD...
          enable: true
    ```
 
-   __Note:__ We'll be setting the http listen port via an environment variable.  This will be very useful later, when we're deploying to OpenShift and setting our configuration via `ConfigMap`.
+   __Note:__ We'll be setting the http listen port via an environment variable.  This will be very useful later when we're deploying to OpenShift and setting our configuration via `ConfigMap`.
 
 1. Now let's fire it up and test it out.
 
-   Yes...  we could/should write tests...  We'll do that later.  After all, this is Quarkus for Architects who sometimes write code.
+   Yes...  we could/should write tests...  We'll do that later.  After all, this is Quarkus for Architects who sometimes write code.  We preach about TDD, but do we practice it?  I'm hoping to get better at it, and you will too.
 
    ```bash
    cd ${HOME}/okd-lab/quarkus-projects/apiserver
@@ -282,13 +282,15 @@ We're also going to ignore testing this week...  So, not TDD...
    }
    ```
 
+   __Note:__ if you don't have `jq` installed, you should.  It is very handy for dealing with JSON on the CLI.
+
 That's it for the server.  Now let's build a client to call the server API resource.
 
 ## Code the API Client
 
 The API Client needs to know the contract for the API.  If we had created an OpenAPI spec first, we could just use that.  But since we didn't, and we have the code for the server, that's not a problem.  We can literally copy it from the server.
 
-1. Create the message payload aka DTO.
+1. Create the message payload, aka DTO.
 
    Create a file named `MessageDTO.java` in the client's `dto` folder, and populate it as follows:
 
@@ -331,7 +333,7 @@ The API Client needs to know the contract for the API.  If we had created an Ope
 
    __Note:__ Take a look at the similarities and differences between the `ClientApi` and `ServerApi` interfaces.  The similarities are intentional.  They both define the exact same API resource.  The differences, like package name and interface name, are arbitrary.  Other than changing the package name, I could have copied the `ServerApi` code exactly.
 
-   So, now our client application knows how to talk to the server application via its API resource.  We'll tell the client how to find the API resource when we create the configuration.
+   Now our client application knows how to talk to the server application via its API resource.  We'll tell the client how to find the API resource when we create the configuration.
 
 1. Create the client's business logic:
 
@@ -393,7 +395,7 @@ The API Client needs to know the contract for the API.  If we had created an Ope
 
    1. I'm using `@Singleton` here for the scope of this class.  It will be instantiated as soon as the app starts, and there will only be one of it.
 
-      Since we are using imperative coding here, that could cause problems with concurrency and blocking if this class gets complicated.
+      Since we are using imperative coding here, the singleton nature of the class could cause problems with concurrency and blocking if this class gets complicated.
 
       We'll resolve that next time by switching to reactive code.
 
