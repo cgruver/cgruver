@@ -1,7 +1,7 @@
 ---
 title: "Quarkus for Architects who Sometimes Write Code - API Server & Client"
 date:   2022-08-02 00:00:00 -0400
-description: "Quarkus Services"
+description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - API Server & Client"
 tags:
   - OpenShift
   - Kubernetes
