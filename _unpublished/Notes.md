@@ -2397,8 +2397,10 @@ wireless.wifinet2.key='WelcomeToMyLab'
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/charrogruver/.zshrc
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
-brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus
+brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus
 
 gh auth login
 
