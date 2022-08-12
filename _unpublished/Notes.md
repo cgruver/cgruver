@@ -2429,6 +2429,10 @@ function startBlog() {
   bundle
   bundle exec jekyll serve --livereload --drafts --unpublished
 }
+### Go Vars
+### Go
+export GOPATH="\$HOME/go"
+export PATH="\${PATH}:\${GOPATH}/bin"
 ###
 EOF
 
