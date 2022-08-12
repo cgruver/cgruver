@@ -2403,8 +2403,6 @@ echo "### Brew Vars" >> ~/.zshrc
 
 brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus
 
-gh auth login
-
 ln -s /opt/homebrew/opt /usr/local/opt
 sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 
@@ -2435,6 +2433,20 @@ export GOPATH="\$HOME/go"
 export PATH="\${PATH}:\${GOPATH}/bin"
 ###
 EOF
+
+gh auth login
+
+mkdir -p ~/Documents/VSCode/Blog/
+cd ~/Documents/VSCode/Blog/
+git clone https://github.com/cgruver/cgruver.git
+
+cd cgruver
+
+gem update --system
+gem update
+rm Gemfile.lock
+bundle update --all
+```
 
 ### Install K8ssandra
 
