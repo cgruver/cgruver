@@ -2415,6 +2415,20 @@ export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
 export LDFLAGS="-L/usr/local/opt/ruby/lib"
 export CPPFLAGS="-I/usr/local/opt/ruby/include"
 export PKG_CONFIG_PATH="/usr/local/opt/ruby/lib/pkgconfig"
+### My Env Config
+set -o vi
+alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+alias scp="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+function resetDNS() {
+sudo killall -HUP mDNSResponder
+}
+
+function startBlog() {
+  cd ~/Documents/VSCode/Blog/cgruver/
+  bundle
+  bundle exec jekyll serve --livereload --drafts --unpublished
+}
 ###
 EOF
 
