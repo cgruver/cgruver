@@ -2409,7 +2409,7 @@ ln -s /opt/homebrew/opt /usr/local/opt
 sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 
 cat << EOF >> ~/.zshrc
-PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@17/bin:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/openjdk@17/bin:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-sed/libexec/gnubin:\$PATH"
 export GUILE_TLS_CERTIFICATE_DIRECTORY=/usr/local/etc/gnutls/
 export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
 export LDFLAGS="-L/usr/local/opt/ruby/lib"
