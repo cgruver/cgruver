@@ -2399,7 +2399,7 @@ wireless.wifinet2.key='WelcomeToMyLab'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 echo "### Brew Vars" >> ~/.zshrc
-eval "$(/opt/homebrew/bin/brew shellenv)" >> ~/.zshrc
+/opt/homebrew/bin/brew shellenv >> ~/.zshrc
 
 brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus
 
