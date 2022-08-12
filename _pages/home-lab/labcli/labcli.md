@@ -38,7 +38,7 @@ In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since 
 
    ```bash
    mkdir -p ${HOME}/okd-lab/lab-config/domain-configs
-   cp ${HOME}/okd-lab/kamarotos/examples/lab.empty.yaml.yaml ${HOME}/okd-lab/lab-config/lab.yaml
+   cp ${HOME}/okd-lab/kamarotos/examples/lab.empty.yaml ${HOME}/okd-lab/lab-config/lab.yaml
    ```
 
 1. Add the following to your shell environment:
