@@ -61,7 +61,6 @@ __As before, I'm being intentionally prescriptive here to help ensure success th
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
-     butane-version: v0.14.0
      butane-spec-version: 1.4.0
      ingress-ip-addr: 10.11.13.2
    bootstrap:

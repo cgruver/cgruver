@@ -69,7 +69,6 @@ Before you proceed, you need to setup your workstation for running the Bootstrap
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
-     butane-version: v0.14.0
      butane-spec-version: 1.4.0
      release: 4.10.0-0.okd-2022-05-07-021833
    bootstrap:

@@ -137,6 +137,7 @@ Let's go ahead and use this script to bootstrap two projects for us:
    code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.2.Final
    code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
    code --dependency -g=org.projectlombok -a=lombok -v=1.18.24
+   code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
    ```
 
    ```bash
@@ -144,6 +145,7 @@ Let's go ahead and use this script to bootstrap two projects for us:
    code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.2.Final
    code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
    code --dependency -g=org.projectlombok -a=lombok -v=1.18.24
+   code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
    ```
 
    __Note:__ We're not going to use Lombok or Mapstruct this week, but they'll be there when we add more functionality next week.  Plus, I just wanted you to use my helper script to add some dependencies to your `pom.xml`...

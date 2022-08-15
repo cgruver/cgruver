@@ -33,6 +33,24 @@ We will need it for YAML file manipulation: [https://mikefarah.gitbook.io/yq/](h
   chmod 700 ${OKD_LAB_PATH}/bin/yq
   ```
 
+## Install `butane`
+
+Butane, [https://github.com/coreos/butane](https://github.com/coreos/butane), is a utility for manipulating Red Hat CoreOS or Fedora CoreOS ignition files.
+
+* MacOS: (Intel or Apple Silicon)
+
+  ```bash
+  brew install butane
+  ```
+
+* Linux:
+
+   ```bash
+   BUTANE_RELEASE=$(basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/coreos/butane/releases/latest))
+   wget -O ${OKD_LAB_PATH}/bin/butane https://github.com/coreos/butane/releases/download/${BUTANE_RELEASE}/butane-x86_64-unknown-linux-gnu
+   chmod 700 ${OKD_LAB_PATH}/bin/butane
+   ```
+
 ## Install the `labcli` utilities for the Lab
 
 I have created a companion project for this blog.  It contains all of the shell functions that I use to ease the task of building and tearing down infrastructure in my lab.
@@ -134,7 +152,6 @@ I'm being intentionally prescriptive here to help ensure success the first time 
      local-registry: nexus.my.awesome.lab:5001
      proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
-     butane-version: v0.14.0
      butane-spec-version: 1.4.0
      ingress-ip-addr: 10.11.13.2
    kvm-hosts:

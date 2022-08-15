@@ -2401,7 +2401,7 @@ wireless.wifinet2.key='WelcomeToMyLab'
 echo "### Brew Vars" >> ~/.zshrc
 /opt/homebrew/bin/brew shellenv >> ~/.zshrc
 
-brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus
+brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus kubernetes-cli openshift-cli
 
 ln -s /opt/homebrew/opt /usr/local/opt
 sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
@@ -2621,3 +2621,15 @@ sudo dd if=/tmp/openwrt.img of=/dev/disk2 bs=4M conv=fsync
 diskutil eject /dev/disk2
 
 ```
+
+## Build OC on Mac M2
+
+```
+git clone https://github.com/openshift/oc.git
+brew install heimdal
+brew install gpgme
+export PATH="/opt/homebrew/opt/heimdal/bin:$PATH"
+export PATH="/opt/homebrew/opt/heimdal/sbin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/heimdal/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/heimdal/include"
+make oc
