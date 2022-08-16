@@ -13,9 +13,11 @@ categories:
   - Quarkus Series
 ---
 
-Today we're going to do something fairly complex, and completely useless.  Have I mentioned that I'm an enterprise architect?...
+Today we're going to do something fairly complex, and completely useless.  
 
-This is the next step on my journey to build a multi-region leader elector.  In this post, we're going to use reactive techniques to build a singleton application which will send heartbeats to clones of itself and monitor the responses.  Each instance of the app will talk to the other instances, as well as to itself.
+Have I mentioned that I'm an enterprise architect?...
+
+This is the next step on my journey-of-discovery to build a multi-region leader elector.  In this post, we're going to use reactive techniques to build a singleton application which will send heartbeats to clones of itself and monitor the responses.  Each instance of the app will talk to the other instances, as well as to itself.
 
 1. Create the project scaffolding:
 
