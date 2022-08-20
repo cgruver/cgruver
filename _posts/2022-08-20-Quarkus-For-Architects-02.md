@@ -1,6 +1,6 @@
 ---
 title: "Quarkus for Architects who Sometimes Write Code - It's OK To Be Reactive"
-date:   2022-08-03 00:00:00 -0400
+date:   2022-08-20 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Reactive API Server"
 tags:
   - OpenShift
@@ -68,7 +68,7 @@ BTW, there's a ton of useful information in that link above.
 
 1. __Create the API interface:__
 
-   Create an interface at: `src/main/java/fun/is/quarkus/italktomyself/api` named `TalkToMyselfApi.java`
+   Create an interface named `TalkToMyselfApi.java` in the folder: `src/main/java/fun/is/quarkus/italktomyself/api` 
 
    Add the following code:
 
@@ -236,7 +236,7 @@ BTW, there's a ton of useful information in that link above.
 
 1. __Create a Mapper to convert between the Model and the DTOs__
 
-   Create an interface named `DtoMapper.java` in the location: `src/main/java/fun/is/quarkus/italktomyself/mapper`
+   Create an interface named `DtoMapper.java` in the folder: `src/main/java/fun/is/quarkus/italktomyself/mapper`
 
    Add the following code:
 
@@ -324,8 +324,10 @@ BTW, there's a ton of useful information in that link above.
 
 1. __Create the application logic:__
 
+   Create a class named `TalkToMyselfApp.java` in the folder: `src/main/java/fun/is/quarkus/italktomyself`
+
    ```java
-      package fun.is.quarkus.italktomyself;
+   package fun.is.quarkus.italktomyself;
 
    import java.net.URI;
    import java.time.Duration;
@@ -740,6 +742,10 @@ The `sleep` and `wake` resources are a really stupid way to create a response ti
 
 1. Check the status of the app at `http://localhost:4090`
 
+   ```bash
+   curl localhost:4090/i-talk-to-myself/status | jq
+   ```
+
    Note that the instance at `http://localhost:4070` is inactive.  It may take a few seconds to reflect the change.  Remember, the scheduled task runs every 10 seconds.
 
    ```json
@@ -765,7 +771,7 @@ The `sleep` and `wake` resources are a really stupid way to create a response ti
    }
    ```
 
-1. Restart the instance at `http://localhost:4090`
+1. Restart the instance at `http://localhost:4070`
 
    In the first terminal, restart the app:
 
@@ -774,6 +780,10 @@ The `sleep` and `wake` resources are a really stupid way to create a response ti
    ```
 
 1. Check the status of the app at `http://localhost:4090`
+
+   ```bash
+   curl localhost:4090/i-talk-to-myself/status | jq
+   ```
 
    Note that the instance at `http://localhost:4070` is active, but with a different `instanceId`
 
