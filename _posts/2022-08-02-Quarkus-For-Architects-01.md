@@ -7,7 +7,7 @@ tags:
   - Kubernetes
   - Homelab
   - Home Lab
-  - Quarkus
+  - Quarkus REST Example
 categories:
   - Blog Post
   - Quarkus Series

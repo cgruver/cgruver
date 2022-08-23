@@ -5,9 +5,7 @@ description: "Blog Series on writing Cloud Native Applications for OpenShift / K
 tags:
   - OpenShift
   - Kubernetes
-  - Homelab
-  - Home Lab
-  - Quarkus
+  - Quarkus Dev Mode Example
 categories:
   - Blog Post
   - Quarkus Series

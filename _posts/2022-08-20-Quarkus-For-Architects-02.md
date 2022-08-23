@@ -5,9 +5,9 @@ description: "Blog Series on writing Cloud Native Applications for OpenShift / K
 tags:
   - OpenShift
   - Kubernetes
-  - Homelab
-  - Home Lab
-  - Quarkus
+  - Quarkus Reactive Example
+  - Quarkus Mapstruct
+  - Quarkus Lombok
 categories:
   - Blog Post
   - Quarkus Series
