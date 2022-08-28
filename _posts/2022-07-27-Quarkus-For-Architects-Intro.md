@@ -39,7 +39,11 @@ At a minimum, you are going to need the following:
 
 1. Java - I'm using OpenJDK 17 [https://adoptium.net](https://adoptium.net){:target="_blank"}
 
+   __Note:__ We're going to be using the Java `record` type.  So, you need at least Java 14.  Java 17 is the current LTS release, so I am using that.
+
 1. Maven build tool: [https://maven.apache.org](https://maven.apache.org){:target="_blank"}
+
+   __Note:__ Make sure that Maven uses the correct Java version.  Your `$JAVA_HOME` needs to resolve correctly.
 
 1. The Quarkus CLI: [https://quarkus.io/guides/cli-tooling](https://quarkus.io/guides/cli-tooling){:target="_blank"}
 
@@ -49,7 +53,11 @@ At a minimum, you are going to need the following:
 
 1. Curl for interacting with HTTP endpoints from the command line.  (This is likely already part of your base OS)
 
+### MacBook Setup
+
 If you are on a MacBook like I am, this will install the CLI tools and Java:
+
+__Note:__ If you already have one or more JDKs installed, the following might mess up your setup.  These instructions are for a clean install.
 
 1. Install HomeBrew if you don't have it already:
 
@@ -63,6 +71,16 @@ If you are on a MacBook like I am, this will install the CLI tools and Java:
    brew install jq yq maven openjdk@17 git quarkusio/tap/quarkus
    ```
 
+1. Fix Maven JDK version on Mac OS:
+
+   HomeBrew installs the latest OpenJDK as a dependency for Maven.  We don't want Maven to use a different JDK.
+
+   ```bash
+   brew uninstall --ignore-dependencies openjdk
+   ```
+
+   In the next step we'll set `JAVA_HOME` so that Maven uses the default JDK.  In this case OpenJDK 17.
+
 1. Set your `$PATH`
 
    ```bash
@@ -70,6 +88,7 @@ If you are on a MacBook like I am, this will install the CLI tools and Java:
    ### Brew Vars
    PATH="/usr/local/opt/openjdk@17/bin:$PATH"
    export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
+   export JAVA_HOME=$(/usr/libexec/java_home)
    ###
    EOF
    ```
