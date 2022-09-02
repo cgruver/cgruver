@@ -1,3 +1,9 @@
+---
+permalink: /macbook/
+title: MacBook Setup
+sitemap: false
+published: false
+---
 ## Set Up New Mac
 
 ```bash
