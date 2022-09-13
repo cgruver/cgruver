@@ -86,7 +86,7 @@ __Note:__ If you already have one or more JDKs installed, the following might me
    ```bash
    cat << EOF >> ~/.zshrc
    ### Brew Vars
-   PATH="/usr/local/opt/openjdk@17/bin:$PATH"
+   PATH="/usr/local/opt/openjdk@17/bin:\$PATH"
    export CPPFLAGS="-I/usr/local/opt/openjdk@17/include"
    export JAVA_HOME=$(/usr/libexec/java_home)
    ###
