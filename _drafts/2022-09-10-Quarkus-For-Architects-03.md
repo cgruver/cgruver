@@ -12,6 +12,38 @@ categories:
   - Blog Post
   - Quarkus Series
 ---
+## Install and Configure OpenShift Local
+
+```bash
+openssl s_client -showcerts -connect console-openshift-console.apps-crc.testing:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/crc-cert
+sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/crc-cert
+```
+
+```bash
+eval $(crc podman-env)
+```
+
+```bash
+crc console --credentials
+```
+
+```bash
+To login as a regular user, run 'oc login -u developer -p developer https://api.crc.testing:6443'.
+To login as an admin, run 'oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G https://api.crc.testing:6443'
+```
+
+```bash
+oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G https://api.crc.testing:6443
+```
+
+```bash
+export LOCAL_REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+export PROXY_REGISTRY=image-registry.openshift-image-registry.svc:5000
+```
+
+```bash
+podman login -p $(oc whoami -t) -u kubeadmin ${LOCAL_REGISTRY}
+```
 
 ## Install Cassandra and Stargate
 
@@ -23,7 +55,7 @@ mkdir ${K8SSANDRA_WORKDIR}/tmp
 git clone https://github.com/cgruver/k8ssandra-blog-resources.git ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources
 ```
 
-## Copy Images to Lab Nexus Registry
+## Copy Images to Local Registry
 
 ```bash
 export PUSH_REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
@@ -60,13 +92,7 @@ envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/cert-manager-
 
 kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
 
-for i in dc1 dc2 dc3 cp
-do
-  labctx ${i}
-  oc --kubeconfig ${KUBE_INIT_CONFIG} create -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
-done
-
-rm ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml
+oc create -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
 ```
 
 ### Install K8ssandra Operator
@@ -157,6 +183,8 @@ code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
 code --dependency -g=org.projectlombok -a=lombok -v=1.18.24
 code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
 ```
+
+[https://openlibrary.org/dev/docs/api/books](https://openlibrary.org/dev/docs/api/books)
 
 ```bash
 curl 'https://openlibrary.org/api/books?bibkeys=0575043636&format=json&jscmd=data' | jq
