@@ -21,17 +21,19 @@ mkdir -p ${K8SSANDRA_WORKDIR}/cert-manager-install
 mkdir ${K8SSANDRA_WORKDIR}/tmp
 
 git clone https://github.com/cgruver/k8ssandra-blog-resources.git ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources
-. ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/versions.sh
 ```
 
 ## Copy Images to Lab Nexus Registry
 
 ```bash
-podman machine start
+export PUSH_REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+export PULL_REGISTRY="image-registry.openshift-image-registry.svc:5000"
 
-labctx cp
-podman login -u openshift-mirror ${LOCAL_REGISTRY}
+eval $(crc podman-env)
 
+podman login -u $(oc whoami) -p $(oc whoami -t) --tls-verify=false ${PUSH_REGISTRY}
+
+. ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/versions.sh
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/images.yaml > ${K8SSANDRA_WORKDIR}/images.yaml
 IMAGE_YAML=${K8SSANDRA_WORKDIR}/images.yaml
 image_count=$(yq e ".images" ${IMAGE_YAML} | yq e 'length' -)
@@ -39,11 +41,12 @@ let image_index=0
 while [[ image_index -lt ${image_count} ]]
 do
   image_name=$(yq e ".images.[${image_index}].name" ${IMAGE_YAML})
-  image_registry=$(yq e ".images.[${image_index}].registry" ${IMAGE_YAML})
+  source_registry=$(yq e ".images.[${image_index}].source-registry" ${IMAGE_YAML})
+  target_registry=$(yq e ".images.[${image_index}].target-registry" ${IMAGE_YAML})
   image_version=$(yq e ".images.[${image_index}].version" ${IMAGE_YAML})
-  podman pull ${image_registry}/${image_name}:${image_version}
-  podman tag ${image_registry}/${image_name}:${image_version} ${LOCAL_REGISTRY}/k8ssandra/${image_name}:${image_version}
-  podman push --tls-verify=false ${LOCAL_REGISTRY}/k8ssandra/${image_name}:${image_version}
+  podman pull ${source_registry}/${image_name}:${image_version}
+  podman tag ${source_registry}/${image_name}:${image_version} target_registry/${image_name}:${image_version}
+  podman push --tls-verify=false target_registry/${image_name}:${image_version}
   image_index=$(( ${image_index} + 1 ))
 done
 ```
@@ -67,6 +70,10 @@ rm ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml
 ```
 
 ### Install K8ssandra Operator
+
+```bash
+
+
 
 ```bash
 for DEPLOY_TYPE in control-plane data-plane
