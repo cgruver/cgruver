@@ -65,8 +65,8 @@ eval $(crc podman-env)
 
 podman login -u $(oc whoami) -p $(oc whoami -t) --tls-verify=false ${PUSH_REGISTRY}
 
-. ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/versions.sh
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/images.yaml > ${K8SSANDRA_WORKDIR}/images.yaml
+. ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/versions.sh
+envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/images.yaml > ${K8SSANDRA_WORKDIR}/images.yaml
 IMAGE_YAML=${K8SSANDRA_WORKDIR}/images.yaml
 image_count=$(yq e ".images" ${IMAGE_YAML} | yq e 'length' -)
 let image_index=0
@@ -77,8 +77,8 @@ do
   target_registry=$(yq e ".images.[${image_index}].target-registry" ${IMAGE_YAML})
   image_version=$(yq e ".images.[${image_index}].version" ${IMAGE_YAML})
   podman pull ${source_registry}/${image_name}:${image_version}
-  podman tag ${source_registry}/${image_name}:${image_version} target_registry/${image_name}:${image_version}
-  podman push --tls-verify=false target_registry/${image_name}:${image_version}
+  podman tag ${source_registry}/${image_name}:${image_version} ${target_registry}/${image_name}:${image_version}
+  podman push --tls-verify=false ${target_registry}/${image_name}:${image_version}
   image_index=$(( ${image_index} + 1 ))
 done
 ```
@@ -88,90 +88,110 @@ done
 ```bash
 wget -O ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_MGR_VER}/cert-manager.yaml
 
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
+envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
 
 kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
 
-oc create -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
+oc apply -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
 ```
 
 ### Install K8ssandra Operator
 
 ```bash
+export DEPLOY_TYPE=control-plane
+envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
+kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/k8ssandra-${DEPLOY_TYPE}.yaml
+oc create -f ${K8SSANDRA_WORKDIR}/k8ssandra-control-plane.yaml
 
+oc -n k8ssandra-operator patch role k8ssandra-operator --type=json -p='[{"op": "add", "path": "/rules/-", "value": {"apiGroups": [""],"resources": ["endpoints/restricted"],"verbs": ["create"]} }]'
+oc -n k8ssandra-operator adm policy add-scc-to-user anyuid -z default 
 
-
-```bash
-for DEPLOY_TYPE in control-plane data-plane
-do
-  export DEPLOY_TYPE
-  envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
-  kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/k8ssandra-${DEPLOY_TYPE}.yaml
-done
-
-labctx cp
-oc --kubeconfig ${KUBE_INIT_CONFIG} create -f ${K8SSANDRA_WORKDIR}/k8ssandra-control-plane.yaml
-oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator patch role k8ssandra-operator --type=json -p='[{"op": "add", "path": "/rules/-", "value": {"apiGroups": [""],"resources": ["endpoints/restricted"],"verbs": ["create"]} }]'
-oc --kubeconfig ${KUBE_INIT_CONFIG} adm policy add-scc-to-user anyuid -z default -n k8ssandra-operator
-
-for i in dc1 dc2 dc3
-do
-  labctx ${i}
-  oc --kubeconfig ${KUBE_INIT_CONFIG} create -f ${K8SSANDRA_WORKDIR}/k8ssandra-data-plane.yaml
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator patch role k8ssandra-operator --type=json -p='[{"op": "add", "path": "/rules/-", "value": {"apiGroups": [""],"resources": ["endpoints/restricted"],"verbs": ["create"]} }]'
-  oc --kubeconfig ${KUBE_INIT_CONFIG} adm policy add-scc-to-user anyuid -z default -n k8ssandra-operator
-done
-
-for i in dc1 dc2 dc3 cp
-do
-  labctx ${i}
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=0
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=0
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/cass-config-patch.yaml)"
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=1
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=1
-done
+oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=0
+oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=0
+oc -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cass-config-patch.yaml)"
+oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=1
+oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=1
 ```
 
-## Create ClientConfigs
+```bash
+cat << EOF | oc apply -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: k8ssandra-sc
+provisioner: no-provisioning 
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+EOF
+```
 
 ```bash
-mkdir -p ${K8SSANDRA_WORKDIR}/tmp
-labctx cp
-oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=0
+oc delete pv pv0030
+```
 
-for i in dc1 dc2 dc3
-do
-  labctx ${i}
-  sa_secret=$(oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator get serviceaccount k8ssandra-operator -o yaml | yq e ".secrets" - | grep token | cut -d" " -f3)
-  sa_token=$(oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator get secret $sa_secret -o jsonpath='{.data.token}' | base64 -d)
-  ca_cert=$(oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator get secret $sa_secret -o jsonpath="{.data['ca\.crt']}")
-  cluster=$(oc --kubeconfig ${KUBE_INIT_CONFIG} config view -o jsonpath="{.contexts[0].context.cluster}")
-  cluster_addr=$(oc --kubeconfig ${KUBE_INIT_CONFIG} config view -o jsonpath="{.clusters[0].cluster.server}")
+```bash
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: k8ssandra-cluster
+  name: k8ssandra-cluster-0
+spec:
+  accessModes:
+  - ReadWriteOnce
+  - ReadWriteMany
+  - ReadOnlyMany
+  capacity:
+    storage: 100Gi
+  hostPath:
+    path: /mnt/pv-data/pv0030
+    type: ""
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: k8ssandra-sc
+  claimRef:
+    name: server-data-k8ssandra-cluster-dc1-default-sts-0
+    namespace: k8ssandra-operator
+EOF
+```
 
-  export SECRET_FILE=${K8SSANDRA_WORKDIR}/tmp/kubeconfig
-
-  envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/kubeconfig-secret.yaml > ${SECRET_FILE}
-
-  labctx cp
-
-  oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator create secret generic ${cluster}-config --from-file="${SECRET_FILE}"
-
-  envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/client-config.yaml | oc --kubeconfig ${KUBE_INIT_CONFIG} apply -n k8ssandra-operator -f -
-
-done
-
-labctx cp
-oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=1
+```bash
+export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo chown 999:999 /mnt/pv-data/pv0030"
 ```
 
 ## Deploy Cluster
 
 ```bash
 labctx cp
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra/k8ssandra-cluster.yaml | oc --kubeconfig ${KUBE_INIT_CONFIG} -n k8ssandra-operator apply -f -
+envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-cluster.yaml | oc -n k8ssandra-operator apply -f -
 ```
 
+## Expose Stargate Services:
+
+```bash
+oc -n k8ssandra-operator create route edge sg-graphql --service=k8ssandra-cluster-${i}-stargate-service --port=8080
+oc -n k8ssandra-operator create route edge sg-auth --service=k8ssandra-cluster-${i}-stargate-service --port=8081
+oc -n k8ssandra-operator create route edge sg-rest --service=k8ssandra-cluster-${i}-stargate-service --port=8082
+```
+
+## Connect To the Cluster
+
+```bash
+POD_NAME=$(oc -n k8ssandra-operator get statefulsets --selector app.kubernetes.io/name=cassandra -o jsonpath='{.items[0].metadata.name}')-0
+oc -n k8ssandra-operator port-forward ${POD_NAME} 9042
+
+CLUSTER_INIT_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
+CLUSTER_INIT_PWD=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
+
+oc -n k8ssandra-operator port-forward svc/k8ssandra-cluster-dc1-stargate-service 9042
+
+cqlsh -u ${CLUSTER_INIT_USER} -p ${CLUSTER_INIT_PWD} -e CREATE ROLE IF NOT EXISTS book-catalog
+```
+
+[https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources](https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources)
+
+[https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html)
 
 ```bash
 
