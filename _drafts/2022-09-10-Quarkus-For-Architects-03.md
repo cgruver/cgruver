@@ -36,15 +36,6 @@ To login as an admin, run 'oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G http
 oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G https://api.crc.testing:6443
 ```
 
-```bash
-export LOCAL_REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
-export PROXY_REGISTRY=image-registry.openshift-image-registry.svc:5000
-```
-
-```bash
-podman login -p $(oc whoami -t) -u kubeadmin ${LOCAL_REGISTRY}
-```
-
 ## Install Cassandra and Stargate
 
 ```bash
