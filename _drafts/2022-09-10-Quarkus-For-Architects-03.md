@@ -44,39 +44,13 @@ mkdir -p ${K8SSANDRA_WORKDIR}/cert-manager-install
 mkdir ${K8SSANDRA_WORKDIR}/tmp
 
 git clone https://github.com/cgruver/k8ssandra-blog-resources.git ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources
-```
-
-## Copy Images to Local Registry
-
-```bash
-export PUSH_REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
-export PULL_REGISTRY="image-registry.openshift-image-registry.svc:5000"
-
-eval $(crc podman-env)
-
-podman login -u $(oc whoami) -p $(oc whoami -t) --tls-verify=false ${PUSH_REGISTRY}
-
 . ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/versions.sh
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/images.yaml > ${K8SSANDRA_WORKDIR}/images.yaml
-IMAGE_YAML=${K8SSANDRA_WORKDIR}/images.yaml
-image_count=$(yq e ".images" ${IMAGE_YAML} | yq e 'length' -)
-let image_index=0
-while [[ image_index -lt ${image_count} ]]
-do
-  image_name=$(yq e ".images.[${image_index}].name" ${IMAGE_YAML})
-  source_registry=$(yq e ".images.[${image_index}].source-registry" ${IMAGE_YAML})
-  target_registry=$(yq e ".images.[${image_index}].target-registry" ${IMAGE_YAML})
-  image_version=$(yq e ".images.[${image_index}].version" ${IMAGE_YAML})
-  podman pull ${source_registry}/${image_name}:${image_version}
-  podman tag ${source_registry}/${image_name}:${image_version} ${target_registry}/${image_name}:${image_version}
-  podman push --tls-verify=false ${target_registry}/${image_name}:${image_version}
-  image_index=$(( ${image_index} + 1 ))
-done
 ```
 
-## Install Cert Manager
+### Install Cert Manager
 
 ```bash
+export PULL_REGISTRY="quay.io/cgruver0"
 wget -O ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_MGR_VER}/cert-manager.yaml
 
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
@@ -89,6 +63,7 @@ oc apply -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
 ### Install K8ssandra Operator
 
 ```bash
+export PULL_REGISTRY="quay.io/cgruver0"
 export DEPLOY_TYPE=control-plane
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
 kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/k8ssandra-${DEPLOY_TYPE}.yaml
@@ -117,7 +92,8 @@ EOF
 ```
 
 ```bash
-oc delete pv pv0030
+export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo mkdir /mnt/pv-data/k8ssandrapv && sudo chown 999:999 /mnt/pv-data/k8ssandrapv"
 ```
 
 ```bash
@@ -136,7 +112,7 @@ spec:
   capacity:
     storage: 100Gi
   hostPath:
-    path: /mnt/pv-data/pv0030
+    path: /mnt/pv-data/k8ssandrapv
     type: ""
   persistentVolumeReclaimPolicy: Retain
   storageClassName: k8ssandra-sc
@@ -146,24 +122,18 @@ spec:
 EOF
 ```
 
-```bash
-export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
-ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo chown 999:999 /mnt/pv-data/pv0030"
-```
-
 ## Deploy Cluster
 
 ```bash
-labctx cp
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-cluster.yaml | oc -n k8ssandra-operator apply -f -
 ```
 
 ## Expose Stargate Services:
 
 ```bash
-oc -n k8ssandra-operator create route edge sg-graphql --service=k8ssandra-cluster-${i}-stargate-service --port=8080
-oc -n k8ssandra-operator create route edge sg-auth --service=k8ssandra-cluster-${i}-stargate-service --port=8081
-oc -n k8ssandra-operator create route edge sg-rest --service=k8ssandra-cluster-${i}-stargate-service --port=8082
+oc -n k8ssandra-operator create route edge sg-graphql --service=k8ssandra-cluster-dc1-stargate-service --port=8080
+oc -n k8ssandra-operator create route edge sg-auth --service=k8ssandra-cluster-dc1-stargate-service --port=8081
+oc -n k8ssandra-operator create route edge sg-rest --service=k8ssandra-cluster-dc1-stargate-service --port=8082
 ```
 
 ## Connect To the Cluster
