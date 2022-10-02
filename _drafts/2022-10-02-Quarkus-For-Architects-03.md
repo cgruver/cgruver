@@ -1,18 +1,27 @@
 ---
-title: "Quarkus for Architects who Sometimes Write Code - Being Persistent"
-date:   2022-09-10 00:00:00 -0400
+title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 01"
+date:   2022-10-02 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Cassandra and JSON"
 tags:
   - OpenShift
   - Kubernetes
   - Quarkus Cassandra Stargate Example
+  - K8ssandra Operator
   - Quarkus Mapstruct
   - Quarkus Lombok
 categories:
   - Blog Post
   - Quarkus Series
 ---
+
+
 ## Install and Configure OpenShift Local
+
+```bash
+crc config set memory 12288
+crc config set disk-size=100
+crc start
+```
 
 ```bash
 openssl s_client -showcerts -connect console-openshift-console.apps-crc.testing:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/crc-cert
@@ -44,37 +53,52 @@ mkdir -p ${K8SSANDRA_WORKDIR}/cert-manager-install
 mkdir ${K8SSANDRA_WORKDIR}/tmp
 
 git clone https://github.com/cgruver/k8ssandra-blog-resources.git ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources
+```
+
+```bash
 . ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/versions.sh
+export PULL_REGISTRY="quay.io/cgruver0"
 ```
 
 ### Install Cert Manager
 
 ```bash
-export PULL_REGISTRY="quay.io/cgruver0"
 wget -O ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_MGR_VER}/cert-manager.yaml
+```
 
+```bash
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
+```
 
-kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
-
-oc apply -f ${K8SSANDRA_WORKDIR}/cert-manager-install.yaml
+```bash
+kustomize build ${K8SSANDRA_WORKDIR}/tmp | oc apply -f -
 ```
 
 ### Install K8ssandra Operator
 
 ```bash
-export PULL_REGISTRY="quay.io/cgruver0"
-export DEPLOY_TYPE=control-plane
 envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
-kustomize build ${K8SSANDRA_WORKDIR}/tmp > ${K8SSANDRA_WORKDIR}/k8ssandra-${DEPLOY_TYPE}.yaml
-oc create -f ${K8SSANDRA_WORKDIR}/k8ssandra-control-plane.yaml
+kustomize build ${K8SSANDRA_WORKDIR}/tmp | oc create -f -
+```
 
+```bash
 oc -n k8ssandra-operator patch role k8ssandra-operator --type=json -p='[{"op": "add", "path": "/rules/-", "value": {"apiGroups": [""],"resources": ["endpoints/restricted"],"verbs": ["create"]} }]'
-oc -n k8ssandra-operator adm policy add-scc-to-user anyuid -z default 
+```
 
+```bash
+oc -n k8ssandra-operator adm policy add-scc-to-user anyuid -z default 
+```
+
+```bash
 oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=0
 oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=0
+```
+
+```bash
 oc -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cass-config-patch.yaml)"
+```
+
+```bash
 oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=1
 oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=1
 ```
@@ -110,7 +134,7 @@ spec:
   - ReadWriteMany
   - ReadOnlyMany
   capacity:
-    storage: 100Gi
+    storage: 20Gi
   hostPath:
     path: /mnt/pv-data/k8ssandrapv
     type: ""
@@ -154,15 +178,25 @@ cqlsh -u ${CLUSTER_INIT_USER} -p ${CLUSTER_INIT_PWD} -e CREATE ROLE IF NOT EXIST
 
 [https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html)
 
-```bash
+## Create A Project For Our Code
 
+```bash
+mkdir -p ${HOME}/okd-lab/quarkus-projects
 cd ${HOME}/okd-lab/quarkus-projects
-code --create -a=book_catalog -g=fun.is.quarkus
+code --create -a=book_catalog -g=fun.is.quarkus -x=quarkus-openapi-generator
+```
+
+```bash
 cd ${HOME}/okd-lab/quarkus-projects/book_catalog
 code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.2.Final
 code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
 code --dependency -g=org.projectlombok -a=lombok -v=1.18.24
 code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
+```
+
+```bash
+mkdir ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi
+cp ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/stargate-openapi.json ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi/
 ```
 
 [https://openlibrary.org/dev/docs/api/books](https://openlibrary.org/dev/docs/api/books)

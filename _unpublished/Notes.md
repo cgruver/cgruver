@@ -2580,3 +2580,22 @@ export KO_DOCKER_REPO=${LOCAL_REGISTRY}/tekton
 make KO_BIN=$(which ko) KUSTOMIZE_BIN=$(which kustomize) make TARGET=openshift apply
 make KO_BIN=$(which ko) KUSTOMIZE_BIN=$(which kustomize) CR=config/all apply-cr
 ```
+
+## CRC Work-around
+
+```bash
+export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 'sudo auditctl -b 16384'
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 'sudo sed -i "s|-b 8192|-b 16384|g" /etc/audit/rules.d/audit.rules'
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 'sudo setenforce 0'
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 'sudo sed -i "s|SELINUX=enforcing|SELINUX=disabled|g" /etc/sysconfig/selinux'
+```
+
+```bash
+oc delete pod routes-controller -n openshift-ingress
+export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa   
+ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo podman image rm quay.io/crcont/routes-controller:latest"
+cat << EOF | oc apply -n openshift-ingress -f -
+{"kind":"Pod","apiVersion":"v1","metadata":{"name":"routes-controller","namespace":"openshift-ingress","creationTimestamp":null},"spec":{"containers":[{"name":"routes-controller","image":"quay.io/crcont/routes-controller:latest","resources":{},"imagePullPolicy":"IfNotPresent"}],"serviceAccountName":"router"},"status":{}}
+EOF
+```
