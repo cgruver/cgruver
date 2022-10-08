@@ -1,6 +1,6 @@
 ---
-title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 01"
-date:   2022-10-02 00:00:00 -0400
+title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 02"
+date:   2022-10-07 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Cassandra and JSON"
 tags:
   - OpenShift
@@ -13,170 +13,7 @@ categories:
   - Blog Post
   - Quarkus Series
 ---
-
-
-## Install and Configure OpenShift Local
-
-```bash
-crc config set memory 12288
-crc config set disk-size=100
-crc start
-```
-
-```bash
-openssl s_client -showcerts -connect console-openshift-console.apps-crc.testing:443 </dev/null 2>/dev/null|openssl x509 -outform PEM > /tmp/crc-cert
-sudo security add-trusted-cert -d -r trustAsRoot -k "/Library/Keychains/System.keychain" /tmp/crc-cert
-```
-
-```bash
-eval $(crc podman-env)
-```
-
-```bash
-crc console --credentials
-```
-
-```bash
-To login as a regular user, run 'oc login -u developer -p developer https://api.crc.testing:6443'.
-To login as an admin, run 'oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G https://api.crc.testing:6443'
-```
-
-```bash
-oc login -u kubeadmin -p FkIy7-LFYXG-PvYFZ-Ppp2G https://api.crc.testing:6443
-```
-
-## Install Cassandra and Stargate
-
-```bash
-export K8SSANDRA_WORKDIR=${HOME}/okd-lab/quarkus-projects/k8ssandra-work-dir
-mkdir -p ${K8SSANDRA_WORKDIR}/cert-manager-install
-mkdir ${K8SSANDRA_WORKDIR}/tmp
-
-git clone https://github.com/cgruver/k8ssandra-blog-resources.git ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources
-```
-
-```bash
-. ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/versions.sh
-export PULL_REGISTRY="quay.io/cgruver0"
-```
-
-### Install Cert Manager
-
-```bash
-wget -O ${K8SSANDRA_WORKDIR}/tmp/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_MGR_VER}/cert-manager.yaml
-```
-
-```bash
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
-```
-
-```bash
-kustomize build ${K8SSANDRA_WORKDIR}/tmp | oc apply -f -
-```
-
-### Install K8ssandra Operator
-
-```bash
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
-kustomize build ${K8SSANDRA_WORKDIR}/tmp | oc create -f -
-```
-
-```bash
-oc -n k8ssandra-operator patch role k8ssandra-operator --type=json -p='[{"op": "add", "path": "/rules/-", "value": {"apiGroups": [""],"resources": ["endpoints/restricted"],"verbs": ["create"]} }]'
-```
-
-```bash
-oc -n k8ssandra-operator adm policy add-scc-to-user anyuid -z default 
-```
-
-```bash
-oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=0
-oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=0
-```
-
-```bash
-oc -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cass-config-patch.yaml)"
-```
-
-```bash
-oc -n k8ssandra-operator scale deployment cass-operator-controller-manager --replicas=1
-oc -n k8ssandra-operator scale deployment k8ssandra-operator --replicas=1
-```
-
-```bash
-cat << EOF | oc apply -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: k8ssandra-sc
-provisioner: no-provisioning 
-reclaimPolicy: Retain
-volumeBindingMode: WaitForFirstConsumer
-EOF
-```
-
-```bash
-export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
-ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo mkdir /mnt/pv-data/k8ssandrapv && sudo chown 999:999 /mnt/pv-data/k8ssandrapv"
-```
-
-```bash
-cat << EOF | oc apply -f -
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  labels:
-    app: k8ssandra-cluster
-  name: k8ssandra-cluster-0
-spec:
-  accessModes:
-  - ReadWriteOnce
-  - ReadWriteMany
-  - ReadOnlyMany
-  capacity:
-    storage: 20Gi
-  hostPath:
-    path: /mnt/pv-data/k8ssandrapv
-    type: ""
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: k8ssandra-sc
-  claimRef:
-    name: server-data-k8ssandra-cluster-dc1-default-sts-0
-    namespace: k8ssandra-operator
-EOF
-```
-
-## Deploy Cluster
-
-```bash
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-cluster.yaml | oc -n k8ssandra-operator apply -f -
-```
-
-## Expose Stargate Services:
-
-```bash
-oc -n k8ssandra-operator create route edge sg-graphql --service=k8ssandra-cluster-dc1-stargate-service --port=8080
-oc -n k8ssandra-operator create route edge sg-auth --service=k8ssandra-cluster-dc1-stargate-service --port=8081
-oc -n k8ssandra-operator create route edge sg-rest --service=k8ssandra-cluster-dc1-stargate-service --port=8082
-```
-
-## Connect To the Cluster
-
-```bash
-POD_NAME=$(oc -n k8ssandra-operator get statefulsets --selector app.kubernetes.io/name=cassandra -o jsonpath='{.items[0].metadata.name}')-0
-oc -n k8ssandra-operator port-forward ${POD_NAME} 9042
-
-CLUSTER_INIT_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
-CLUSTER_INIT_PWD=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
-
-oc -n k8ssandra-operator port-forward svc/k8ssandra-cluster-dc1-stargate-service 9042
-
-cqlsh -u ${CLUSTER_INIT_USER} -p ${CLUSTER_INIT_PWD} -e CREATE ROLE IF NOT EXISTS book-catalog
-```
-
-[https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources](https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources)
-
-[https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html)
+__Note:__ This is part two of a two part post.  In this post we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
 
 ## Create A Project For Our Code
 
@@ -424,3 +261,21 @@ curl 'https://openlibrary.org/api/books?bibkeys=0575043636&format=json&jscmd=dat
   }
 }
 ```
+
+## Connect To the Cluster
+
+```bash
+POD_NAME=$(oc -n k8ssandra-operator get statefulsets --selector app.kubernetes.io/name=cassandra -o jsonpath='{.items[0].metadata.name}')-0
+oc -n k8ssandra-operator port-forward ${POD_NAME} 9042
+
+CLUSTER_INIT_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
+CLUSTER_INIT_PWD=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
+
+oc -n k8ssandra-operator port-forward svc/k8ssandra-cluster-dc1-stargate-service 9042
+
+cqlsh -u ${CLUSTER_INIT_USER} -p ${CLUSTER_INIT_PWD} -e CREATE ROLE IF NOT EXISTS book-catalog
+```
+
+[https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources](https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources){:target="_blank"}
+
+[https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html){:target="_blank"}
