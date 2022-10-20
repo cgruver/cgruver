@@ -269,7 +269,7 @@ Check out the project here:
 1. Prepare the `kustomize` manifest that I created for you:
 
    ```bash
-   envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
+   envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/kustomize/cert-manager-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
    ```
 
 1. Install Cert Manager:
@@ -297,7 +297,7 @@ Check out the project here:
 1. Prepare the `kustomize` manifest that I created for you:
 
    ```bash
-   envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
+   envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/kustomize/k8ssandra-kustomization.yaml > ${K8SSANDRA_WORKDIR}/tmp/kustomization.yaml
    ```
 
 1. Install the K8ssandra Operator
@@ -332,7 +332,7 @@ Check out the project here:
 1. Patch the Cass Operator configuration:
 
    ```bash
-   oc -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/cass-config-patch.yaml)"
+   oc -n k8ssandra-operator patch configmap cass-operator-manager-config --patch="$(envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/cass-config-patch.yaml)"
    ```
 
 1. Start the k8ssandra operator pods back up:
@@ -361,15 +361,7 @@ In a later post, I'll show you how to deploy a 3 node cassandra cluster with dyn
 1. Create a storage class:
 
    ```bash
-   cat << EOF | oc apply -f -
-   apiVersion: storage.k8s.io/v1
-   kind: StorageClass
-   metadata:
-     name: k8ssandra-sc
-   provisioner: no-provisioning 
-   reclaimPolicy: Retain
-   volumeBindingMode: WaitForFirstConsumer
-   EOF
+   oc apply -f ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/k8ssandra-sc.yaml
    ```
 
 1. Prepare a host volume for Cassandra:
@@ -384,29 +376,7 @@ In a later post, I'll show you how to deploy a 3 node cassandra cluster with dyn
 1. Create a persistent volume to use the host volume we created:
 
    ```bash
-   cat << EOF | oc apply -f -
-   apiVersion: v1
-   kind: PersistentVolume
-   metadata:
-     labels:
-       app: k8ssandra-cluster
-     name: k8ssandra-cluster-0
-   spec:
-     accessModes:
-     - ReadWriteOnce
-     - ReadWriteMany
-     - ReadOnlyMany
-     capacity:
-       storage: 20Gi
-     hostPath:
-       path: /mnt/pv-data/k8ssandrapv
-       type: ""
-     persistentVolumeReclaimPolicy: Retain
-     storageClassName: k8ssandra-sc
-     claimRef:
-       name: server-data-k8ssandra-cluster-dc1-default-sts-0
-       namespace: k8ssandra-operator
-   EOF
+   oc apply -f ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/k8ssandra-pv.yaml
    ```
 
 ## Deploy Cluster
@@ -414,7 +384,7 @@ In a later post, I'll show you how to deploy a 3 node cassandra cluster with dyn
 Now, deploy a single-node Cassandra cluster:
 
 ```bash
-envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/k8ssandra-cluster.yaml | oc -n k8ssandra-operator apply -f -
+envsubst < ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/k8ssandra-cluster.yaml | oc -n k8ssandra-operator apply -f -
 ```
 
 This will take a while to start up.
