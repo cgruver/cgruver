@@ -1,6 +1,6 @@
 ---
 title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 02"
-date:   2022-10-07 00:00:00 -0400
+date:   2022-10-19 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Cassandra and JSON"
 tags:
   - OpenShift
@@ -35,6 +35,19 @@ code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
 mkdir ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi
 cp ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/stargate-openapi.json ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi/
 ```
+
+```bash
+cd ${HOME}/okd-lab/quarkus-projects/book_catalog
+mvn compile
+```
+
+## Application Queries
+
+Add Book To Catalog
+Get Books by Title
+Get Books by Author
+Get Book by Title & Author
+
 
 [https://openlibrary.org/dev/docs/api/books](https://openlibrary.org/dev/docs/api/books)
 
