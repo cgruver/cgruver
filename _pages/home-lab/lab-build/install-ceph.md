@@ -7,7 +7,17 @@ tags:
   - disconnected install
   - podman on openwrt
 ---
-## Refactor In Progress To Use The Lab CLI - The Original Instructions are Below
+## Refactor To Use The Lab CLI - The Original Instructions are Below
+
+1. Make sure that you have `podman` installed on your workstation.
+
+   Mac OS:
+
+   ```bash
+   brew install podman
+   podman machine init
+   podman machine start
+   ```
 
 1. Mirror Ceph Images
 
@@ -15,10 +25,16 @@ tags:
    labcli --ceph -m
    ```
 
-1. Install Rook Operator with Ceph cluster:
+1. Install Rook Operator:
 
    ```bash
    labcli --ceph -i
+   ```
+
+1. Create the Ceph cluster:
+
+   ```bash
+   labcli --ceph -c
    ```
 
 1. Configure the internal image registry for a Ceph PVC
