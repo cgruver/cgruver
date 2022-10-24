@@ -47,7 +47,8 @@ Add Book To Catalog
 Get Books by Title
 Get Books by Author
 Get Book by Title & Author
-
+Get Book by ISBN
+Get Book by ID
 
 [https://openlibrary.org/dev/docs/api/books](https://openlibrary.org/dev/docs/api/books)
 
@@ -272,6 +273,64 @@ curl 'https://openlibrary.org/api/books?bibkeys=0575043636&format=json&jscmd=dat
       "large": "https://covers.openlibrary.org/b/id/4683700-L.jpg"
     }
   }
+}
+```
+
+BookInfo DTO
+
+```json
+{
+  "catalogId": "OL24385514M",
+  "title": "Thief of time",
+  "openLibraryUrl": "http://openlibrary.org/books/OL24385514M/Thief_of_time",
+  "numberOfPages": 357,
+  "coverImageUrl": "https://covers.openlibrary.org/b/id/6636627-S.jpg",
+  "publishDate": "2002",
+  "inCatalog": false,
+  "identifiers": {
+    "isbn10": [
+      "0061031321"
+    ],
+    "isbn13": [
+      "9780061031328"
+    ]
+  },
+  "authors": [
+    {
+      "openLibraryUrl": "http://openlibrary.org/authors/OL25712A/Terry_Pratchett",
+      "name": "Terry Pratchett"
+    }
+  ]
+}
+```
+
+BookInfo
+
+```json
+{
+  "catalogId": "OL24385514M",
+  "title": "Thief of time",
+  "openLibraryUrl": "http://openlibrary.org/books/OL24385514M/Thief_of_time",
+  "numberOfPages": 357,
+  "coverImageUrl": "https://covers.openlibrary.org/b/id/6636627-S.jpg",
+  "publishDate": "2002",
+  "inCatalog": false,
+  "isbn10List": [
+    {
+      "isbn10": "0061031321"
+    }
+  ],
+  "isbn13List": [
+    {
+      "isbn13": "9780061031328"
+    }
+  ],
+  "authors": [
+    {
+      "openLibraryUrl": "http://openlibrary.org/authors/OL25712A/Terry_Pratchett",
+      "name": "Terry Pratchett"
+    }
+  ]
 }
 ```
 
