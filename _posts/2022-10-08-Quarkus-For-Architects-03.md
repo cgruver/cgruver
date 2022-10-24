@@ -419,6 +419,6 @@ That's it for this post.  In the next post we'll use this Cassandra cluster as t
 
 If you want to read ahead and start playing with this Cassandra cluster, check out the documentation here:
 
-[https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-rest.html){:target="_blank"}
+[https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-document.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-document.html){:target="_blank"}
 
 [https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources](https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources){:target="_blank"}
