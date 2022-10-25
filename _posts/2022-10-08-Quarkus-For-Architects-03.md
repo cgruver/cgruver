@@ -422,3 +422,19 @@ If you want to read ahead and start playing with this Cassandra cluster, check o
 [https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-document.html](https://docs.datastax.com/en/astra-serverless/docs/quickstart/qs-document.html){:target="_blank"}
 
 [https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources](https://docs.datastax.com/en/astra-serverless/docs/develop/tooling.html#postman-resources){:target="_blank"}
+
+When you are done with your cluster, you can stop it gracefully from a terminal window:
+
+```bash
+crc stop
+```
+
+When you are ready to use it again, simply restart it:
+
+```bash
+crc start
+```
+
+Note that it will take a while for the Cassandra cluster to restart and verify itself.
+
+Cheers!

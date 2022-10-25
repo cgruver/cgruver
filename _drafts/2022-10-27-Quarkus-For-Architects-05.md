@@ -1,6 +1,6 @@
 ---
 title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 03"
-date:   2022-10-23 00:00:00 -0400
+date:   2022-10-25 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Cassandra and JSON"
 tags:
   - OpenShift
