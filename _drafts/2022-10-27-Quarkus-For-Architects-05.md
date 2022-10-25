@@ -1,6 +1,6 @@
 ---
-title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 02"
-date:   2022-10-19 00:00:00 -0400
+title: "Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 03"
+date:   2022-10-23 00:00:00 -0400
 description: "Blog Series on writing Cloud Native Applications for OpenShift / Kubernetes with Quarkus - Cassandra and JSON"
 tags:
   - OpenShift
@@ -13,55 +13,7 @@ categories:
   - Blog Post
   - Quarkus Series
 ---
-__Note:__ This is part two of a three part post.  In this post we'll use Postman to interact with the Cassandra instance that we created in the first post.  
-
-Make sure you have completed part 1, and that your Cassandra cluster is running: [Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 01](https://upstreamwithoutapaddle.com/blog%20post/quarkus%20series/2022/10/08/Quarkus-For-Architects-03.html)  
-
-In the next post, we'll finally get around to writing a Quarkus app.
-
-Today, we are going to use the [Stargate Document API](https://docs.datastax.com/en/astra-serverless/docs/develop/dev-with-doc.html){:target="_blank"} to do the following:
-
-1. Authenticate against the Cassandra cluster and obtain an api token
-
-1. Create a Document Namespace
-
-1. Create a Collection to hold documents
-
-1. Add information about 2 books to the collection
-
-1. Search for a book information document by ISBN
-
-1. Search for book information by Author
-
-## Configure Postman
-
-I have created a Postman collection for you to use in this exercise.  If you don't have postman, now is a good time to go get it: [https://www.postman.com/downloads/](https://www.postman.com/downloads/){:target="_blank"}
-
-
-
-https://raw.githubusercontent.com/cgruver/k8ssandra-blog-resources/main/postman/book-catalog-01.postman_collection.json
-
-https://raw.githubusercontent.com/cgruver/k8ssandra-blog-resources/main/postman/book-catalog-01.postman_environment.json
-
-```bash
-~ % eval $(crc oc-env)
-~ % crc console --credentials
-To login as a regular user, run 'oc login -u developer -p developer https://api.crc.testing:6443'.
-To login as an admin, run 'oc login -u kubeadmin -p 3QxJ6-P5Z2c-DD7as-zfmfI https://api.crc.testing:6443'
-```
-
-```bash
-~ % oc login -u kubeadmin -p 3QxJ6-P5Z2c-DD7as-zfmfI https://api.crc.testing:6443
-Login successful.
-
-You have access to 68 projects, the list has been suppressed. You can list all projects with 'oc projects'
-
-Using project "default".
-```
-
-```bash
-oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d
-```
+__Note:__ This is part three of a three part post.  In this post we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
 
 ## Create A Project For Our Code
 

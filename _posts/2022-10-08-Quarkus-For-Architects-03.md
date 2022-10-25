@@ -23,7 +23,7 @@ Check out the project here:
 * [https://k8ssandra.io](https://k8ssandra.io){:target="_blank"}
 * [https://github.com/k8ssandra](https://github.com/k8ssandra){:target="_blank"}
 
-In the next post, we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
+In the next post we'll get an introduction to the Stargate API, then we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
 
 I have created this tutorial so that you can do everything in OpenShift Local, formerly known as Code Ready Containers.
 
@@ -415,7 +415,7 @@ oc -n k8ssandra-operator create route edge sg-auth --service=k8ssandra-cluster-d
 oc -n k8ssandra-operator create route edge sg-rest --service=k8ssandra-cluster-dc1-stargate-service --port=8082
 ```
 
-That's it for this post.  In the next post we'll use this Cassandra cluster as the persistent backend for a Quarkus micro-service.
+That's it for this post.  In the next post we'll get an introduction to the Stargate API, then we'll use this Cassandra cluster as the persistent backend for a Quarkus micro-service.
 
 If you want to read ahead and start playing with this Cassandra cluster, check out the documentation here:
 
