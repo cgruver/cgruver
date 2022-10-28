@@ -2599,3 +2599,22 @@ cat << EOF | oc apply -n openshift-ingress -f -
 {"kind":"Pod","apiVersion":"v1","metadata":{"name":"routes-controller","namespace":"openshift-ingress","creationTimestamp":null},"spec":{"containers":[{"name":"routes-controller","image":"quay.io/crcont/routes-controller:latest","resources":{},"imagePullPolicy":"IfNotPresent"}],"serviceAccountName":"router"},"status":{}}
 EOF
 ```
+
+## Rotate Certs:
+
+labctx
+labenv -k
+
+oc delete secrets/csr-signer-signer secrets/csr-signer -n openshift-kube-controller-manager-operator
+
+for i in $(oc get nodes | grep -v NAME | cut -d" " -f1)
+do
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@${i} -- sudo rm -fr /var/lib/kubelet/pki
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@${i} -- sudo rm -fr /var/lib/kubelet/kubeconfig
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@${i} -- sudo systemctl restart kubelet
+done
+
+labcli --csr
+
+./oc get csr
+./oc get csr '-ojsonpath={.items[*].metadata.name}' | xargs ./oc adm certificate approve
