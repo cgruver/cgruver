@@ -29,8 +29,8 @@ export PKG_CONFIG_PATH="/usr/local/opt/ruby/lib/pkgconfig"
 export JAVA_HOME=$(/usr/libexec/java_home)
 ### My Env Config
 set -o vi
-alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-alias scp="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
+alias scp="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
 
 function resetDNS() {
 sudo killall -HUP mDNSResponder
