@@ -12,8 +12,6 @@ url: "https://upstreamwithoutapaddle.com"
 baseurl: ""
 repository: "cgruver/cgruver"
 logo: "/assets/images/logo.jpg"
-twitter:
-  username: upstreampaddle
 author:
   name: "cgruver"
   avatar: /assets/images/Avatar.jpeg
@@ -21,9 +19,6 @@ author:
     - label: "Blog"
       icon: "fas fa-fw fa-link"
       url: "https://upstreamwithoutapaddle.com"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/upstreampaddle"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/cgruver"
@@ -32,9 +27,6 @@ footer:
     - label: "Blog"
       icon: "fas fa-fw fa-link"
       url: "https://upstreamwithoutapaddle.com"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/upstreampaddle"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/cgruver"
