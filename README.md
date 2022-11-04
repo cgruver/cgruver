@@ -2,4 +2,3 @@
 
 __Blog:__ [Up Stream - Without a Paddle](https://upstreamwithoutapaddle.com)
 
-__Twitter:__ [upstreampaddle](https://twitter.com/upstreampaddle)
