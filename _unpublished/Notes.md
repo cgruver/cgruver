@@ -2618,3 +2618,125 @@ labcli --csr
 
 ./oc get csr
 ./oc get csr '-ojsonpath={.items[*].metadata.name}' | xargs ./oc adm certificate approve
+
+## Use project template to automatically apply limat-ranges and quotas
+
+### If quotas are define, then requests and limits MUST be define.  The pod will be rejected otherwise.
+
+### ClusterResourceQuota can apply across multiple projects
+
+```bash
+oc create clusterresourcequota my-cluster-resource-quota --project-label-selector=org=myorg --hard=pods=10 --hard=secrets=20
+```
+
+### Quota Example:
+
+```yaml
+echo '---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: test-quota
+spec:
+  hard:
+    requests.memory: 512Mi
+    requests.cpu: "1"
+    pods: "3"
+    services: "5"
+    replicationcontrollers: "5"
+    resourcequotas: "1"' | oc create -n resourcemanagement -f - 
+```
+
+### Limit Range Example:
+
+```yaml
+echo '---
+kind: LimitRange
+apiVersion: v1
+metadata:
+  name: limits
+spec:
+  limits:
+  - type: Pod
+    max:
+      cpu: 1
+      memory: 1.5Gi
+    min:
+      cpu: 100m
+      memory: 50Mi
+  - type: Container
+    max:
+      cpu: 500m
+      memory: 750Mi
+    min:
+      cpu: 100m
+      memory: 50Mi
+    default:
+      cpu: 200m
+      memory: 100Mi' | oc create -n resourcemanagement -f - 
+```
+
+### Create a project request template:
+
+```bash
+oc adm create-bootstrap-project-template -o yaml > $HOME/project_request_template.yaml
+```
+
+### Add the following to the objects list:
+
+```yaml
+- apiVersion: "v1"
+  kind: "LimitRange"
+  metadata:
+    name: "core-resource-limits"
+  spec:
+    limits:
+      - type: "Pod"
+        max:
+          cpu: "1"
+          memory: "1Gi"
+        min:
+          cpu: "200m"
+          memory: "6Mi"
+      - type: "Container"
+        max:
+          cpu: "1"
+          memory: "1Gi"
+        min:
+          cpu: "100m"
+          memory: "4Mi"
+        default:
+          cpu: "300m"
+          memory: "200Mi"
+        defaultRequest:
+          cpu: "200m"
+          memory: "100Mi"
+        maxLimitRequestRatio:
+          cpu: "10"
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: default-quota
+  spec:
+    hard:
+      pods: "4"
+      requests.cpu: "1"
+      requests.memory: 1Gi
+      limits.cpu: "2"
+      limits.memory: 2Gi
+      persistentvolumeclaims: "10"
+      services: "100"
+      services.loadbalancers: "5"
+```
+
+### Create the template:
+
+```bash
+oc create -f $HOME/project_request_template.yaml -n openshift-config
+```
+
+### Add the template to project requests
+
+```bash
+oc get projects.config.openshift.io -o yaml
+```
