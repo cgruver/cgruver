@@ -25,19 +25,21 @@ code --create -a=book_catalog -g=fun.is.quarkus -x=quarkus-openapi-generator
 
 ```bash
 cd ${HOME}/okd-lab/quarkus-projects/book_catalog
-code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.2.Final
-code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
-code --dependency -g=org.projectlombok -a=lombok -v=1.18.24
-code --dependency -g=org.projectlombok -a=lombok-mapstruct-binding -v=0.2.0
+code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.3.Final
+code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.3.Final
+```
+
+## Create the Stargate Client API
+
+code --create -a=stargate_api -g=fun.is.quarkus -x=quarkus-openapi-generator
+
+```bash
+mkdir ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi
+cp ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/stargate-openapi.json ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi/
 ```
 
 ```bash
-mkdir ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi
-cp ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/stargate-openapi.json ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/openapi/
-```
-
-```bash
-cd ${HOME}/okd-lab/quarkus-projects/book_catalog
+cd ${HOME}/okd-lab/quarkus-projects/stargate_api
 mvn compile
 ```
 
