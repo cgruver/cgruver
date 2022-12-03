@@ -53,7 +53,7 @@ Let's go ahead and use this script to bootstrap two projects for us:
    ```bash
    mkdir -p ${HOME}/okd-lab/quarkus-projects
    cd ${HOME}/okd-lab/quarkus-projects
-   code --create -a=apiserver -g=fun.is.quarkus
+   code --create -b -a=apiserver -g=fun.is.quarkus
    ```
 
 1. Take a look at what the script did:
@@ -127,7 +127,7 @@ Let's go ahead and use this script to bootstrap two projects for us:
 
    ```bash
    cd ${HOME}/okd-lab/quarkus-projects
-   code --create -a=apiclient -g=fun.is.quarkus -x=scheduler
+   code --create -b -a=apiclient -g=fun.is.quarkus -x=scheduler
    ```
 
 1. Add Mapstruct and Lombok dependencies to the POMs.

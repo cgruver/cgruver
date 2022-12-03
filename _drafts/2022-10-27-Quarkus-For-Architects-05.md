@@ -20,7 +20,7 @@ __Note:__ This is part three of a three part post.  In this post we'll create a 
 ```bash
 mkdir -p ${HOME}/okd-lab/quarkus-projects
 cd ${HOME}/okd-lab/quarkus-projects
-code --create -a=book_catalog -g=fun.is.quarkus -x=quarkus-openapi-generator
+code --create -b -a=book_catalog -g=fun.is.quarkus -x=scheduler
 ```
 
 ```bash
@@ -31,16 +31,34 @@ code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.3.Final
 
 ## Create the Stargate Client API
 
+```bash
+cd ${HOME}/okd-lab/quarkus-projects
 code --create -a=stargate_api -g=fun.is.quarkus -x=quarkus-openapi-generator
+```
 
 ```bash
-mkdir ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi
-cp ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/stargate-openapi.json ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi/
+mkdir -p ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi
+
+echo 'quarkus.openapi-generator.codegen.spec.stargate_json.base-package=fun.is.quarkus.book_catalog.collaborators.stargate' >> ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/resources/application.properties
+
+curl -o ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi/stargate.json https://raw.githubusercontent.com/cgruver/k8ssandra-blog-resources/main/openApi/stargate-doc-openapi.json
 ```
 
 ```bash
 cd ${HOME}/okd-lab/quarkus-projects/stargate_api
+
 mvn compile
+
+cp -r ./target/generated-sources/open-api-json/fun ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java
+
+cd ${HOME}/okd-lab/quarkus-projects
+
+rm -rf ${HOME}/okd-lab/quarkus-projects/stargate_api
+
+sed -i "s|public void|public Uni<Response>|g" ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/AuthApi.java
+
+sed -i "s|public void|public Uni<Response>|g" ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/DocumentsApi.java
+
 ```
 
 ## Application Queries

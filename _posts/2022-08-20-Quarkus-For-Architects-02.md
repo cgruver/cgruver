@@ -44,7 +44,7 @@ It's also worth noting, that while there are tutorial aspects to these posts, th
    ```bash
    mkdir -p ${HOME}/okd-lab/quarkus-projects
    cd ${HOME}/okd-lab/quarkus-projects
-   code --create -a=italktomyself -g=fun.is.quarkus -x=scheduler
+   code --create -b -a=italktomyself -g=fun.is.quarkus -x=scheduler
    cd ${HOME}/okd-lab/quarkus-projects/italktomyself
    code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.2.Final
    code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.2.Final
