@@ -15,6 +15,20 @@ categories:
 ---
 __Note:__ This is part three of a three part post.  In this post we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
 
+```bash
+mkdir -p ${HOME}/okd-lab/bin
+curl -o ${HOME}/okd-lab/bin/code -fsSL https://raw.githubusercontent.com/cgruver/kamarotos/main/bin/code
+chmod 700 ${HOME}/okd-lab/bin/code
+```
+
+Now, edit your `~/.zshrc` or `~/.bashrc` file and add `${HOME}/okd-lab/bin` to your `$PATH`
+
+For example:
+
+```bash
+echo "PATH=$PATH:${HOME}/okd-lab/bin" >> ~/.zshrc
+```
+
 ## Create A Project For Our Code
 
 ```bash

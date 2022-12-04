@@ -35,8 +35,10 @@ lab-projects:
       url: /home-lab/tekton-install/
   - title: "Tutorials:"
     children:
-    - title: "OpenShift Pipelines (Tekton) - Tutorial"
+    - title: "OpenShift Pipelines (Tekton)"
       url: /tutorials/tekton-intro/
+    - title: "Quarkus For Architects Who Sometimes Write Code"
+      url: /tutorials/quarkus-for-architects-intro/
   - title: "Random Projects:"
     children:
     - title: "CodeReady Containers for OKD"
