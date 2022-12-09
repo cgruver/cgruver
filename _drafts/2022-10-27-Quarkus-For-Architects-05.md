@@ -15,65 +15,150 @@ categories:
 ---
 __Note:__ This is part three of a three part post.  In this post we'll create a Quarkus micro-service to store and retrieve data with Cassandra and Stargate.
 
-```bash
-mkdir -p ${HOME}/okd-lab/bin
-curl -o ${HOME}/okd-lab/bin/code -fsSL https://raw.githubusercontent.com/cgruver/kamarotos/main/bin/code
-chmod 700 ${HOME}/okd-lab/bin/code
-```
+Make sure you have completed parts 1 & 2:
 
-Now, edit your `~/.zshrc` or `~/.bashrc` file and add `${HOME}/okd-lab/bin` to your `$PATH`
+1. [Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 01](https://upstreamwithoutapaddle.com/blog%20post/quarkus%20series/2022/10/08/Quarkus-For-Architects-03.html)
+2. [Quarkus for Architects who Sometimes Write Code - Being Persistent - Part 02](https://upstreamwithoutapaddle.com/blog%20post/quarkus%20series/2022/10/23/Quarkus-For-Architects-04.html)
 
-For example:
+I'm going to lead you through building all of the code for this app.  But... if you really just want to skip ahead, or don't trust your copy & paste skills, I've got all of the code in a repo for you as well: [https://github.com/lab-monkeys/book_catalog.git](https://github.com/lab-monkeys/book_catalog.git)
 
-```bash
-echo "PATH=$PATH:${HOME}/okd-lab/bin" >> ~/.zshrc
-```
+This example app is going to demonstrate several capabilities:
 
-## Create A Project For Our Code
+1. Integration with the Stargate Document API as an interface to Cassandra (The reason for these three blog posts)
+1. Integration with [https://openlibrary.org](https://openlibrary.org)
+1. Mapstruct for Model to DTO mappings (We're going to use some advanced features)
+1. Customer Serializers for JSON marshaling and unmarshaling
+1. Java `record` type
+1. Quarkus Scheduler for scheduled tasks (cheesy example since we're not using an IAM provider and secrets manager...)
+1. OpenAPI code generator with Quarkus
 
-```bash
-mkdir -p ${HOME}/okd-lab/quarkus-projects
-cd ${HOME}/okd-lab/quarkus-projects
-code --create -b -a=book_catalog -g=fun.is.quarkus -x=scheduler
-```
+Let's get started!
 
-```bash
-cd ${HOME}/okd-lab/quarkus-projects/book_catalog
-code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.3.Final
-code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.3.Final
-```
+## Install or update the tools
+
+__Note:__ I've made some updates to my helper script since I introduced it in an earlier post.
+
+Follow the instructions here: [Quarkus for Architects who Sometimes Write Code - Setup](/tutorials/quarkus-for-architects-dev-setup/){:target="_blank"}
+
+## Bootstrap A Project For Our Code
+
+1. Bootstrap a basic REST project with the Quarkus Scheduler extension added
+
+   ```bash
+   mkdir -p ${HOME}/okd-lab/quarkus-projects
+   cd ${HOME}/okd-lab/quarkus-projects
+   code --create -b -a=book_catalog -g=fun.is.quarkus -x=scheduler
+   ```
+
+1. Add MapStruct as a dependency:
+
+   ```bash
+   cd ${HOME}/okd-lab/quarkus-projects/book_catalog
+   code --dependency -g=org.mapstruct -a=mapstruct -v=1.5.3.Final
+   code --dependency -g=org.mapstruct -a=mapstruct-processor -v=1.5.3.Final
+   ```
+
+1. Add this project to your IDE
 
 ## Create the Stargate Client API
 
-```bash
-cd ${HOME}/okd-lab/quarkus-projects
-code --create -a=stargate_api -g=fun.is.quarkus -x=quarkus-openapi-generator
-```
+Next, we're going to need code that will help us interface with the Stargate APIs.  Fortunately, Stargate has published an OpenAPI spec for their APIs.  We'll use that, plus a code generator to create the client code that we need.
+
+1. Create a temporary project for the generated code:
+
+   ```bash
+   cd ${HOME}/okd-lab/quarkus-projects
+   code --create -a=stargate_api -g=fun.is.quarkus -x=quarkus-openapi-generator
+   ```
+
+   We're going to use a relatively new Quarkus extension here that is an opinionated implementation of [OpenAPI Generator Tool](https://openapi-generator.tech/){:target="_blank"}.
+
+   You can find the Quarkus extension here: [https://github.com/quarkiverse/quarkus-openapi-generator](https://github.com/quarkiverse/quarkus-openapi-generator){:target="_blank"}
+
+1. Create a directory for the OpenAPI spec file:
+
+   ```bash
+   mkdir -p ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi
+   ```
+
+1. Grab the OpenAPI spec:
+
+   __Note:__ I've selected a specific version and put it in my blog resources project.  This ensures that you don't hit any compatibility issues since the K8ssandra resources that you deployed will work with this version of the API.
+
+   ```bash
+   curl -o ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi/stargate.json https://raw.githubusercontent.com/cgruver/k8ssandra-blog-resources/main/openApi/stargate-doc-openapi.json
+   ```
+
+1. Add configuration information to the `application.properties` file to specify the base package for the generated code:
+
+   ```bash
+   echo 'quarkus.openapi-generator.codegen.spec.stargate_json.base-package=fun.is.quarkus.book_catalog.collaborators.stargate' >> ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/resources/application.properties
+   ```
+
+1. Generate the code:
+
+   ```bash
+   cd ${HOME}/okd-lab/quarkus-projects/stargate_api
+   mvn compile
+   ```
+
+1. Copy the generated code into our project:
+
+   ```bash
+   cp -r ./target/generated-sources/open-api-json/fun ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java
+   ```
+
+1. Remove the temporary project:
+
+   ```bash
+   cd ${HOME}/okd-lab/quarkus-projects
+   rm -rf ${HOME}/okd-lab/quarkus-projects/stargate_api
+   ```
+
+OK, we now have some generated code for interfacing with Stargate.  But...  It's not quite what we're going to need.
+
+Take a look at the files that we copied into `./src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate`
 
 ```bash
-mkdir -p ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi
-
-echo 'quarkus.openapi-generator.codegen.spec.stargate_json.base-package=fun.is.quarkus.book_catalog.collaborators.stargate' >> ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/resources/application.properties
-
-curl -o ${HOME}/okd-lab/quarkus-projects/stargate_api/src/main/openapi/stargate.json https://raw.githubusercontent.com/cgruver/k8ssandra-blog-resources/main/openApi/stargate-doc-openapi.json
+.
+├── api
+│   ├── AuthApi.java
+│   ├── DocumentsApi.java
+│   └── SchemasApi.java
+└── model
+    └── Credentials.java
 ```
+
+`AuthApi.java` is the class that we will use to get an authorization token.  `Credentials.java` is its DTO.
+
+`DocumentsApi.java` is the class that we'll use to interface with the Stargate Document API.
+
+We are going to be using Resteasy Reactive in our application.  But the generated classes to not support that.  In fact, if you look at the generated classes, you'll see that all of the methods return `void`.
+
+Let's fix that with `sed`...  I bet you didn't think of `sed` as a code editor...
+
+Well, we're going to use `sed` to fix the return type from the methods to be `Uni<Response>`, and we're going to get rid of all of the `@Generated...` annotations.
+
+We also need to fix the `configKey` entries in `@RegisterRestClient`.  `AuthApi.java` and `DocumentsApi.java` have the same entries.  That won't work for us since the resources are at different URLs.
 
 ```bash
-cd ${HOME}/okd-lab/quarkus-projects/stargate_api
+AUTH_API_FILE=${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/AuthApi.java
+DOC_API_FILE=${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/DocumentsApi.java
 
-mvn compile
+for i in ${AUTH_API_FILE} ${DOC_API_FILE}
+do
+  sed -i "s|public void|public Uni<Response>|g" ${i}
+  sed -i "/@GeneratedMethod \(.*\)/d" ${i}
+  sed -i "/@GeneratedClass\(.*\)/d" ${i}
+  sed -i "/io.quarkiverse.openapi.generator.annotations/d" ${i}
+  sed -i "s|@GeneratedParam.* @|@|g" ${i}
+done
 
-cp -r ./target/generated-sources/open-api-json/fun ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java
-
-cd ${HOME}/okd-lab/quarkus-projects
-
-rm -rf ${HOME}/okd-lab/quarkus-projects/stargate_api
-
-sed -i "s|public void|public Uni<Response>|g" ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/AuthApi.java
-
-sed -i "s|public void|public Uni<Response>|g" ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/DocumentsApi.java
-
+sed -i "s|@RegisterRestClient(baseUri=\"https://localhost:8082\", configKey=\"stargate_json\")|@RegisterRestClient(configKey=\"stargate_auth\")|g" ${AUTH_API_FILE}
+sed -i "s|@RegisterRestClient(baseUri=\"https://localhost:8082\", configKey=\"stargate_json\")|@RegisterRestClient(configKey=\"stargate_doc\")|g" ${DOC_API_FILE}
 ```
+
+Now take a look at `AuthApi.java` and `DocumentsApi.java`.  They are ready for use.
 
 ## Application Queries
 
@@ -394,7 +479,7 @@ export SERVER_PORT=8080
 export STARGATE_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
 export STARGATE_PW=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
 export STARGATE_AUTH_URL=https://$(oc -n k8ssandra-operator get route sg-auth -o jsonpath="{.spec.host}")
-export STARGATE_JSON_URL=https://$(oc -n k8ssandra-operator get route sg-rest -o jsonpath="{.spec.host}")
+export STARGATE_DOC_URL=https://$(oc -n k8ssandra-operator get route sg-rest -o jsonpath="{.spec.host}")
 ```
 
 ```bash
