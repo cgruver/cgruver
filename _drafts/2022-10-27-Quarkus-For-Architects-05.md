@@ -40,7 +40,11 @@ __Note:__ I've made some updates to my helper script since I introduced it in an
 
 Follow the instructions here: [Quarkus for Architects who Sometimes Write Code - Setup](/tutorials/quarkus-for-architects-dev-setup/){:target="_blank"}
 
-## Bootstrap A Project For Our Code
+## Build the Book Catalog Service
+
+
+
+### Bootstrap A Project For Our Code
 
 1. Bootstrap a basic REST project with the Quarkus Scheduler extension added
 
@@ -60,7 +64,7 @@ Follow the instructions here: [Quarkus for Architects who Sometimes Write Code -
 
 1. Add this project to your IDE
 
-## Create the Stargate Client API
+### Create the Stargate API Client
 
 Next, we're going to need code that will help us interface with the Stargate APIs.  Fortunately, Stargate has published an OpenAPI spec for their APIs.  We'll use that, plus a code generator to create the client code that we need.
 
@@ -108,6 +112,12 @@ Next, we're going to need code that will help us interface with the Stargate API
    cp -r ./target/generated-sources/open-api-json/fun ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java
    ```
 
+1. Remove the `SchemasApi` which we don't need:
+
+   ```bash
+   rm ${HOME}/okd-lab/quarkus-projects/book_catalog/src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate/api/SchemasApi.java
+   ```
+
 1. Remove the temporary project:
 
    ```bash
@@ -120,16 +130,23 @@ OK, we now have some generated code for interfacing with Stargate.  But...  It's
 Take a look at the files that we copied into `./src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate`
 
 ```bash
-.
-├── api
-│   ├── AuthApi.java
-│   ├── DocumentsApi.java
-│   └── SchemasApi.java
-└── model
-    └── Credentials.java
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── collaborators
+                    └── stargate
+                        ├── api
+                        │   ├── AuthApi.java
+                        │   ├── DocumentsApi.java
+                        │   └── SchemasApi.java
+                        └── model
+                            ├── Credentials.java
+                            └── Token.java
 ```
 
-`AuthApi.java` is the class that we will use to get an authorization token.  `Credentials.java` is its DTO.
+`AuthApi.java` is the class that we will use to get an authorization token.  `Credentials.java` & `Token.java` are its DTOs.
 
 `DocumentsApi.java` is the class that we'll use to interface with the Stargate Document API.
 
@@ -160,6 +177,777 @@ sed -i "s|@RegisterRestClient(baseUri=\"https://localhost:8082\", configKey=\"st
 
 Now take a look at `AuthApi.java` and `DocumentsApi.java`.  They are ready for use.
 
+### OpenLibrary API Client 
+
+__`src/main/java/fun/is/quarkus/book_catalog/collaborators/openlibrary`__
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── collaborators
+                    └── openlibrary
+                        ├── api
+                        │   └── OpenLibraryApi.java
+                        └── dto
+                            ├── OpenLibraryBookAuthorDto.java
+                            ├── OpenLibraryBookCoverUrlDto.java
+                            ├── OpenLibraryBookDeserializer.java
+                            ├── OpenLibraryBookDetailDto.java
+                            ├── OpenLibraryBookDto.java
+                            ├── OpenLibraryBookIdentifiersDto.java
+                            ├── OpenLibraryBookPublisherDto.java
+                            └── OpenLibraryBookSubjectsDto.java
+```
+
+__`./api/OpenLibraryApi.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.api;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+
+import io.smallrye.mutiny.Uni;
+
+@Path("/api")
+@RegisterRestClient(configKey = "open_library_api")
+@ApplicationScoped
+public interface OpenLibraryApi {
+    
+    @GET
+    @Path("/books")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getBookInfo(@QueryParam("bibkeys") final String isbn, @QueryParam("format") final String format, @QueryParam("jscmd") final String jscmd);
+}
+```
+
+__`./dto/OpenLibraryBookAuthorDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookAuthorDto (String url, String name) {}
+```
+
+__`./dto/OpenLibraryBookCoverUrlDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookCoverUrlDto(String small, String large, String medium){}
+```
+
+__`./dto/OpenLibraryBookDetailDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookDetailDto(
+    List<OpenLibraryBookPublisherDto> publishers, 
+    OpenLibraryBookIdentifiersDto identifiers, 
+    String title, 
+    String url, 
+    String notes, 
+    @JsonProperty("number_of_pages")
+    Long numberOfPages, 
+    OpenLibraryBookCoverUrlDto cover, 
+    List<OpenLibraryBookSubjectsDto> subjects, 
+    @JsonProperty("publish_date") 
+    String publishDate, 
+    String key, 
+    List<OpenLibraryBookAuthorDto> authors
+    ) {}
+```
+
+__`./dto/OpenLibraryBookDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(using = OpenLibraryBookDeserializer.class)
+public record OpenLibraryBookDto(String isbn, OpenLibraryBookDetailDto details) {}
+```
+
+__`./dto/OpenLibraryBookIdentifiersDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookIdentifiersDto(
+    @JsonProperty("isbn_13")
+    List<String> isbn13,
+    List<String> amazon,
+    @JsonProperty("isbn_10")
+    List<String> isbn10,
+    List<String> openlibrary
+){}
+```
+
+__`./dto/OpenLibraryBookPublisherDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookPublisherDto(String name){}
+```
+
+__`./dto/OpenLibraryBookSubjectsDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record OpenLibraryBookSubjectsDto (String url, String name){}
+```
+
+__`./dto/OpenLibraryBookDeserializer.java`__
+
+```java
+package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OpenLibraryBookDeserializer extends JsonDeserializer<OpenLibraryBookDto> {
+
+    @Override
+    public OpenLibraryBookDto deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String isbn = p.nextFieldName();
+        JsonNode node = p.getCodec().readTree(p);
+        OpenLibraryBookDto book = new OpenLibraryBookDto(isbn, objectMapper.treeToValue(node.get(isbn), OpenLibraryBookDetailDto.class));
+        return book;
+    }
+}
+```
+
+### Book Catalog API
+
+__`src/main/java/fun/is/quarkus/book_catalog/api/`__
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── api
+                    └── BookInfoApi.java
+```
+
+__`BookInfoApi.java`__
+
+```java
+package fun.is.quarkus.book_catalog.api;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import fun.is.quarkus.book_catalog.dto.BookInfoDto;
+import io.smallrye.mutiny.Uni;
+
+@ApplicationScoped
+@Path("/book-info")
+public interface BookInfoApi {
+    
+    @GET
+    @Path("/book-by-id/{catalog-id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getBookById(@PathParam("catalog-id") String catalogId);
+
+    @GET
+    @Path("/book-by-isbn/{isbn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getBookByIsbn(@PathParam("isbn") String isbn);
+
+    @GET
+    @Path("/books-by-author/{author}/{num_results}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getBooksByAuthor(@PathParam("author") String author, @PathParam("num_results") Integer numResults);
+
+    @GET
+    @Path("/open-library/{isbn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> getOpenLibraryBookByIsbn(@PathParam("isbn") String isbn);
+
+    @POST
+    @Path("/save-book")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Uni<Response> saveBookInfo(BookInfoDto dto);
+}
+```
+
+### Book Catalog Service
+
+__`src/main/java/fun/is/quarkus/book_catalog/service/`__
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── service
+                    ├── BookInfoService.java
+                    └── StargateAuthToken.java
+```
+
+__`BookInfoService.java`__
+
+```java
+package fun.is.quarkus.book_catalog.service;
+
+import java.time.Duration;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import fun.is.quarkus.book_catalog.api.BookInfoApi;
+import fun.is.quarkus.book_catalog.collaborators.openlibrary.api.OpenLibraryApi;
+import fun.is.quarkus.book_catalog.collaborators.openlibrary.dto.OpenLibraryBookDto;
+import fun.is.quarkus.book_catalog.collaborators.stargate.api.DocumentsApi;
+import fun.is.quarkus.book_catalog.dto.BookInfoDto;
+import fun.is.quarkus.book_catalog.mapper.BookInfoMapper;
+import fun.is.quarkus.book_catalog.model.Books;
+import io.smallrye.mutiny.Uni;
+
+@ApplicationScoped
+public class BookInfoService implements BookInfoApi {
+
+    @ConfigProperty(name = "stargate.book-catalog.namespace")
+    String cassNamespace;
+
+    @ConfigProperty(name = "stargate.book-catalog.collection")
+    String cassCollection;
+
+    @Inject
+    StargateAuthToken authToken;
+
+    @RestClient
+    @Inject
+    DocumentsApi stargateDoc;
+
+    @RestClient
+    @Inject
+    OpenLibraryApi openLibrary;
+
+    @Inject
+    BookInfoMapper bookMapper;
+
+    @Override
+    public Uni<Response> getBookById(String catalogId) {
+        stargateDoc.getDocById(authToken.getAuthToken(), cassNamespace, cassCollection, catalogId, catalogId, null);
+        return null;
+    }
+
+    @Override
+    public Uni<Response> getBookByIsbn(String isbn) {
+
+        String isbnType = "isbn13";
+        if (isbn.length() == 10) {
+            isbnType = "isbn10";
+        }
+        if (isbn.length() == 13) {
+            isbnType = "isbn13";
+        }
+
+        String isbnQuery = "{\"identifiers." + isbnType + "List.[*]." + isbnType + "\":{\"$eq\":\"" + isbn + "\"}}";
+
+        return processQuery(isbnQuery, 1);
+    }
+
+    @Override
+    public Uni<Response> getBooksByAuthor(String author, Integer numResults) {
+        
+        String authorQuery = "{\"authors.[*].name\":{\"$eq\":\"" + author + "\"}}";
+
+        return processQuery(authorQuery, numResults);
+    }
+
+    @Override
+    public Uni<Response> getOpenLibraryBookByIsbn(String isbn) {
+        return openLibrary.getBookInfo(isbn, "json", "data").ifNoItem().after(Duration.ofMillis(1000)).failWith(new Exception("Query Timeout")).onItem().transform(reply -> Response.ok(bookMapper.OpenLibraryBookDtoToBookInfoDto(reply.readEntity(OpenLibraryBookDto.class))).build()).onFailure().transform(fail -> new Exception(fail.getMessage()));
+    }
+
+    @Override
+    public Uni<Response> saveBookInfo(BookInfoDto dto) {
+        return stargateDoc.replaceDoc(authToken.getAuthToken(), cassNamespace, cassCollection, dto.catalogId(), bookMapper.dtoToBookInfo(dto)).onItem().transform(reply -> Response.ok(reply.readEntity(Object.class)).build());
+    }
+
+    private Uni<Response> processQuery(String query, Integer numResults) {
+        return stargateDoc.searchDoc(authToken.getAuthToken(), cassNamespace, cassCollection, query, null, numResults, null, null).ifNoItem().after(Duration.ofMillis(1000)).failWith(new Exception("Query Timeout")).onItem().transform(reply -> Response.ok(bookMapper.bookInfosToDtos(reply.readEntity(Books.class).books())).build()).onFailure().transform(fail -> new Exception(fail.getMessage()));
+    }
+}
+```
+
+__`StargateAuthToken.java`__
+
+```java
+package fun.is.quarkus.book_catalog.service;
+
+import java.time.Duration;
+
+import javax.enterprise.event.Observes;
+import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.logging.Logger;
+
+import fun.is.quarkus.book_catalog.collaborators.stargate.api.AuthApi;
+import fun.is.quarkus.book_catalog.collaborators.stargate.model.Credentials;
+import fun.is.quarkus.book_catalog.collaborators.stargate.model.Token;
+import io.quarkus.runtime.StartupEvent;
+import io.quarkus.scheduler.Scheduled;
+
+@Singleton
+public class StargateAuthToken {
+    
+    final Logger LOG = Logger.getLogger(StargateAuthToken.class);
+
+    @RestClient
+    AuthApi stargateAuth;
+
+    @ConfigProperty(name = "stargate.auth.user")
+    private String stargateUser;
+
+    @ConfigProperty(name = "stargate.auth.pw")
+    private String stargatePw;
+
+    private String authToken;
+    Credentials stargateCreds = null;
+
+    void startUp(@Observes StartupEvent startupEvent) {
+        stargateCreds = new Credentials(stargateUser, stargatePw);
+    }
+    
+    @Scheduled(every = "{stargate.token_renew}")
+    public void authenticate() {
+        stargateAuth.createToken(stargateCreds).ifNoItem().after(Duration.ofMillis(1000)).failWith(new Exception("Request Timeout - Authentication")).subscribe().with(reply -> setToken(reply), fail -> handleFailure(fail));
+    }
+
+    private void setToken(Response reply) {
+        this.authToken = reply.readEntity(Token.class).authToken();
+        LOG.info("Token: " + this.authToken);
+    }
+
+    private void handleFailure(Throwable error) {
+        error.printStackTrace();
+    }
+
+    public String getAuthToken() {
+        return this.authToken;
+    }
+}
+```
+
+### Book Catalog DTO
+
+__`src/main/java/fun/is/quarkus/book_catalog/dto/`__
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── dto
+                    ├── BookInfoAuthorDto.java
+                    ├── BookInfoDto.java
+                    └── BookInfoIdentifiersDto.java
+```
+
+__`BookInfoAuthorDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.dto;
+
+public record BookInfoAuthorDto(String openLibraryUrl, String name) {}
+```
+
+__`BookInfoDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.dto;
+
+import java.util.List;
+
+public record BookInfoDto (
+    String catalogId,
+    String title,
+    String openLibraryUrl,
+    Long numberOfPages,
+    String coverImageUrl,
+    String publishDate,
+    boolean inCatalog,
+    BookInfoIdentifiersDto identifiers,
+    List<BookInfoAuthorDto> authors
+) {}
+```
+
+__`BookInfoIdentifiersDto.java`__
+
+```java
+package fun.is.quarkus.book_catalog.dto;
+
+import java.util.List;
+
+public record BookInfoIdentifiersDto(
+    List<String> isbn10,
+    List<String> isbn13
+) {}
+```
+
+### Book Catalog Model
+
+__`src/main/java/fun/is/quarkus/book_catalog/model/`__
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── model
+                    ├── BookInfo.java
+                    ├── BookInfoAuthor.java
+                    ├── BookInfoISBN10.java
+                    ├── BookInfoISBN13.java
+                    ├── BookInfoIdentifiers.java
+                    ├── Books.java
+                    └── BooksDeserializer.java
+```
+
+__`BookInfo.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+import java.util.List;
+
+public record BookInfo (
+    String catalogId,
+    String title,
+    String openLibraryUrl,
+    Long numberOfPages,
+    String coverImageUrl,
+    String publishDate,
+    boolean inCatalog,
+    BookInfoIdentifiers identifiers,
+    List<BookInfoAuthor> authors
+) {}
+```
+
+__`BookInfoAuthor.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+public record BookInfoAuthor (String openLibraryUrl, String name) {}
+```
+
+__`BookInfoIdentifiers.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+import java.util.List;
+
+public record BookInfoIdentifiers(
+    List<BookInfoISBN10> isbn10List,
+    List<BookInfoISBN13> isbn13List
+) {}
+```
+
+__`BookInfoISBN10.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+public record BookInfoISBN10(String isbn10) {}
+```
+
+__`BookInfoISBN13.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+public record BookInfoISBN13(String isbn13) {}
+```
+
+__`Books.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(using = BooksDeserializer.class)
+public record Books(List<BookInfo> books) {}
+```
+
+__`BooksDeserializer.java`__
+
+```java
+package fun.is.quarkus.book_catalog.model;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BooksDeserializer extends JsonDeserializer<Books> {
+
+    @Override
+    public Books deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode data = p.getCodec().readTree(p);
+        Log.debug(data);
+        JsonNode books = data.get("data");
+        Log.debug(books);
+        
+        int resultSize = data.size();
+        Log.debug("Result Size: " + resultSize);
+        List<BookInfo> results = new ArrayList<BookInfo>();
+        Iterator<String> fields = books.fieldNames();
+        while (fields.hasNext()) {
+            BookInfo bookInfo = objectMapper.treeToValue(books.get(fields.next()), BookInfo.class);
+            Log.debug(bookInfo);
+            results.add(bookInfo);
+        }
+        return new Books(results);
+    }
+}
+```
+
+### Data Mapper
+
+```bash
+src/main/java
+└── fun
+    └── is
+        └── quarkus
+            └── book_catalog
+                └── mapper
+                    └── BookInfoMapper.java
+```
+
+__`BookInfoMapper.java`__
+
+```java
+package fun.is.quarkus.book_catalog.mapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import fun.is.quarkus.book_catalog.collaborators.openlibrary.dto.OpenLibraryBookAuthorDto;
+import fun.is.quarkus.book_catalog.collaborators.openlibrary.dto.OpenLibraryBookDto;
+import fun.is.quarkus.book_catalog.dto.BookInfoIdentifiersDto;
+import fun.is.quarkus.book_catalog.dto.BookInfoAuthorDto;
+import fun.is.quarkus.book_catalog.dto.BookInfoDto;
+import fun.is.quarkus.book_catalog.model.BookInfo;
+import fun.is.quarkus.book_catalog.model.BookInfoAuthor;
+import fun.is.quarkus.book_catalog.model.BookInfoISBN10;
+import fun.is.quarkus.book_catalog.model.BookInfoISBN13;
+import fun.is.quarkus.book_catalog.model.BookInfoIdentifiers;
+
+@Mapper(componentModel = "cdi")
+public interface BookInfoMapper {
+
+    @Mapping(target = "openLibraryUrl", source = "url")
+    @Mapping(target = "name", source = "name")
+    BookInfoAuthorDto openLibraryAuthorToDto(OpenLibraryBookAuthorDto author);
+
+    List<BookInfoAuthorDto> openLibraryAuthorsToDtos(List<OpenLibraryBookAuthorDto> authors);
+
+    @Mapping(source = "details.title", target = "title")
+    @Mapping(source = "details.url", target = "openLibraryUrl")
+    @Mapping(source = "details.numberOfPages", target = "numberOfPages")
+    @Mapping(source = "details.cover.small", target = "coverImageUrl")
+    @Mapping(source = "details.publishDate", target = "publishDate")
+    @Mapping(source = "details.authors", target = "authors")
+    @Mapping(source = "details.identifiers", target = "identifiers")
+    @Mapping(target = "inCatalog", ignore = true)
+    @Mapping(target = "catalogId", expression = "java(bookInfo.details().identifiers().openlibrary().get(0))")
+    BookInfoDto OpenLibraryBookDtoToBookInfoDto(OpenLibraryBookDto bookInfo);
+
+    BookInfo dtoToBookInfo(BookInfoDto dto);
+
+    BookInfoDto bookInfoToDto(BookInfo book);
+
+    List<BookInfoDto> bookInfosToDtos(List<BookInfo> books);
+
+    BookInfoAuthor dtoToBookInfoAuthor(BookInfoAuthorDto dto);
+
+    BookInfoAuthorDto bookInfoAuthorToDto(BookInfoAuthor author);
+
+    default BookInfoIdentifiers dtoToBookInfoIdentifiers(BookInfoIdentifiersDto dto){
+        List<BookInfoISBN10> isbn10List = new ArrayList<BookInfoISBN10>();
+        List<BookInfoISBN13> isbn13List = new ArrayList<BookInfoISBN13>();
+        if (dto.isbn10() != null) {
+        for (String isbn : dto.isbn10()) {
+            BookInfoISBN10 isbn10 = new BookInfoISBN10(isbn);
+            isbn10List.add(isbn10);
+        }}
+        if (dto.isbn13() != null) {
+        for (String isbn : dto.isbn13()) {
+            BookInfoISBN13 isbn13 = new BookInfoISBN13(isbn);
+            isbn13List.add(isbn13);
+        }}
+        return new BookInfoIdentifiers(isbn10List, isbn13List);
+    }
+
+    default BookInfoIdentifiersDto bookInfoIdentifiersToDto(BookInfoIdentifiers identifiers) {
+        List<String> isbn10 = new ArrayList<String>();
+        List<String> isbn13 = new ArrayList<String>();
+
+        if (identifiers.isbn10List() != null) {
+        for (BookInfoISBN10 isbn : identifiers.isbn10List()) {
+            isbn10.add(isbn.isbn10());
+        }}
+        if (identifiers.isbn13List() != null) {
+        for (BookInfoISBN13 isbn : identifiers.isbn13List()) {
+            isbn13.add(isbn.isbn13());
+        }}
+        return new BookInfoIdentifiersDto(isbn10, isbn13);
+
+    }
+}
+```
+
+### Application Config
+
+__`src/main/resources/application.yaml`__
+
+```yaml
+quarkus:
+  tls:
+    trust-all: true
+  application:
+    name: bookCatalog
+  http:
+    port: ${SERVER_PORT}
+  log:
+    level: "DEBUG"
+    console:
+      enable: true
+    category:
+      "org.jboss.resteasy.reactive.client.logging":
+      level: DEBUG
+  rest-client:
+    logging:
+      scope: request-response
+      body-limit: 1024
+stargate: 
+  token_renew: "30s"
+  auth:
+    user: ${STARGATE_USER}
+    pw: ${STARGATE_PW}
+  book-catalog:
+    namespace: home_library
+    collection: book_catalog
+stargate_auth/mp-rest/url: ${STARGATE_AUTH_URL}
+stargate_doc/mp-rest/url: ${STARGATE_DOC_URL}
+open_library_api/mp-rest/url: ${OPEN_LIBRARY_URL}
+```
+
+## Postman Collection
+
+## Run It
+
+1. Set the environment variables for the app
+
+   ```bash
+   export OPEN_LIBRARY_URL=https://openlibrary.org
+   export SERVER_PORT=8080
+   export STARGATE_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
+   export STARGATE_PW=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
+   export STARGATE_AUTH_URL=https://$(oc -n k8ssandra-operator get route sg-auth -o jsonpath="{.spec.host}")
+   export STARGATE_DOC_URL=https://$(oc -n k8ssandra-operator get route sg-rest -o jsonpath="{.spec.host}")
+  ```
+
+1. Start the app
+
+   ```bash
+   cd ${HOME}/okd-lab/quarkus-projects/book_catalog
+   
+   mvn clean
+   mvn compile
+   quarkus dev
+   ```
+
 ## Application Queries
 
 Add Book To Catalog
@@ -169,289 +957,6 @@ Get Book by Title & Author
 Get Book by ISBN
 Get Book by ID
 
-[https://openlibrary.org/dev/docs/api/books](https://openlibrary.org/dev/docs/api/books)
-
-```bash
-curl 'https://openlibrary.org/api/books?bibkeys=0575043636&format=json&jscmd=data' | jq
-```
-
-```json
-{
-  "0575043636": {
-    "url": "https://openlibrary.org/books/OL1614567M/Wyrd_sisters",
-    "key": "/books/OL1614567M",
-    "title": "Wyrd sisters",
-    "subtitle": "starring three witches, also kings, daggers, crowns ...",
-    "authors": [
-      {
-        "url": "https://openlibrary.org/authors/OL25712A/Terry_Pratchett",
-        "name": "Terry Pratchett"
-      },
-      {
-        "url": "https://openlibrary.org/authors/OL4929687A/Joanne_Harris",
-        "name": "Joanne Harris"
-      },
-      {
-        "url": "https://openlibrary.org/authors/OL5196765A/Stephen_Briggs",
-        "name": "Stephen Briggs"
-      },
-      {
-        "url": "https://openlibrary.org/authors/OL7311709A/Celia_Imrie",
-        "name": "Celia Imrie"
-      }
-    ],
-    "number_of_pages": 251,
-    "pagination": "251 p. ;",
-    "by_statement": "by Terry Pratchett.",
-    "identifiers": {
-      "goodreads": [
-        "364526"
-      ],
-      "librarything": [
-        "1044878"
-      ],
-      "isbn_10": [
-        "0575043636"
-      ],
-      "lccn": [
-        "91155583"
-      ],
-      "oclc": [
-        "21874666"
-      ],
-      "openlibrary": [
-        "OL1614567M"
-      ]
-    },
-    "classifications": {
-      "lc_classifications": [
-        "PR6066.R34 W97 1988",
-        "PR6066.R34 W97 1989"
-      ],
-      "dewey_decimal_class": [
-        "823/.914"
-      ]
-    },
-    "publishers": [
-      {
-        "name": "V. Gollancz"
-      }
-    ],
-    "publish_places": [
-      {
-        "name": "London"
-      }
-    ],
-    "publish_date": "1988",
-    "subjects": [
-      {
-        "name": "Fiction, fantasy, general",
-        "url": "https://openlibrary.org/subjects/fiction,_fantasy,_general"
-      },
-      {
-        "name": "Discworld (imaginary place), fiction",
-        "url": "https://openlibrary.org/subjects/discworld_(imaginary_place),_fiction"
-      },
-      {
-        "name": "Granny weatherwax (fictitious character), fiction",
-        "url": "https://openlibrary.org/subjects/granny_weatherwax_(fictitious_character),_fiction"
-      },
-      {
-        "name": "Fiction",
-        "url": "https://openlibrary.org/subjects/fiction"
-      },
-      {
-        "name": "Discworld (Imaginary place)",
-        "url": "https://openlibrary.org/subjects/discworld_(imaginary_place)"
-      },
-      {
-        "name": "Occult fiction",
-        "url": "https://openlibrary.org/subjects/occult_fiction"
-      },
-      {
-        "name": "Witches",
-        "url": "https://openlibrary.org/subjects/witches"
-      },
-      {
-        "name": "Fantasy",
-        "url": "https://openlibrary.org/subjects/fantasy"
-      },
-      {
-        "name": "MacBeth",
-        "url": "https://openlibrary.org/subjects/macbeth"
-      },
-      {
-        "name": "satire",
-        "url": "https://openlibrary.org/subjects/satire"
-      },
-      {
-        "name": "humor",
-        "url": "https://openlibrary.org/subjects/humor"
-      },
-      {
-        "name": "kingdom",
-        "url": "https://openlibrary.org/subjects/kingdom"
-      },
-      {
-        "name": "Fantasy fiction",
-        "url": "https://openlibrary.org/subjects/fantasy_fiction"
-      },
-      {
-        "name": "Fiction, humorous",
-        "url": "https://openlibrary.org/subjects/fiction,_humorous"
-      },
-      {
-        "name": "Fiction, humorous, general",
-        "url": "https://openlibrary.org/subjects/fiction,_humorous,_general"
-      },
-      {
-        "name": "Literature and fiction, fantasy",
-        "url": "https://openlibrary.org/subjects/literature_and_fiction,_fantasy"
-      },
-      {
-        "name": "Fiction, science fiction, general",
-        "url": "https://openlibrary.org/subjects/fiction,_science_fiction,_general"
-      },
-      {
-        "name": "English Fantasy fiction",
-        "url": "https://openlibrary.org/subjects/english_fantasy_fiction"
-      },
-      {
-        "name": "Translations into Turkish",
-        "url": "https://openlibrary.org/subjects/translations_into_turkish"
-      },
-      {
-        "name": "Turkish Fantasy fiction",
-        "url": "https://openlibrary.org/subjects/turkish_fantasy_fiction"
-      },
-      {
-        "name": "Translations from English",
-        "url": "https://openlibrary.org/subjects/translations_from_english"
-      },
-      {
-        "name": "Disque-monde (Lieu imaginaire)",
-        "url": "https://openlibrary.org/subjects/disque-monde_(lieu_imaginaire)"
-      },
-      {
-        "name": "Romans, nouvelles",
-        "url": "https://openlibrary.org/subjects/romans,_nouvelles"
-      },
-      {
-        "name": "Sorcières",
-        "url": "https://openlibrary.org/subjects/sorcières"
-      }
-    ],
-    "subject_places": [
-      {
-        "name": "Lancre (Imaginary place)",
-        "url": "https://openlibrary.org/subjects/place:lancre_(imaginary_place)"
-      },
-      {
-        "name": "Ankh-Morpork (Imaginary place)",
-        "url": "https://openlibrary.org/subjects/place:ankh-morpork_(imaginary_place)"
-      }
-    ],
-    "subject_people": [
-      {
-        "name": "Nanny Ogg",
-        "url": "https://openlibrary.org/subjects/person:nanny_ogg"
-      },
-      {
-        "name": "Granny Weatherwax",
-        "url": "https://openlibrary.org/subjects/person:granny_weatherwax"
-      },
-      {
-        "name": "Maigrat",
-        "url": "https://openlibrary.org/subjects/person:maigrat"
-      },
-      {
-        "name": "Greebo",
-        "url": "https://openlibrary.org/subjects/person:greebo"
-      },
-      {
-        "name": "Verence",
-        "url": "https://openlibrary.org/subjects/person:verence"
-      },
-      {
-        "name": "Death",
-        "url": "https://openlibrary.org/subjects/person:death"
-      }
-    ],
-    "ebooks": [
-      {
-        "preview_url": "https://archive.org/details/wyrdsisters0000prat_h5y3",
-        "availability": "borrow",
-        "formats": {},
-        "borrow_url": "https://openlibrary.org/books/OL1614567M/Wyrd_sisters/borrow",
-        "checkedout": false
-      }
-    ],
-    "cover": {
-      "small": "https://covers.openlibrary.org/b/id/4683700-S.jpg",
-      "medium": "https://covers.openlibrary.org/b/id/4683700-M.jpg",
-      "large": "https://covers.openlibrary.org/b/id/4683700-L.jpg"
-    }
-  }
-}
-```
-
-BookInfo DTO
-
-```json
-{
-  "catalogId": "OL24385514M",
-  "title": "Thief of time",
-  "openLibraryUrl": "http://openlibrary.org/books/OL24385514M/Thief_of_time",
-  "numberOfPages": 357,
-  "coverImageUrl": "https://covers.openlibrary.org/b/id/6636627-S.jpg",
-  "publishDate": "2002",
-  "inCatalog": false,
-  "identifiers": {
-    "isbn10": [
-      "0061031321"
-    ],
-    "isbn13": [
-      "9780061031328"
-    ]
-  },
-  "authors": [
-    {
-      "openLibraryUrl": "http://openlibrary.org/authors/OL25712A/Terry_Pratchett",
-      "name": "Terry Pratchett"
-    }
-  ]
-}
-```
-
-BookInfo
-
-```json
-{
-  "catalogId": "OL24385514M",
-  "title": "Thief of time",
-  "openLibraryUrl": "http://openlibrary.org/books/OL24385514M/Thief_of_time",
-  "numberOfPages": 357,
-  "coverImageUrl": "https://covers.openlibrary.org/b/id/6636627-S.jpg",
-  "publishDate": "2002",
-  "inCatalog": false,
-  "isbn10List": [
-    {
-      "isbn10": "0061031321"
-    }
-  ],
-  "isbn13List": [
-    {
-      "isbn13": "9780061031328"
-    }
-  ],
-  "authors": [
-    {
-      "openLibraryUrl": "http://openlibrary.org/authors/OL25712A/Terry_Pratchett",
-      "name": "Terry Pratchett"
-    }
-  ]
-}
-```
 
 ## Connect To the Cluster
 
@@ -473,14 +978,7 @@ cqlsh -u ${CLUSTER_INIT_USER} -p ${CLUSTER_INIT_PWD} -e CREATE ROLE IF NOT EXIST
 
 Set Env:
 
-```bash
-export OPEN_LIBRARY_URL=https://openlibrary.org
-export SERVER_PORT=8080
-export STARGATE_USER=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.username}" | base64 -d)
-export STARGATE_PW=$(oc -n k8ssandra-operator get secret k8ssandra-cluster-superuser -o jsonpath="{.data.password}" | base64 -d)
-export STARGATE_AUTH_URL=https://$(oc -n k8ssandra-operator get route sg-auth -o jsonpath="{.spec.host}")
-export STARGATE_DOC_URL=https://$(oc -n k8ssandra-operator get route sg-rest -o jsonpath="{.spec.host}")
-```
+
 
 ```bash
 curl localhost:8080/book-info/book-by-isbn/0061031321 | jq
@@ -497,46 +995,3 @@ keytool -noprompt -importcert -file ~/cert-work-dir/crc.crt -keystore ~/cert-wor
 ```bash
 quarkus dev -D=javax.net.ssl.trustStore=~/cert-work-dir/keystore.jks -D=javax.net.ssl.trustStorePassword=changeit
 ```
-
-GET https://sg-rest-k8ssandra-operator.apps-crc.testing/v2/namespaces/home_library/collections/book_catalog?where=%7B%2522identifiers.isbn10List.%5B*%5D.isbn10%2522%3A%7B%2522%24eq%2522%3A%25220061031321%2522%7D%7D, Status[400 Bad Request], Headers[date=Mon, 28 Nov 2022 19:38:50 GMT content-type=application/json set-cookie=af3ca6a7014ba62db41735906a1d9f76=e4529690fa21c1b9c40c1bb3a3c7453a; path=/; HttpOnly; Secure; SameSite=None content-length=108], Body:
-{"description":"The `where` parameter expects a valid JSON object representing search criteria.","code":400}
-
-GET https://sg-rest-k8ssandra-operator.apps-crc.testing/v2/namespaces/home_library/collections/book_catalog?where=%7B%22identifiers.isbn10List.%5B*%5D.isbn10%22%3A%7B%22%24eq%22%3A%220061031321%22%7D%7D Headers[Accept=application/json User-Agent=Resteasy Reactive Client X-Cassandra-Token=391c3c86-eb34-46dd-8ac6-13074b399415], Empty body
-
-{"data":{"OL24385514M":{"authors":[{"name":"Terry Pratchett","openLibraryUrl":"http://openlibrary.org/authors/OL25712A/Terry_Pratchett"}],"catalogId":"OL24385514M","coverImageUrl":"https://covers.openlibrary.org/b/id/6636627-S.jpg","identifiers":{"isbn10List":[{"isbn10":"0061031321"}],"isbn13List":[{"isbn13":"9780061031328"}]},"inCatalog":false,"numberOfPages":357,"openLibraryUrl":"http://openlibrary.org/books/OL24385514M/Thief_of_time","publishDate":"2002","title":"Thief of time"}}}
-
-```json
-{
-  "data": {
-    "OL24385514M": {
-      "authors": [
-        {
-          "name": "Terry Pratchett",
-          "openLibraryUrl": "http://openlibrary.org/authors/OL25712A/Terry_Pratchett"
-        }
-      ],
-      "catalogId": "OL24385514M",
-      "coverImageUrl": "https://covers.openlibrary.org/b/id/6636627-S.jpg",
-      "identifiers": {
-        "isbn10List": [
-          {
-            "isbn10": "0061031321"
-          }
-        ],
-        "isbn13List": [
-          {
-            "isbn13": "9780061031328"
-          }
-        ]
-      },
-      "inCatalog": false,
-      "numberOfPages": 357,
-      "openLibraryUrl": "http://openlibrary.org/books/OL24385514M/Thief_of_time",
-      "publishDate": "2002",
-      "title": "Thief of time"
-    }
-  }
-}
-```
-
-{"OL24385514M":{"authors":[{"name":"Terry Pratchett","openLibraryUrl":"http://openlibrary.org/authors/OL25712A/Terry_Pratchett"}],"catalogId":"OL24385514M","coverImageUrl":"https://covers.openlibrary.org/b/id/6636627-S.jpg","identifiers":{"isbn10List":[{"isbn10":"0061031321"}],"isbn13List":[{"isbn13":"9780061031328"}]},"inCatalog":false,"numberOfPages":357,"openLibraryUrl":"http://openlibrary.org/books/OL24385514M/Thief_of_time","publishDate":"2002","title":"Thief of time"}}
