@@ -9,6 +9,7 @@ tags:
   - Quarkus CLI
   - Quarkus Dev Mode Example
 ---
+## WIP - Moving from Blog Posts with minor refactoring
 
 So...   I have written a few applications over the course of my career in IT.  But, I've never been a "real" Software Engineer.  That is to say, I've never been a coder on an application delivery team.  You can likely tell from the content of this blog, that I am more of a platform guy than a developer.  As I made the transition from platform engineer to architect, the code that I wrote was mainly for prototyping and teaching.  But, I find that knowing the principles of software engineering and design as well as platforms and security has been a huge help in my various roles as an enterprise architect.  It has given me a level of empathy for the Dev, Sec, & Ops roles that I would not otherwise have had.
 
