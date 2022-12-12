@@ -141,11 +141,10 @@ src/main/java
                         │   ├── AuthApi.java
                         │   ├── DocumentsApi.java
                         └── model
-                            ├── Credentials.java
-                            └── Token.java
+                            └── Credentials.java
 ```
 
-`AuthApi.java` is the class that we will use to get an authorization token.  `Credentials.java` & `Token.java` are its DTOs.
+`AuthApi.java` is the class that we will use to get an authorization token.  `Credentials.java` is its DTO.
 
 `DocumentsApi.java` is the class that we'll use to interface with the Stargate Document API.
 
@@ -237,9 +236,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
 import io.smallrye.mutiny.Uni;
 
 @Path("/api")
@@ -301,7 +298,6 @@ src/main/java
    package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
 
    import java.util.List;
-
    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
    import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -351,7 +347,6 @@ src/main/java
    package fun.is.quarkus.book_catalog.collaborators.openlibrary.dto;
 
    import java.util.List;
-
    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
    import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -400,7 +395,6 @@ src/main/java
    import com.fasterxml.jackson.databind.JsonDeserializer;
    import com.fasterxml.jackson.databind.JsonNode;
    import com.fasterxml.jackson.databind.ObjectMapper;
-
    import java.io.IOException;
 
    @JsonIgnoreProperties(ignoreUnknown = true)
@@ -492,7 +486,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import fun.is.quarkus.book_catalog.dto.BookInfoDto;
 import io.smallrye.mutiny.Uni;
 
@@ -555,7 +548,6 @@ src/main/java
    import javax.ws.rs.core.Response;
    import org.eclipse.microprofile.config.inject.ConfigProperty;
    import org.eclipse.microprofile.rest.client.inject.RestClient;
-
    import fun.is.quarkus.book_catalog.api.BookInfoApi;
    import fun.is.quarkus.book_catalog.collaborators.openlibrary.api.OpenLibraryApi;
    import fun.is.quarkus.book_catalog.collaborators.openlibrary.dto.OpenLibraryBookDto;
@@ -634,21 +626,26 @@ src/main/java
    }
    ```
 
+1. `StargateToken.java`
+
+   ```java
+   package fun.is.quarkus.book_catalog.service;
+
+   public record StargateToken(String authToken) {}
+   ```
+
 1. __`StargateAuthToken.java`__
 
    ```java
    package fun.is.quarkus.book_catalog.service;
 
    import java.time.Duration;
-
    import javax.enterprise.event.Observes;
    import javax.inject.Singleton;
    import javax.ws.rs.core.Response;
-
    import org.eclipse.microprofile.config.inject.ConfigProperty;
    import org.eclipse.microprofile.rest.client.inject.RestClient;
    import org.jboss.logging.Logger;
-
    import fun.is.quarkus.book_catalog.collaborators.stargate.api.AuthApi;
    import fun.is.quarkus.book_catalog.collaborators.stargate.model.Credentials;
    import io.quarkus.runtime.StartupEvent;
@@ -683,7 +680,7 @@ src/main/java
        }
 
        private void setToken(Response reply) {
-           this.authToken = reply.readEntity(Token.class).authToken();
+           this.authToken = reply.readEntity(StargateToken.class).authToken();
            LOG.info("Token: " + this.authToken);
        }
 
@@ -874,7 +871,6 @@ src/main/java
    import java.util.ArrayList;
    import java.util.Iterator;
    import java.util.List;
-
    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
    import com.fasterxml.jackson.core.JacksonException;
    import com.fasterxml.jackson.core.JsonParser;
