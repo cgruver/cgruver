@@ -27,7 +27,7 @@ This example app is going to demonstrate several capabilities:
 1. Integration with the Stargate Document API as an interface to Cassandra (The reason for these three blog posts)
 1. Integration with [https://openlibrary.org](https://openlibrary.org)
 1. Mapstruct for Model to DTO mappings (We're going to use some advanced features)
-1. Customer Serializers for JSON marshaling and unmarshaling
+1. Custom Deserializers for JSON marshaling and un-marshaling
 1. Java `record` type
 1. Quarkus Scheduler for scheduled tasks (cheesy example since we're not using an IAM provider and secrets manager...)
 1. OpenAPI code generator with Quarkus
@@ -42,7 +42,17 @@ Follow the instructions here: [Quarkus for Architects who Sometimes Write Code -
 
 ## Build the Book Catalog Service
 
+Let's get on with writing some code.  We are going to create an API that will implement 5 resources.  Effectively mimicking what we did in the last post with a Postman collection:
 
+1. Return a specific document by its unique identifier.
+
+1. Return books that match a search by ISBN.
+
+1. Return books that match a search by Author.
+
+1. Retrieve a book from `openlibrary.org` identified by ISBN.
+
+1. Save a book in the Cassandra cluster.
 
 ### Bootstrap A Project For Our Code
 
