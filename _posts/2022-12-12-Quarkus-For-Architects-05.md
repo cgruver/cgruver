@@ -127,8 +127,6 @@ Next, we're going to need code that will help us interface with the Stargate API
    rm -rf ${HOME}/okd-lab/quarkus-projects/stargate_api
    ```
 
-OK, we now have some generated code for interfacing with Stargate.  But...  It's not quite what we're going to need.
-
 Take a look at the files that we copied into `./src/main/java/fun/is/quarkus/book_catalog/collaborators/stargate`
 
 ```bash
@@ -151,7 +149,7 @@ src/main/java
 
 `DocumentsApi.java` is the class that we'll use to interface with the Stargate Document API.
 
-We are going to be using Resteasy Reactive in our application.  But the generated classes to not support that.  In fact, if you look at the generated classes, you'll see that all of the methods return `void`.
+We are going to be using Resteasy Reactive in our application.  But the generated classes do not support that.  In fact, if you look at the generated classes, you'll see that all of the methods return `void`.  So, we now have some generated code for interfacing with Stargate.  But...  It's not quite what we're going to need.
 
 Let's fix that with `sed`...  I bet you didn't think of `sed` as a code editor...
 
@@ -196,6 +194,8 @@ We also need to fix the `configKey` entries in `@RegisterRestClient`.  `AuthApi.
    import javax.ws.rs.core.Response;
    import io.smallrye.mutiny.Uni;
    ```
+
+   There are also several unused imports in the files now.  Remove those if you want to clean up the code.
 
 ### OpenLibrary API Client
 
@@ -651,7 +651,6 @@ src/main/java
 
    import fun.is.quarkus.book_catalog.collaborators.stargate.api.AuthApi;
    import fun.is.quarkus.book_catalog.collaborators.stargate.model.Credentials;
-   import fun.is.quarkus.book_catalog.collaborators.stargate.model.Token;
    import io.quarkus.runtime.StartupEvent;
    import io.quarkus.scheduler.Scheduled;
 
@@ -673,7 +672,9 @@ src/main/java
        Credentials stargateCreds = null;
 
        void startUp(@Observes StartupEvent startupEvent) {
-           stargateCreds = new Credentials(stargateUser, stargatePw);
+           stargateCreds = new Credentials();
+           stargateCreds.setPassword(stargatePw);
+           stargateCreds.setUsername(stargateUser);
        }
        
        @Scheduled(every = "{stargate.token_renew}")
@@ -1042,9 +1043,9 @@ There are a couple of more advanced MapStruct concepts here that I want to point
 
 ### Application Config
 
-Create the `application.yaml` that will externalize the configuration for the Book Catalog service.
+Create the `application.yml` that will externalize the configuration for the Book Catalog service.
 
-__`src/main/resources/application.yaml`__
+__`src/main/resources/application.yml`__
 
 ```yaml
 quarkus:
