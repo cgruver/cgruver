@@ -121,7 +121,7 @@ The first step, is to install OpenShift Local if you don't already have it.
 1. Set your environment to interact with the running cluster:
 
    ```bash
-   eval $(crc podman-env)
+   eval $(crc oc-env)
    ```
 
    __Note:__ If you ever need to retrieve the credentials to log in, run the following:
@@ -167,7 +167,7 @@ We'll be using the CLI from the terminal to perform all of the next steps, but w
 
 If you are using `crc` version `2.9.0` there was a build error that resulted in a missing ARM64 image for the `routes-controller`.
 
-__Note:__ This is fixed in version `2.10.1`
+__Note:__ This is fixed in version `2.10.1` and greater.
 
 You can fix the error with the following:
 
