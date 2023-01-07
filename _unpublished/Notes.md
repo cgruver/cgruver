@@ -2740,3 +2740,46 @@ oc create -f $HOME/project_request_template.yaml -n openshift-config
 ```bash
 oc get projects.config.openshift.io -o yaml
 ```
+
+## Create a new Kubeconfig
+
+```bash
+#!/bin/bash
+
+KUBECONFIG_USER="okdadmin"
+KUBECONFIG_FILE="newkubeconfig"
+WORK_DIR=$(mktemp -d)
+
+openssl req -new -newkey rsa:4096 -nodes -keyout ${WORK_DIR}/${KUBECONFIG_USER}.key -out ${WORK_DIR}/${KUBECONFIG_USER}.csr -subj "/CN=okd:admin"
+oc delete csr ${KUBECONFIG_USER}-kubeconfig
+
+cat << EOF | oc create -f -
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: ${KUBECONFIG_USER}-kubeconfig
+spec:
+  signerName: kubernetes.io/kube-apiserver-client
+  groups:
+  - system:authenticated
+  request: $(cat ${WORK_DIR}/${KUBECONFIG_USER}.csr | base64 | tr -d '\n')
+  usages:
+  - client auth
+EOF
+
+oc adm certificate approve ${KUBECONFIG_USER}-kubeconfig
+```
+
+```bash
+oc get csr ${KUBECONFIG_USER}-kubeconfig -o jsonpath='{.status.certificate}' | base64 -d > ${WORK_DIR}/${KUBECONFIG_USER}-kubeconfig.crt
+oc config set-credentials okd:admin --client-certificate=${WORK_DIR}/${KUBECONFIG_USER}-kubeconfig.crt --client-key=${WORK_DIR}/${KUBECONFIG_USER}.key --embed-certs --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
+oc config set-context okd:admin --cluster=$(oc config view -o jsonpath='{.clusters[0].name}') --namespace=default --user=okd:admin --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
+
+oc -n openshift-authentication rsh `oc get pods -n openshift-authentication -o name | head -1` cat /run/secrets/kubernetes.io/serviceaccount/ca.crt > ${WORK_DIR}/ingress-ca.crt
+oc config set-cluster $(oc config view -o jsonpath='{.clusters[0].name}') --server=$(oc config view -o jsonpath='{.clusters[0].cluster.server}') --certificate-authority=${WORK_DIR}/ingress-ca.crt --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE} --embed-certs
+oc config use-context okd:admin --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
+```
+
+```bash
+oc get pod --all-namespaces --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
+```

@@ -122,13 +122,15 @@ __Note:__ This is part of a series.  Make sure you started here: [Building a Por
 
 1. Add Users:
 
-   Add a cluster-admin user:
+   __Note:__ Make sure that the htpasswd command is installed on your system.  It should be included by default on Mac OS.  For Fedora, RHEL, or CentOS: `dnf install httpd-tools`
 
-   __Note:__ You can ignore the warning: `Warning: User 'admin' not found`
+   Add a cluster-admin user:
 
    ```bash
    labcli --user -i -a -u=admin -d=dev
    ```
+
+   __Note:__ You can ignore the warning: `Warning: User 'admin' not found`
 
    Add a non-privileged user:
 
