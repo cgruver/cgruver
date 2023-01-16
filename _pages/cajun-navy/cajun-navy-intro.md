@@ -142,35 +142,40 @@ A `Disaster` has the following entities:
 
 ## How it will work:
 
-1. A disaster is registered
-    1. Shelters
-    1. Inclusion Zones
-1. Incidents are registered (Asynchronous Activity)
-    1. Victims
-1. Responders enroll (Asynchronous Activity)
-1. Responders are assigned to Incidents
-    1. Missions
+1. A Disaster is registered - Disaster Service
+   1. Impact Zones are created
+   1. Shelters are added
+   1. Victims register themselves or others for rescue
+1. Victims are grouped into Incidents - Mission Service
+   1. Missions are created linking Incidents to Shelters
+1. A Responder enrolls as a Responder - Responder Service
+   1. A Responder requests a Mission (From Mission Service)
+      1. Responder travels to Incident
+      1. Responder on-boards Victims (Disaster Service)
+      1. Responder travels to Shelter
+      1. Responder off-loads Victims (Disaster Service)
+      1. Responder completes Mission (Mission Service)
 
 ### Services:
 
 1. ___[Disaster Service](https://github.com/cgruver-cajun-navy/disaster)___
 
     * Registers a disaster
-    * Responds to the creation of Incidents and creates Missions with available Responders
+    * Registers Shelters
+    * Registers Victims
     * Records the rescue status of Victim to Shelters
-    * Manages the prioritization of Incidents when there are not enough Responders 
-
-1. ___[Incident Service](https://github.com/cgruver-cajun-navy/incident)___
-
-    * Manages Incident State
 
 1. ___[Responder Service](https://github.com/cgruver-cajun-navy/responder)___
 
+    * Registers Responders
     * Manages Responder State
+    * Tracks Responder Location
 
 1. ___[Mission Service](https://github.com/cgruver-cajun-navy/mission)___
 
     * Creates Missions for Responders
+    * Groups Victims into Incidents
+    * Manages the prioritization of Incidents when there are not enough Responders
 
 ### Kafka Topics:
 
