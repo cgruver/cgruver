@@ -14,6 +14,8 @@ echo "### Brew Vars" >> ~/.zshrc
 
 brew install autoconf automake coreutils gnutls gnu-sed go helm ko jq yq kustomize lftp maven nmap node openjdk@17 podman podman-desktop qemu ruby tektoncd-cli watch wget git gh quarkusio/tap/quarkus kubernetes-cli openshift-cli
 
+sudo /usr/local/bin/podman-mac-helper install
+
 brew uninstall --ignore-dependencies openjdk
 
 ln -s /opt/homebrew/opt /usr/local/opt
@@ -60,4 +62,17 @@ gem update --system
 gem update
 rm Gemfile.lock
 bundle update --all
+```
+
+## Setup CentOS Stream
+
+```bash
+sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+sudo dnf install gh
+
+cat << EOF >> ~/.bashrc
+### My Env Config
+set -o vi
+alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
+alias scp="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
 ```
