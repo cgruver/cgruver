@@ -178,7 +178,7 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 1. Start Nexus
 
    ```bash
-   ssh root@bastion.${LAB_DOMAIN} "/etc/init.d/nexus start"
+   ssh root@bastion.my.awesome.lab "/etc/init.d/nexus start"
    ```
 
 1. Nexus will take a while to start for the first time.
@@ -204,7 +204,7 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
 1. Start Gitea
 
    ```bash
-   ssh root@bastion.${LAB_DOMAIN} "/etc/init.d/gitea start"
+   ssh root@bastion.my.awesome.lab "/etc/init.d/gitea start"
    ```
 
 1. Trust the gitea certs on your workstation:
@@ -213,7 +213,7 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
    labcli --trust -g
    ```
 
-   The Gitea web console will be at: `https://gitea.${LAB_DOMAIN}:3000`
+   The Gitea web console will be at: `https://gitea.my.awesome.lab:3000`
 
    The script creates two users for Gitea:
 
@@ -229,10 +229,10 @@ __Note:__ If you are using the `GL-AR750S`, you will need a USB type A thumb dri
    Get the initial admin password for Nexus:
 
    ```bash
-   echo $(ssh root@bastion.${LAB_DOMAIN} "cat /usr/local/nexus/sonatype-work/nexus3/admin.password")
+   echo $(ssh root@bastion.my.awesome.lab "cat /usr/local/nexus/sonatype-work/nexus3/admin.password")
    ```
 
-   Now point your browser to `https://nexus.${LAB_DOMAIN}:8443`.  Login, and create a password for your admin user.
+   Now point your browser to `https://nexus.my.awesome.lab:8443`.  Login, and create a password for your admin user.
 
 If prompted to allow anonymous access, select to allow.
 
