@@ -109,7 +109,8 @@ This configuration is very similar to setting up the edge router.
    Ensure that you can connect to the router:
 
    ```bash
-   ping router.dev.my.awesome.lab
+   labctx dev
+   ping ${DOMAIN_ROUTER}
    ```
 
    Now, complete the router configuration:
