@@ -163,46 +163,6 @@ The first step, is to install OpenShift Local if you don't already have it.
 
 We'll be using the CLI from the terminal to perform all of the next steps, but we'll use the web console to verify that everything is running.
 
-## Note For Apple Silicon Users
-
-If you are using `crc` version `2.9.0` there was a build error that resulted in a missing ARM64 image for the `routes-controller`.
-
-__Note:__ This is fixed in version `2.10.1` and greater.
-
-You can fix the error with the following:
-
-1. Verify that `routes-controller` is in a `CrashLoopBackOff` state:
-
-   ```bash
-   oc get pod routes-controller -n openshift-ingress
-   ```
-
-   ```bash
-   NAME                READY   STATUS             RESTARTS         AGE
-   routes-controller   0/1     CrashLoopBackOff   86 (4m16s ago)   6h59m
-   ```
-
-1. Delete the `routes-controller` pod:
-
-   ```bash
-   oc delete pod routes-controller -n openshift-ingress
-   ```
-
-1. Delete the container image from the crc VM:
-
-   ```bash
-   export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa   
-   ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo podman image rm quay.io/crcont/routes-controller:latest"
-   ```
-
-1. Recreate the pod:
-
-   ```bash
-   cat << EOF | oc apply -n openshift-ingress -f -
-   {"kind":"Pod","apiVersion":"v1","metadata":{"name":"routes-controller","namespace":"openshift-ingress","creationTimestamp":null},"spec":{"containers":[{"name":"routes-controller","image":"quay.io/crcont/routes-controller:latest","resources":{},"imagePullPolicy":"IfNotPresent"}],"serviceAccountName":"router"},"status":{}}
-   EOF
-   ```
-
 ## Install Cassandra and Stargate
 
 Now we are going to install the `k8ssandra` operator.  I have prepared all of the images that you will need and placed them in my Quay.io account: [https://quay.io/user/cgruver0](https://quay.io/user/cgruver0){:target="_blank"}
@@ -351,33 +311,6 @@ Check out the project here:
    1. Note the running state of the two operator pods:
 
       ![Install OpenShift Local](/_pages/tutorials/quarkus-for-architects/images/k8ssandra-operator-pods.png)
-
-### Prepare Storage for Cassandra
-
-OpenShift Local does not include a dynamic storage provisioner.  We are going to use a host volume to provide a persistent volume to Cassandra.
-
-In a later post, I'll show you how to deploy a 3 node cassandra cluster with dynamically allocated volumes using Ceph storage with the Rook operator.
-
-1. Create a storage class:
-
-   ```bash
-   oc apply -f ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/k8ssandra-sc.yaml
-   ```
-
-1. Prepare a host volume for Cassandra:
-
-   __Note:__ Out of the box, Cassandra is going to run as uid 999.  So, we'll set that ownership on the host volume.  This is a bad practice...  but it's a compromise that we'll have to make for running on a local workstation.  __DON'T DO THIS IN PRODUCTION__
-
-   ```bash
-   export SSH_KEY=${HOME}/.crc/machines/crc/id_ecdsa
-   ssh -i ${SSH_KEY} -p 2222 core@127.0.0.1 "sudo mkdir /mnt/pv-data/k8ssandrapv && sudo chown 999:999 /mnt/pv-data/k8ssandrapv"
-   ```
-
-1. Create a persistent volume to use the host volume we created:
-
-   ```bash
-   oc apply -f ${K8SSANDRA_WORKDIR}/k8ssandra-blog-resources/manifests/k8ssandra-pv.yaml
-   ```
 
 ## Deploy Cluster
 
