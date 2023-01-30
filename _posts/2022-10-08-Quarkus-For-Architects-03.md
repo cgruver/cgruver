@@ -14,7 +14,7 @@ categories:
   - Blog Post
   - Quarkus Series
 ---
-__Note:__ This is part one of a two part post.  In this post we're going to set up a Cassandra persistence engine on OpenShift.  We'll be using Stargate as the API interface to Cassandra.
+__Note:__ This is part one of a three part post.  In this post we're going to set up a Cassandra persistence engine on OpenShift.  We'll be using Stargate as the API interface to Cassandra.
 
 We're going to use the K8ssandra Operator to manage our cassandra cluster.
 
