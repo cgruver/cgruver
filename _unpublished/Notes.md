@@ -2783,3 +2783,9 @@ oc config use-context okd:admin --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
 ```bash
 oc get pod --all-namespaces --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
 ```
+
+### What role bindings does a user have
+
+```bash
+oc get rolebindings -n test -o json | jq '.items[] | select(.subjects[].name=="cgruver" and .subjects[].kind=="User") | .roleRef.name'
+```

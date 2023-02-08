@@ -33,7 +33,7 @@ export JAVA_HOME=$(/usr/libexec/java_home)
 set -o vi
 alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
 alias scp="scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
-
+alias wifi-scan="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport scan"
 function resetDNS() {
 sudo killall -HUP mDNSResponder
 }
