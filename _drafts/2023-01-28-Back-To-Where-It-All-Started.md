@@ -11,9 +11,9 @@ categories:
   - Blog Post
 ---
 
-Happy 2023!  I hope that your year is starting out on a positive trajectory.
+Happy 2023!  I hope that your year is starting out on a positive trajectory.  Yes, I realize that it's already March...  but, Happy New Year regardless.
 
-I started this blog on [August 1, 2021](https://upstreamwithoutapaddle.com/openshift/home%20lab/kubernetes/2021/08/01/Blog-Introduction.html){:target="_blank"} with a post about building a Kubernetes home lab with the community supported distribution of OKD.
+I started this blog on [August 1, 2021](https://upstreamwithoutapaddle.com/openshift/home%20lab/kubernetes/2021/08/01/Blog-Introduction.html){:target="_blank"} with a post about building a Kubernetes home lab with the community supported distribution of OKD which shares its codebase with Red Hat OpenShift.
 
 In this post, I am going to revisit the original purpose of this blog by showing you how to build a simplified version of my OpenShift home lab.
 
