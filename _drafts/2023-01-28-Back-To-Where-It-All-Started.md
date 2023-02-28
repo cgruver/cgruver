@@ -23,27 +23,31 @@ This lab is intended to be very flexible so that you can reconfigure it at will.
 
 There are three motivations driving this re-write of the home lab project:
 
-1. The GL.iNet edge routers that I originally built the network around have been discontinued for a while.
-1. A disconnected network setup with multiple routers and firewalls, adds complexity to the lab that might put it beyond the reach of someone just getting started.
-1. Startup cost is higher with the need for two routers and a Raspberry Pi.
+1. The GL.iNet edge routers that I originally built the network around have been discontinued.
 
-So, here is a home lab that you can build with one Intel server and a GL.iNet travel router.
+   So, it's time for an upgrade.
+
+2. A disconnected network setup with multiple routers and firewalls, adds complexity to the lab that might put it beyond the reach of someone just getting started.
+
+   I am refactoring the lab documentation to allow you to start with the simplest possible setup.  One router, and one Intel server.
+
+3. Startup cost is higher with the need for two routers and a Raspberry Pi.
+
+   By eliminating the disconnected install, you save around $250 in the initial startup cost.
+
+So, here is a home lab that you can build with one Intel server and a travel router.
 
 ![Starter Lab](/_pages/home-lab/images/starter-lab.png)
 
 ## Required Equipment
 
-1. Router - These instructions are specifically crafted for the GL-iNet AR750S travel router.  Although, if you hack the scripts you should be able to use any OpenWRT based router that has enough CPU and RAM.
+1. Router - These instructions are specifically crafted for the [GL-iNet GL-AXT1800](https://www.gl-inet.com/products/gl-axt1800/) travel router.  Although, if you hack the scripts you should be able to use any OpenWRT based router that has enough CPU and RAM.
 
-   Unfortunately, I just discovered that the AR750S is now discontinued as well.  You can still find them at some retailers like Amazon.com. [GL.iNet GL-AR750S-Ext](https://www.amazon.com/GL-iNet-GL-AR750S-Ext-pre-Installed-Cloudflare-Included/dp/B07GBXMBQF/ref=sr_1_3?dchild=1&keywords=gl.iNet&qid=1627902663&sr=8-3){:target="_blank"}
-
-   I just ordered a [GL-AXT1800](https://www.gl-inet.com/products/gl-axt1800/) which I will be adapting my scripts to support as soon as I receive it.  I also have a NanoPi R4S which I hope to get configured as well.
-
-1. SD Flash Drive - You will need at least 64GB on a microSDXC flash drive:
+2. SD Flash Drive - You will need at least 64GB on a microSDXC flash drive:
 
    I'm using this one, which is pretty affordable, but also fast: [128 GB SD Card](https://www.amazon.com/gp/product/B08RG6XJZD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1){:target="_blank"}
 
-1. An Intel or AMD x64-64 based server - I am using an Intel NUC10i7FNK.  I am really a fan of the NUC form factor computers because of their compact size.
+3. An Intel or AMD x64-64 based server - I am using an Intel NUC10i7FNK.  I am really a fan of the NUC form factor computers because of their compact size.
 
    You can use any machine that you like, as long as it has the following characteristics:
 
@@ -54,6 +58,7 @@ So, here is a home lab that you can build with one Intel server and a GL.iNet tr
    * Minimum of 32GB of RAM for Single Node Openshift or 64GB of RAM for a full three node cluster
 
       I highly encourage you to go with 64GB of RAM.  The cost difference is not that much and the benefits of more RAM are huge.
+
    * 1TB of SSD - either SATA or NVMe.  Don't use spinning disks.  They are too slow.
 
 ## Install the `labcli` utilities for the Lab
@@ -66,25 +71,41 @@ I have created a companion project for this blog.  It contains all of the shell 
    mkdir -p ${HOME}/okd-lab/bin
    ```
 
+1. Create a temporary working directory:
+
+   ```bash
+   WORK_DIR=$(mktemp -d)
+   ```
+
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
+   git clone https://github.com/cgruver/kamarotos.git ${WORK_DIR}
    ```
 
 1. Copy the helper scripts to `${HOME}/okd-lab`:
 
    ```bash
-   cp ${HOME}/okd-lab/kamarotos/bin/* ${HOME}/okd-lab/bin
+   cp ${WORK_DIR}/bin/* ${HOME}/okd-lab/bin
    chmod 700 ${HOME}/okd-lab/bin/*
    ```
 
 1. Copy the prescriptive lab configuration files to ${HOME}/okd-lab/lab-config
 
    ```bash
-   mkdir -p ${HOME}/okd-lab/lab-config/domain-configs
-   cp ${HOME}/okd-lab/kamarotos/examples/lab.yaml ${HOME}/okd-lab/lab-config/lab.yaml
-   cp ${HOME}/okd-lab/kamarotos/examples/domain-configs/kvm-cluster-basic.yaml ${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
+   cp -r ${WORK_DIR}/examples ${HOME}/okd-lab/lab-config
+   ```
+
+1. Create a symbolic link to use the config file for a single node OpenShift cluster.
+
+   ```bash
+   ln -s ${HOME}/okd-lab/lab-config/basic-lab-sno.yaml ${HOME}/okd-lab/lab-config/lab.yaml
+   ```
+
+1. Remove the temporary directory
+
+   ```bash
+   rm -rf ${WORK_DIR}
    ```
 
 1. Add the following to your shell environment:
@@ -109,66 +130,51 @@ I have created a companion project for this blog.  It contains all of the shell 
 
    It's always a good practice to look at what a downloaded script is doing, since it is running with your logged in privileges...  I know that you NEVER run one of those; `curl some URL | bash`...  without looking at the file first...  right?
 
-   There will be a test later...  :-)
-
-1. __Log off and back on to set the variables.__
+2. __Log off and back on to set the variables.__
 
 ## Review the configuration
 
 The documentation for `labcli` is here: [Command Line Interface for your Kubernetes (OpenShift) Home Lab](/home-lab/labcli/)
 
-I'm being intentionally prescriptive here to help ensure success the first time you try this.  I have created a lab configuration for you based on the assumption that you have the minimal equipment for your first lab.  You will need the equipment for a Basic KVM Lab: [Gear For Your Home Lab](/home-lab/lab-gear/)
+I'm being intentionally prescriptive here to help ensure success the first time you try this.  I have created a lab configuration for you based on the assumption that you have the minimal equipment for your first lab.
 
 1. Your lab domain will be:
 
    `my.awesome.lab`
 
-1. Your lab network will be:
+2. Your lab network will be:
 
-   For example: `10.11.12.0/24`
+   `10.11.12.0/24`
 
-1. These settings are in: `${HOME}/okd-lab/lab-config/lab.yaml`
+3. These settings are in: `${HOME}/okd-lab/lab-config/lab.yaml`
 
    ```yaml
    domain: my.awesome.lab
    network: 10.11.12.0
    router-ip: 10.11.12.1
-   bastion-ip: 10.11.12.10
    netmask: 255.255.255.0
-   centos-mirror: rsync://mirror.facebook.net/centos-stream
-   gitea-version: 1.15.9
-   openwrt-version: 21.02.1
-   git-url: https://gitea.my.awesome.lab:3000
-   sub-domain-configs:
-   - name: dev
-     router-edge-ip: 10.11.12.15
-     router-ip: 10.11.13.1
-     network: 10.11.13.0
-     netmask: 255.255.255.0
-     cluster-config-file: dev.yaml
+   centos-mirror: rsync://mirror.facebook.net/centos-stream/
+   sub-domain-configs: []
+   cluster-configs:
+     - name: dev
+       cluster-config-file: sno-no-pi.yaml
+       domain: edge
    ```
 
    __Note:__ If you want different network settings, or a different domain, change this file accordingly.
 
-1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/domain-configs/dev.yaml
+4. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/domain-configs/sno-no-pi.yaml
 
    ```yaml
    cluster:
-     name: okd4
+     name: okd4-sno
      cluster-cidr: 10.88.0.0/14
      service-cidr: 172.20.0.0/16
-     local-registry: nexus.my.awesome.lab:5001
-     proxy-registry: nexus.my.awesome.lab:5000
      remote-registry: quay.io/openshift/okd
+     butane-version: v0.16.0
      butane-spec-version: 1.4.0
-     ingress-ip-addr: 10.11.13.2
-   kvm-hosts:
-     - host-name: kvm-host01
-       mac-addr: "YOUR_HOST_MAC_HERE"
-       ip-addr: 10.11.13.200
-       disks:
-         disk1: sda
-         disk2: sdb
+     butane-variant: fcos
+     ingress-ip-addr: 10.11.12.2
    bootstrap:
      metal: false
      node-spec:
@@ -176,25 +182,28 @@ I'm being intentionally prescriptive here to help ensure success the first time 
        cpu: 4
        root-vol: 50
      kvm-host: kvm-host01
-     ip-addr: 10.11.13.49
+     ip-addr: 10.11.12.49
    control-plane:
      metal: false
      node-spec:
-       memory: 20480
-       cpu: 6
-       root-vol: 100
+       memory: 61440
+       cpu: 12
+       root-vol: 800
      okd-hosts:
        - kvm-host: kvm-host01
-         ip-addr: 10.11.13.60
-       - kvm-host: kvm-host01
-         ip-addr: 10.11.13.61
-       - kvm-host: kvm-host01
-         ip-addr: 10.11.13.62
+         ip-addr: 10.11.12.60
+   kvm-hosts:
+     - host-name: kvm-host01
+       mac-addr: "YOUR_HOST_MAC_HERE"
+       ip-addr: 10.11.12.200
+       disks:
+         disk1: nvme0n1
+         disk2: NA
    ```
 
-   __Note:__ You will need to replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC server.  We'll do that later when we get ready to install OpenShift.
+   __Note:__ You will need to replace `YOUR_HOST_MAC_HERE` with the MAC address of your server.  We'll do that later when we get ready to install OpenShift.
 
-   __Note:__ If you want different network settings, or a different domain, change this file accordingly.
+   __Note:__ If you want different network settings, or a different domain, change this file accordingly.  However, I highly encourage you to deploy the lab at least once with the prescriptive configuration.  This will get you familiar with how I've set it up.  Trust me, it's really easy to tear it down and rebuild it.
 
 ## Install `yq`
 
