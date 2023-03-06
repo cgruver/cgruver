@@ -22,8 +22,10 @@ In the spirit of Kubernetes naming, I wanted to give it a nautical name.  Since 
 
    ```bash
    mkdir -p ${HOME}/okd-lab/bin
-   git clone https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
+   git clone -b archive https://github.com/cgruver/kamarotos.git ${HOME}/okd-lab/kamarotos
    ```
+
+   __Note:__ I am publishing refactored instructions soon.  So, for now you need to checkout a different branch to be compatible with the current instructions.
 
 1. Copy the helper scripts to `${HOME}/okd-lab`:
 
