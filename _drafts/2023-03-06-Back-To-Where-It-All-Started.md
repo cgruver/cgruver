@@ -1,6 +1,6 @@
 ---
 title: "Back To Where It All Started"
-date:   2023-01-16 00:00:00 -0400
+date:   2023-03-06 00:00:00 -0400
 description: "Building an OpenShift Home Lab"
 tags:
   - OpenShift Home Lab
@@ -29,13 +29,13 @@ There are three motivations driving this re-write of the home lab project:
 
    I am refactoring the lab documentation to allow you to start with the simplest possible setup.  One router, and one Intel server.
 
-1. Startup cost is higher with the need for two routers and a Raspberry Pi.
+1. Startup cost for my original setup is higher with the need for two routers and a Raspberry Pi.
 
    By eliminating the disconnected install, you save around $250 in the initial startup cost.
 
 So, here is a home lab that you can build with one Intel server and a travel router.
 
-![Starter Lab](/_pages/home-lab/images/starter-lab.png)
+<img src="/_pages/home-lab/images/starter-lab.png" width="50%"/>
 
 ## Required Equipment
 
@@ -244,7 +244,7 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 
    Hold the highlighted button for about 10 seconds.  When you first press the button, the left most LED will start to slowly blink.  After about 3-4 seconds it will blink a bit faster.  After about 9-10 seconds it will blink really fast.  At this point, let go of the button.  Your router will factory reset itself.  The router pictured here in a GL-iNet AR750S, however most GL-iNet routers have the same button configuration.
 
-   ![Reset Router](/_pages/home-lab/lab-build/images/ResetRouter.png)
+   <img src="/_pages/home-lab/lab-build/images/ResetRouter.png" width="50%"/>
 
 1. Insert the SD Card into the slot on your router.
 
@@ -316,6 +316,8 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
    When the configuration is complete, the router will reboot again.
 
 1. Wait for the router to reboot, and then reconnect to your new lab network.
+
+   __Note:__ When you update the firmware on your router, you will need to run all of the above steps again.  However, to preserve the data on the SD Card, leave out the `-f` option.  By doing so, you will not lose your DNS configuration or the CentOS Stream repo synch.
 
 1. Verify that DNS is working properly:
 
@@ -497,59 +499,94 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
    labcli --user -u=devuser
    ```
 
-## Install a storage Provisioner
+## Install The Hostpath Provisioner Operator as a storage Provisioner
 
-```bash
-git clone https://github.com/kubevirt/hostpath-provisioner-operator.git
-git checkout release-v0.15
+1. Install the Cert Manager Operator (Dependency)
 
-oc create -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
-oc wait --for=condition=Available -n cert-manager --timeout=120s --all deployments
-oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/namespace.yaml
-oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/webhook.yaml -n hostpath-provisioner
-oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/operator.yaml -n hostpath-provisioner
+   ```bash
+   oc create -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
+   ```
 
-cat << EOF | oc apply -f -
-apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
-kind: HostPathProvisioner
-metadata:
-  name: hostpath-provisioner
-spec:
-  imagePullPolicy: Always
-  storagePools:
-    - name: "local"
-      path: "/var/hpvolumes"
-  workload:
-    nodeSelector:
-      kubernetes.io/os: linux
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: hostpath-csi
-  annotations:
-     storageclass.kubernetes.io/is-default-class: "true"
-provisioner: kubevirt.io.hostpath-provisioner
-reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  storagePool: local
-EOF
+1. Wait for the operator to install:
 
-cat << EOF | oc apply -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: registry-pvc
-  namespace: openshift-image-registry
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
-  storageClassName: hostpath-csi
-EOF
+   ```bash
+   oc wait --for=condition=Available -n cert-manager --timeout=120s --all deployments
+   ```
 
-oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"rolloutStrategy":"Recreate","managementState":"Managed","storage":{"pvc":{"claim":"registry-pvc"}}}}'
-```
+1. Install the Hostpath Provisioner:
+
+   ```bash
+   oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/namespace.yaml
+   oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/webhook.yaml -n hostpath-provisioner
+   oc create -f https://raw.githubusercontent.com/kubevirt/hostpath-provisioner-operator/release-v0.15/deploy/operator.yaml -n hostpath-provisioner
+   ```
+
+1. Create an instance of the Hostpath Provisioner:
+
+   ```bash
+   cat << EOF | oc apply -f -
+   apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
+   kind: HostPathProvisioner
+   metadata:
+     name: hostpath-provisioner
+   spec:
+     imagePullPolicy: Always
+     storagePools:
+       - name: "local"
+         path: "/var/hostpathvolumes"
+     workload:
+       nodeSelector:
+         kubernetes.io/os: linux
+   EOF
+   ```
+
+1. Create a StorageClass:
+
+   ```bash
+   cat << EOF | oc apply -f -
+   apiVersion: storage.k8s.io/v1
+   kind: StorageClass
+   metadata:
+     name: hostpath-csi
+     annotations:
+       storageclass.kubernetes.io/is-default-class: "true"
+   provisioner: kubevirt.io.hostpath-provisioner
+   reclaimPolicy: Delete
+   volumeBindingMode: WaitForFirstConsumer
+   parameters:
+     storagePool: local
+   EOF
+   ```
+
+### Create a Storage Volume for the Internal Image Registry
+
+Verify that the Hostpath Provisioner is working by creating a PersistentVolumeClaim for the OpenShift internal image registry.
+
+1. Create the PVC:
+
+   ```bash
+   cat << EOF | oc apply -f -
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: registry-pvc
+     namespace: openshift-image-registry
+   spec:
+     accessModes:
+     - ReadWriteOnce
+     resources:
+       requests:
+         storage: 100Gi
+     storageClassName: hostpath-csi
+   EOF
+   ```
+
+1. Patch the internal image registry to use the new PVC:
+
+   ```bash
+   oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"rolloutStrategy":"Recreate","managementState":"Managed","storage":{"pvc":{"claim":"registry-pvc"}}}}'
+   ```
+
+That's it!
+
+Have fun with OpenShift
