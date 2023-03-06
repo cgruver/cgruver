@@ -1,5 +1,5 @@
 ---
-title: "Back To Where It All Started"
+title: "Back To Where It All Started - Let's Build an OpenShift Home Lab"
 date:   2023-03-06 00:00:00 -0400
 description: "Building an OpenShift Home Lab"
 tags:
@@ -15,7 +15,7 @@ Happy 2023!  I hope that your year is starting out on a positive trajectory.  Ye
 
 I started this blog on [August 1, 2021](https://upstreamwithoutapaddle.com/openshift/home%20lab/kubernetes/2021/08/01/Blog-Introduction.html){:target="_blank"} with a post about building a Kubernetes home lab with the community supported distribution of OKD which shares its codebase with Red Hat OpenShift.
 
-From the limited usage data that I am able to get from Google about my Blog, it appears that the most popular section of this site is the post about building a single node OpenShift cluster.  So...  In this post, I am going to revisit the original purpose of this blog by showing you how to build a simplified version of my OpenShift home lab.  In this post you will build either a single node OpenShift cluster (SNO), or you will build a full three node cluster.  In either case, the nodes in this cluster will be dual purpose control-plane and compute nodes.
+From the limited usage data that I am able to get from Google about my Blog, it appears that the most popular section of this site is the post about building a single node OpenShift cluster.  So...  In this post, I am going to revisit the original purpose of this blog by showing you how to build a simplified version of my OpenShift home lab.  In this post you will build a single node OpenShift cluster (SNO).
 
 This lab is intended to be very flexible so that you can reconfigure it at will.  It will also grow as you are able to add additional hardware.
 
@@ -25,11 +25,11 @@ There are three motivations driving this re-write of the home lab project:
 
    So, it's time for an upgrade.
 
-1. A disconnected network setup with multiple routers and firewalls, adds complexity to the lab that might put it beyond the reach of someone just getting started.
+1. A disconnected network setup with multiple routers and firewalls adds complexity to the lab that might put it beyond the reach of someone just getting started.
 
    I am refactoring the lab documentation to allow you to start with the simplest possible setup.  One router, and one Intel server.
 
-1. Startup cost for my original setup is higher with the need for two routers and a Raspberry Pi.
+1. Startup cost for my original setup is higher because of the need for two routers and a Raspberry Pi.
 
    By eliminating the disconnected install, you save around $250 in the initial startup cost.
 
@@ -396,11 +396,24 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
 
 ## We are now ready to deploy our Single Node OpenShift cluster
 
+1. Pull the latest release binaries for OKD:
+
+   ```bash
+   labcli --latest
+   ```
+
 1. Deploy the configuration in preparation for the install:
 
    ```bash
    labcli --deploy -c
    ```
+
+   This command does a lot of work for you.
+
+   * It creates the OpenShift install manifests.
+   * It uses the `butane` cli to inject custom configurations into the ignition configs for the cluster nodes.
+   * It creates the appropriate DNS entries and network configuration.
+   * It prepares the iPXE boot configuration for each cluster node.
 
 1. Start the bootstrap node:
 
@@ -420,13 +433,15 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
    labcli --monitor -b
    ```
 
-   __Note:__ This command does not affect to install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
+   __Note:__ This command does not affect the install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
 
    If you want to watch logs for issues:
 
    ```bash
    labcli --monitor -j
    ```
+
+   This command tails the journal log on the bootstrap node.
 
 1. You will see the following, when the bootstrap is complete:
 
@@ -449,7 +464,7 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
    labcli --destroy -b
    ```
 
-   This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the HA Proxy configuration.
+   This script shuts down and then deletes the Bootstrap VM.  Then it removes the bootstrap entries from the DNS and network configuration.
 
 1. Monitor the installation process:
 
@@ -590,3 +605,5 @@ Verify that the Hostpath Provisioner is working by creating a PersistentVolumeCl
 That's it!
 
 Have fun with OpenShift
+
+Next time, I'll show you how to use this same setup to build a three node cluster with Ceph as the storage provisioner.
