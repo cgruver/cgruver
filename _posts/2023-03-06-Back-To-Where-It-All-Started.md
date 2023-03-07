@@ -500,10 +500,18 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
    INFO Time elapsed: 13m49s
    ```
 
-1. Post Install:
+## Post Install
+
+1. Post Install Cleanup:
 
    ```bash
    labcli --post
+   ```
+
+1. Trust the cluster certificates:
+
+   ```bash
+   labcli --trust -c
    ```
 
 1. Add Users:
@@ -524,7 +532,19 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
    labcli --user -u=devuser
    ```
 
+   __Note:__ It will take a couple of minutes for the `authentication` services to restart after you create these user accounts.
+
+   __Note:__ This deletes the temporary `kubeadmin` account.  Your `admin` user will now have cluster admin rights.
+
 ## Install The Hostpath Provisioner Operator as a storage Provisioner
+
+1. Log into your cluster:
+
+   ```bash
+   oc login -u admin https://api.okd4-sno.my.awesome.lab:6443
+   ```
+
+   __Note:__ Use the `admin` password for the user that you created above.
 
 1. Install the Cert Manager Operator (Dependency)
 
