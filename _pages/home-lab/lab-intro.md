@@ -12,6 +12,9 @@ tags:
   - raspberry pi
   - nexus
 ---
+
+__Note:__ I have started a refactor of this site based on some recent changes that I made to my `labcli` project, and the fact that the travel routers that I use have all been discontinued now.  Look for changes in the near future.  For now, you can get an updated tutorial here: [https://upstreamwithoutapaddle.com/blog%20post/2023/03/06/Back-To-Where-It-All-Started.html](https://upstreamwithoutapaddle.com/blog%20post/2023/03/06/Back-To-Where-It-All-Started.html).  This will guide you through deploying a Single Node OpenShift cluster.
+
 There are a lot of really good Kubernetes and OpenShift tutorials out there.  This one strives to be a little bit different in that it is going to simulate the network configuration found in a real data center environment.  This tutorial is targeted toward architects and engineers who are interested in both infrastructure and application development.  This is not Code Ready Containers, or MiniKube.  Both of those are excellent developer tools and can be used to learn Kubernetes basics.  No, what you will build from the following tutorial will be a production like OpenShift cluster.  Your new lab will be very expandable as well.  Add more KVM hosts, and you can build more sophisticated OpenShift environments.
 
 I have broken this tutorial up into multiple pages to help reduce the TL;DR that can result from really long pages.  Each section will guide you through the setup of a lab capability.  After the OpenShift cluster is up and running, future blog posts will show you how to add some capabilities to it, and get it setup to support application delivery.
