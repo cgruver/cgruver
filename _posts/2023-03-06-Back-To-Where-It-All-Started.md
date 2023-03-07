@@ -53,13 +53,15 @@ So, here is a home lab that you can build with one Intel server and a travel rou
 
       The NUC10i7FNK has 6 cores, which is great for Kubernetes.  However, they are getting a little older now and are harder to find.
 
-      I will eventually start looking at the NUC 12 line.  Check out the [NUC12WSKi5](https://www.intel.com/content/www/us/en/products/sku/121623/intel-nuc-12-pro-kit-nuc12wski5/specifications.html), you'll get 12 cores with 16 threads!
+      I will eventually start looking at the NUC 12 line.  Check out the [NUC12WSKi5](https://www.intel.com/content/www/us/en/products/sku/121623/intel-nuc-12-pro-kit-nuc12wski5/specifications.html), you'll get 12 cores with 16 threads (vCPUS)!  Even the entry level [](https://www.intel.com/content/www/us/en/products/sku/121613/intel-nuc-12-pro-kit-nuc12wski3/specifications.html) will give you 12 vCPUs!
 
    * Minimum of 32GB of RAM for Single Node Openshift or 64GB of RAM for a full three node cluster
 
       I highly encourage you to go with 64GB of RAM.  The cost difference is not that much and the benefits of more RAM are huge.
 
    * 1TB of SSD - either SATA or NVMe.  Don't use spinning disks.  They are too slow.
+
+   You should be able to get a really nice lab setup for under $1,000 USD.
 
 ## Install the `labcli` utilities for the Lab
 
@@ -238,13 +240,21 @@ We will need the `yq` utility for YAML file manipulation: [https://mikefarah.git
 
 1. Now, you are ready to set up your lab network:
 
-## Configure the Lab Router
+## Configure the Lab Network
 
 __Note:__ If at any time you need to reset the router, or any of the below commands fail and need to be rerun, do this:
 
    Hold the highlighted button for about 10 seconds.  When you first press the button, the left most LED will start to slowly blink.  After about 3-4 seconds it will blink a bit faster.  After about 9-10 seconds it will blink really fast.  At this point, let go of the button.  Your router will factory reset itself.  The router pictured here in a GL-iNet AR750S, however most GL-iNet routers have the same button configuration.
 
    <img src="/_pages/home-lab/lab-build/images/ResetRouter.png" width="50%"/>
+
+   We are going to hang your lab network off of your home network.  We're doing this for a couple of reasons.
+
+   1. It keeps the lab portable.  By using an existing network as our internet gateway, we can disconnect and move to another network at any time.
+
+   1. It keeps the peace in your household.  Our network will be serving DHCP, DNS, and a host of other services.  By isolating it from your general use network, we avoid any interference with other activities.
+
+### Set Up The Router
 
 1. Insert the SD Card into the slot on your router.
 
