@@ -1,6 +1,6 @@
 ---
 title: "Back To Where It All Started - Let's Build an OpenShift Home Lab"
-date:   2023-03-06 00:00:00 -0400
+date:   2023-03-06 12:00:00 -0400
 description: "Building an OpenShift Home Lab"
 tags:
   - OpenShift Home Lab
@@ -161,7 +161,7 @@ I'm being intentionally prescriptive here to help ensure success the first time 
        domain: edge
    ```
 
-1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/domain-configs/sno-no-pi.yaml
+1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/cluster-configs/sno-no-pi.yaml
 
    ```yaml
    cluster:
