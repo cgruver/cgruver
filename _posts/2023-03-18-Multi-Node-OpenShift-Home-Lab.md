@@ -1,6 +1,6 @@
 ---
 title: "From Single Node to Multi-Node - Building a Resilient OpenShift Home Lab"
-date:   2023-03-16 12:00:00 -0400
+date:   2023-03-18 12:00:00 -0400
 description: "Building a 3 Node OpenShift Home Lab"
 tags:
   - OpenShift Home Lab
@@ -27,13 +27,31 @@ If you have deployed a single node cluster, the first thing that we need to do i
 labcli --destroy -c -d=dev
 ```
 
+Update the `labcli` scripts.  I may have fixed a couple of bugs between now and the last post.
+
+```bash
+WORK_DIR=$(mktemp -d)
+git clone https://github.com/cgruver/kamarotos.git ${WORK_DIR}
+cp ${WORK_DIR}/bin/* ${HOME}/okd-lab/bin
+chmod 700 ${HOME}/okd-lab/bin/*
+cp -r ${WORK_DIR}/examples ${HOME}/okd-lab/lab-config
+rm -rf ${WORK_DIR}
+```
+
 Once the previous cluster is cleaned up, we can prepare the environment for building a new cluster.
 
 I have prepared an example for you to use.  So, the next step is to setup the environment.
 
 ```bash
+cp ${HOME}/okd-lab/lab-config/examples/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-config
+cp ${HOME}/okd-lab/lab-config/examples/cluster-configs/3-node-no-pi.yaml ${HOME}/okd-lab/lab-config/cluster-configs
+```
+
+```bash
 ln -sf ${HOME}/okd-lab/lab-config/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-config/lab.yaml
 ```
+
+This command effectively replaced the lab configuration file for single node OpenShift with a configuration for 3 nodes.
 
 ### Review the new configuration
 
@@ -110,6 +128,14 @@ ln -sf ${HOME}/okd-lab/lab-config/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-conf
 
 ## We are now ready to deploy our Three Node OpenShift cluster
 
+__Note:__ These instructions are pretty much identical to the single node cluster that we installed in the last post.  The configuration files have taken care of the three node set up for you.
+
+1. Set the lab environment variables:
+
+   ```bash
+   labctx dev
+   ```
+
 1. Pull the latest release binaries for OKD:
 
    ```bash
@@ -125,7 +151,7 @@ ln -sf ${HOME}/okd-lab/lab-config/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-conf
    This command does a lot of work for you.
 
    * Creates the OpenShift install manifests
-   * Uses the `butane` cli to inject custom configurations into the ignition configs for the cluster nodes
+   * Uses the `butane` cli to inject custom configurations into the ignition configs for the three cluster nodes
    * Creates the appropriate DNS entries and network configuration
    * Prepares the iPXE boot configuration for each cluster node
    * Configures Nginx on the router as the ingress load balancer for your cluster
@@ -150,6 +176,8 @@ ln -sf ${HOME}/okd-lab/lab-config/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-conf
 
    __Note:__ This command does not affect the install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
 
+   __Also Note:__ It will take a while for this command to stop throwing connection errors.  You are effectively waiting for the bootstrap node to install its OS and start the bootstrap process.  Be patient, and don't worry.
+
    If you want to watch logs for issues:
 
    ```bash
@@ -161,16 +189,27 @@ ln -sf ${HOME}/okd-lab/lab-config/basic-lab-3-node.yaml ${HOME}/okd-lab/lab-conf
 1. You will see the following, when the bootstrap is complete:
 
    ```bash
-   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4.my.awesome.lab:6443... 
-   DEBUG Still waiting for the Kubernetes API: an error on the server ("") has prevented the request from succeeding 
-   INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
-   INFO Waiting up to 30m0s for bootstrapping to complete... 
+   DEBUG Still waiting for the Kubernetes API: Get "https://api.okd4.my.awesome.lab:6443/version": read tcp 10.11.12.227:49643->10.11.12.2:6443: read: connection reset by peer - error from a previous attempt: read tcp 10.11.12.227:49642->10.11.12.2:6443: read: connection reset by peer 
+   INFO API v1.25.0-2786+eab9cc98fe4c00-dirty up     
+   DEBUG Loading Install Config...                    
+   DEBUG   Loading SSH Key...                         
+   DEBUG   Loading Base Domain...                     
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Cluster Name...                    
+   DEBUG     Loading Base Domain...                   
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Networking...                      
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Pull Secret...                     
+   DEBUG   Loading Platform...                        
+   DEBUG Using Install Config loaded from state file  
+   INFO Waiting up to 30m0s (until 10:06AM) for bootstrapping to complete... 
    DEBUG Bootstrap status: complete                   
    INFO It is now safe to remove the bootstrap resources 
    DEBUG Time elapsed per stage:                      
-   DEBUG Bootstrap Complete: 11m16s                   
-   DEBUG                API: 3m5s                     
-   INFO Time elapsed: 11m16s
+   DEBUG Bootstrap Complete: 17m10s                   
+   DEBUG                API: 4m9s                     
+   INFO Time elapsed: 17m10s                         
    ```
 
 1. When the bootstrap process is complete, remove the bootstrap node:
@@ -249,14 +288,6 @@ I have prepared an opinionated install of the Rook operator and a Ceph storage c
 
 Execute the following to install the Ceph cluster and create a storage class.  You will also create a PVC for the internal image registry.
 
-1. Log into your cluster:
-
-   ```bash
-   oc login -u admin https://api.okd4-sno.my.awesome.lab:6443
-   ```
-
-   __Note:__ Use the `admin` password for the user that you created above.
-
 1. Install the Rook Operator:
 
    ```bash
@@ -269,10 +300,50 @@ Execute the following to install the Ceph cluster and create a storage class.  Y
    labcli --ceph -c
    ```
 
+1. Wait for the Ceph cluster to complete its install:
+
+   __Note:__ This will take a good while to complete.
+
+   You can watch for the cluster to be complete by looking for the completion of the OSD preparation jobs.
+
+   ```bash
+   watch oc get jobs -n rook-ceph
+   ```
+
+   When you see all three jobs completed, then the install is done:
+
+   ```bash
+   NAME                                                 COMPLETIONS   DURATION   AGE
+   rook-ceph-osd-prepare-okd4-master-0.my.awesome.lab   1/1           17s        4m9s
+   rook-ceph-osd-prepare-okd4-master-1.my.awesome.lab   1/1           17s        4m8s
+   rook-ceph-osd-prepare-okd4-master-2.my.awesome.lab   1/1           18s        4m8s
+   ```
+
 1. Create a PVC for the internal image registry:
 
    ```bash
    labcli --ceph -r
+   ```
+
+Verify that the internal image registry has a bound PVC:
+
+1. Log into your cluster:
+
+   ```bash
+   oc login -u admin https://api.okd4.my.awesome.lab:6443
+   ```
+
+   __Note:__ Use the `admin` password for the user that you created above.
+
+1. Check the PV that was created:
+
+   ```bash
+   oc get pv
+   ```
+
+   ```bash
+   NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                   STORAGECLASS      REASON   AGE
+   pvc-e6063131-f362-4c42-8adf-798d8cb9267b   100Gi      RWO            Delete           Bound    openshift-image-registry/registry-pvc   rook-ceph-block            97s
    ```
 
 That's it!

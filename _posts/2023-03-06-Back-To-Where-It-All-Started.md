@@ -92,10 +92,18 @@ I have created a companion project for this blog.  It contains all of the shell 
    chmod 700 ${HOME}/okd-lab/bin/*
    ```
 
-1. Copy the prescriptive lab configuration files to ${HOME}/okd-lab/lab-config
+1. Copy the lab configuration example files to ${HOME}/okd-lab/lab-config/examples
 
    ```bash
+   mkdir -p ${HOME}/okd-lab/lab-config/cluster-configs
    cp -r ${WORK_DIR}/examples ${HOME}/okd-lab/lab-config
+   ```
+
+1. Copy the example files for single node OpenShift
+
+   ```bash
+   cp ${HOME}/okd-lab/lab-config/examples/basic-lab-sno.yaml ${HOME}/okd-lab/lab-config
+   cp ${HOME}/okd-lab/lab-config/examples/cluster-configs/sno-no-pi.yaml ${HOME}/okd-lab/lab-config/cluster-configs
    ```
 
 1. Create a symbolic link to use the config file for a single node OpenShift cluster.
@@ -445,6 +453,8 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
 
    __Note:__ This command does not affect the install process.  You can stop and restart it safely.  It is just for monitoring the bootstrap.
 
+   __Also Note:__ It will take a while for this command to stop throwing connection errors.  You are effectively waiting for the bootstrap node to install its OS and start the bootstrap process.  Be patient, and don't worry.
+
    If you want to watch logs for issues:
 
    ```bash
@@ -456,16 +466,27 @@ Once you have completed the configuration file changes, Deploy the KVM hosts:
 1. You will see the following, when the bootstrap is complete:
 
    ```bash
-   INFO Waiting up to 20m0s for the Kubernetes API at https://api.okd4.my.awesome.lab:6443... 
-   DEBUG Still waiting for the Kubernetes API: an error on the server ("") has prevented the request from succeeding 
-   INFO API v1.20.0-1085+01c9f3f43ffcf0-dirty up     
-   INFO Waiting up to 30m0s for bootstrapping to complete... 
+   DEBUG Still waiting for the Kubernetes API: Get "https://api.okd4.my.awesome.lab:6443/version": read tcp 10.11.12.227:49643->10.11.12.2:6443: read: connection reset by peer - error from a previous attempt: read tcp 10.11.12.227:49642->10.11.12.2:6443: read: connection reset by peer 
+   INFO API v1.25.0-2786+eab9cc98fe4c00-dirty up     
+   DEBUG Loading Install Config...                    
+   DEBUG   Loading SSH Key...                         
+   DEBUG   Loading Base Domain...                     
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Cluster Name...                    
+   DEBUG     Loading Base Domain...                   
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Networking...                      
+   DEBUG     Loading Platform...                      
+   DEBUG   Loading Pull Secret...                     
+   DEBUG   Loading Platform...                        
+   DEBUG Using Install Config loaded from state file  
+   INFO Waiting up to 30m0s (until 10:06AM) for bootstrapping to complete... 
    DEBUG Bootstrap status: complete                   
    INFO It is now safe to remove the bootstrap resources 
    DEBUG Time elapsed per stage:                      
-   DEBUG Bootstrap Complete: 11m16s                   
-   DEBUG                API: 3m5s                     
-   INFO Time elapsed: 11m16s
+   DEBUG Bootstrap Complete: 17m10s                   
+   DEBUG                API: 4m9s                     
+   INFO Time elapsed: 17m10s                         
    ```
 
 1. When the bootstrap process is complete, remove the bootstrap node:
