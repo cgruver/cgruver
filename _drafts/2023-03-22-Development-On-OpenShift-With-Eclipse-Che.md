@@ -6,7 +6,7 @@ tags:
   - OpenShift Dev Spaces
   - Kubernetes
   - Eclipse Che
-  - Podman
+  - Cloud Native IDE
   - Quarkus On OpenShift
 categories:
   - Blog Post
