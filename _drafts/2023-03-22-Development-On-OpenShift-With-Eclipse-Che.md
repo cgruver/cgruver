@@ -12,4 +12,4 @@ categories:
   - Blog Post
 ---
 
-Let's talk about IDEs for a minute.  IDE, or Integrated Development Environment.  
+Let's talk about IDEs for a minute.  

@@ -62,7 +62,7 @@ __Domain Vocabulary__: Let's call the units of work, `Incidents`.
 
 __Question__: How will the `Responders` know what route to take in order to retrieve the `Victims` and move them from an `Incident` to the appropriate `Shelter`?
 
-__Answer__: A `Shelter` will be designated for the `Victims` of a given `Incident`, and a route from the `Incident` to the `Shelter` will be provided to the `Responder`.
+__Answer__: A `Shelter` will be designated for the `Victims` associated with a given `Incident`, and a route from the `Incident` to the `Shelter` will be provided to the `Responder`.
 
 __Domain Vocabulary__: Let's call the route from `Incident` to `Shelter`, a `Mission`.
 
@@ -74,7 +74,7 @@ OK...  let's pause for a minute and analyze our domain vocabulary.  So far, we h
 | `Victim` | An individual who is unable to extricate themselves from a dangerous situation caused by a `Disaster` |
 | `Shelter` | A location that mitigates the immediate effects of the disaster |
 | `Responder` | Someone with the appropriate resources and skills to move `Victims` to `Shelters` |
-| `Incident` | A group of one or more `Victims` who are in close proximity to be handled as a unit of work |
+| `Incident` | The location of a group of one or more `Victims` who are in close proximity to one another and should be handled as a unit of work |
 | `Mission` | The route from `Incident` to `Shelter` |
 
 The goal of this operation is for `Responders` to move the `Victims` of a `Disaster` from `Incidents` to `Shelters`.
