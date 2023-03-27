@@ -144,7 +144,9 @@ We watched the logs with some `oc` cli magic.
      - name: build-image
        image: quay.io/buildah/stable:latest
        securityContext:
-         runAsUser: 1000
+         capabilities:
+           add:
+           - SETFCAP
        imagePullPolicy: IfNotPresent
        script: |
          #!/bin/bash
@@ -319,7 +321,9 @@ The `spec:` of this Task has several elements:
    - name: build-image
      image: quay.io/buildah/stable:latest
      securityContext:
-       runAsUser: 1000
+       capabilities:
+         add:
+         - SETFCAP
      imagePullPolicy: IfNotPresent
      script: |
        #!/bin/bash
@@ -337,7 +341,6 @@ The `spec:` of this Task has several elements:
    | | |
    |`name:`|Every step has a unique name in the task.  This name is also what will be assigned to the container that is created to run the step.|
    |`image:`|Every step runs in a container.  Therefore, you need to specify the container image that will be used. In this case we are pulling the latest stable `buildah` image from `quay.io`.|
-   |`securityContext:`|You can specify a specific security context for the container to run under.  In this case, we needed to specify a specific UID that has the ability to run buildah in an unprivileged mode.|
    |`imagePullPolicy:`|Just like a Pod or Deployment specification, you can control the circumstances that cause an image to be pulled from the source registry.|
    |`script`|In this case we are asking the container to run a specific shell script that we include in the Task step.  This is a very powerful feature of Tekton.  Some steps will perform the work that you want explicitly from the standard entry point of the container.  There are multiple ways that you can tell the container what work you want it to do.|
    |`env:`|Sets the environment for the container. In this step we are setting the value of our user's home directory to `/workspace`.  `/workspace` is a special volumeMount that gives the steps in your Task a common place to store state during the execution of the Task.  There is a lot more to explore with `Workspaces`.|
@@ -467,7 +470,9 @@ So, now let's make it a bit more complex by adding a step to the Task that will 
      - name: build-image
        image: quay.io/buildah/stable:latest
        securityContext:
-         runAsUser: 1000
+         capabilities:
+           add:
+           - SETFCAP
        imagePullPolicy: IfNotPresent
        script: |
          #!/bin/bash

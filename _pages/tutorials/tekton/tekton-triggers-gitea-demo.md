@@ -753,7 +753,9 @@ __Happy Coding!__
      - name: build-image
        image: quay.io/buildah/stable:latest
        securityContext:
-         runAsUser: 1000
+         capabilities:
+           add:
+           - SETFCAP
        imagePullPolicy: IfNotPresent
        script: |
          #!/bin/bash
