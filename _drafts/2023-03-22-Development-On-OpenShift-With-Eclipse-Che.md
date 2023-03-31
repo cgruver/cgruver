@@ -52,6 +52,8 @@ But, like I said, this post is going to focus on upstream Eclipse Che.  This blo
 
 1. Create a CatalogSource for the Dev Workspace Operator
 
+   __Note:__ This step is not necessary if you are installing OpenShift Dev Spaces.  A supported OpenShift cluster already has the appropriate catalog sources.
+
    ```bash
    cat << EOF | oc apply -f -
    apiVersion: operators.coreos.com/v1alpha1
@@ -78,19 +80,19 @@ But, like I said, this post is going to focus on upstream Eclipse Che.  This blo
 
 1. Search for the Eclipse Che Operator:
 
-   <img src="/_pages/dev-spaces/images/eclipse-che-search.png" width="100%"/>
+   <img src="/_pages/dev-spaces/images/eclipse-che-search.png" width="75%"/>
 
 1. Click on the Eclipse Che Operator and acknowledge the popup about Community Operators:
 
-   <img src="/_pages/dev-spaces/images/show-community-operators.png" width="50%"/>
+   <img src="/_pages/dev-spaces/images/show-community-operators.png" width="40%"/>
 
 1. Click `Install`:
 
-   <img src="/_pages/dev-spaces/images/eclipse-che-install-select.png" width="100%"/>
+   <img src="/_pages/dev-spaces/images/eclipse-che-install-select.png" width="60%"/>
 
 1. Leave the default settings and click `Install`:
 
-   <img src="/_pages/dev-spaces/images/eclipse-che-install-confirm.png" width="100%"/>
+   <img src="/_pages/dev-spaces/images/eclipse-che-install-confirm.png" width="80%"/>
 
 1. If you click on `Installed Operators` in the left hand nav menu, you can verify the installation process:
 
