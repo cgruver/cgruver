@@ -104,44 +104,41 @@ But, like I said, this post is going to focus on upstream Eclipse Che.  This blo
 
 ### Create an instance of Eclipse Che to serve the cluster
 
-
-
-   ```bash
-   cat << EOF | oc apply -f -
-   apiVersion: v1
-   kind: Namespace
-   metadata:
-     name: eclipse-che
-   ---
-   apiVersion: org.eclipse.che/v2
-   kind: CheCluster
-   metadata:
-     name: eclipse-che
-     namespace: eclipse-che
-   spec:
-     components:
-       cheServer:
-         debug: false
-         logLevel: INFO
-       metrics:
-         enable: true
-     containerRegistry: {}
-     devEnvironments:
-       startTimeoutSeconds: 300
-       secondsOfRunBeforeIdling: -1
-       maxNumberOfWorkspacesPerUser: -1
-       containerBuildConfiguration:
-         openShiftSecurityContextConstraint: container-build
-       disableContainerBuildCapabilities: false
-       defaultEditor: che-incubator/che-code/latest
-       defaultNamespace:
-         autoProvision: true
-         template: <username>-che
-       secondsOfInactivityBeforeIdling: 1800
-       storage:
-         pvcStrategy: per-workspace
-     gitServices: {}
-     networking: {}
-   EOF
-   ```
-
+```bash
+cat << EOF | oc apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eclipse-che
+---
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: eclipse-che
+  namespace: eclipse-che
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+    metrics:
+      enable: true
+  containerRegistry: {}
+  devEnvironments:
+    startTimeoutSeconds: 300
+    secondsOfRunBeforeIdling: -1
+    maxNumberOfWorkspacesPerUser: -1
+    containerBuildConfiguration:
+      openShiftSecurityContextConstraint: container-build
+    disableContainerBuildCapabilities: false
+    defaultEditor: che-incubator/che-code/latest
+    defaultNamespace:
+      autoProvision: true
+      template: <username>-che
+    secondsOfInactivityBeforeIdling: 1800
+    storage:
+      pvcStrategy: per-workspace
+  gitServices: {}
+  networking: {}
+EOF
+```
