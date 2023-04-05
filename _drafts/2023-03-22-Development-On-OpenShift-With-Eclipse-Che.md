@@ -16,15 +16,15 @@ Think about this for a moment.  If you were handed a brand new laptop tomorrow, 
 
 And then there's the old; __"But it works on my machine..."__ Yes, we've all been there.  You do your best with your local environment.  But, unless you are writing desktop apps, your local environment is likely much different from the environment that your code will ultimately run in.
 
-You are also likely working on a machine that you had little input into selecting.  Your code runs in Linux based containers, but your development environment is anything but.  Plus, let's face it.  Linux has come a long way on the desktop, but most organizations don't embrace it there.
+If you work for a large non-tech enterprise, you are also likely working on a machine that you had little input into selecting.  Your code runs in Linux based containers, but your development environment is anything but.  You might be among the few who have embraced Mac Books for developers.  But you are likely on the good old standard of Windows.  Plus, let's face it.  Linux has come a long way on the desktop, but most organizations don't embrace it there.
 
-How about compute resources?  Do you have enough CPU or RAM?
+How about compute resources?  Do you have enough CPU or RAM?  If you do, how much time does that investment sit idle?
 
 Do you have the ability to run all of the other apps that your project interacts with?  A Kafka cluster? PostgreSQL or Cassandra?  What about all of the other micro-services that your app consumes APIs or messages from?
 
-Finally, let's talk about governance.  Do you have to submit a help desk ticket every time you need a new tool?  How to you handle updates?  Or, new technologies that your app needs?  Are you permitted to install new software or change the configuration of your workstation?  What do you do when you are working on different projects that use conflicting versions of something?
+Finally, let's talk about governance.  Do you have to submit a help desk ticket every time you need a new tool?  How to you handle updates?  How do you install new technologies that your app needs?  Are you permitted to install new software or change the configuration of your workstation?  What do you do when you are working on different projects that use conflicting versions of something?
 
-Wouldn't it be nice if...
+__Wouldn't it be nice if...__
 
 OK, now that the song is stuck in your head.
 
@@ -74,31 +74,31 @@ But, like I said, this post is going to focus on upstream Eclipse Che.  This blo
 
 1. Now, log into your OpenShift cluster web console as a cluster admin user.
 
-1. Navigate to the Operator Hub:
+1. __Navigate to the Operator Hub:__
 
    <img src="/_pages/dev-spaces/images/operator-hub.png" width="100%"/>
 
-1. Search for the Eclipse Che Operator:
+1. __Search for the Eclipse Che Operator:__
 
    <img src="/_pages/dev-spaces/images/eclipse-che-search.png" width="75%"/>
 
-1. Click on the Eclipse Che Operator and acknowledge the popup about Community Operators:
+1. __Click on the Eclipse Che Operator and acknowledge the popup about Community Operators:__
 
    <img src="/_pages/dev-spaces/images/show-community-operators.png" width="40%"/>
 
-1. Click `Install`:
+1. __Click `Install`:__
 
    <img src="/_pages/dev-spaces/images/eclipse-che-install-select.png" width="60%"/>
 
-1. Leave the default settings and click `Install`:
+1. __Leave the default settings and click `Install`:__
 
    <img src="/_pages/dev-spaces/images/eclipse-che-install-confirm.png" width="80%"/>
 
-1. If you click on `Installed Operators` in the left hand nav menu, you can verify the installation process:
+1. __If you click on `Installed Operators` in the left hand nav menu, you can verify the installation process:__
 
    <img src="/_pages/dev-spaces/images/che-operators-installing.png" width="100%"/>
 
-1. When the installation is complete, you should see both Eclipse Che and the DevWorkspace operators installed.
+1. __When the installation is complete, you should see both Eclipse Che and the DevWorkspace operators installed.__
 
    <img src="/_pages/dev-spaces/images/che-operators-installed.png" width="100%"/>
 
