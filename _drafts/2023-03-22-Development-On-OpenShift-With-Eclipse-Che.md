@@ -2,6 +2,8 @@
 title: "OpenShift - Your New Favorite IDE"
 date:   2023-03-22 00:00:00 -0400
 description: "Eclipse Che & OpenShift Dev Spaces: Cloud Native Development - In The Cloud"
+header:
+  image: /_pages/dev-spaces/images/code-on-ipad.png
 tags:
   - OpenShift Dev Spaces
   - Kubernetes
@@ -160,127 +162,264 @@ Now that everything is installed.  Let's see it in action.
 
 You will need an unprivileged OpenShift account for this demo.  You can do this with cluster-admin, but I encourage you not to.  I want you to see just how much autonomy you can have with a normal `restricted` OpenShift account.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-login-openshift.png" width="100%"/>
+1. __Log in as an unprivileged user:__
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-select-eclipse-che-app.png" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-login-openshift.png" width="50%"/>
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-login-with-openshift.png" width="100%"/>
+1. __Note the little 9-box icon in the top right of the screen.  Click on that.__
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-login-che.png" width="100%"/>
+   Then click on `Eclipse Che`
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-authorize-access.png" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-select-eclipse-che-app.png" width="50%"/>
+
+1. __Select `Log in with OpenShift`
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-login-with-openshift.png" width="50%"/>
+
+1. __Log in with the same user:__  (I know...  It's not SSO enabled...)
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-login-che.png" width="50%"/>
+
+1. __The first time, it will ask you to authorize access:__
+
+   Click `Allow selected permissions`
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-authorize-access.png" width="50%"/>
+
+1. __You should now see the Eclipse Che landing page:__
 
 <img src="/_pages/dev-spaces/demo-app-images/demo-che-landing-page.png" width="100%"/>
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-enter-project-git-url.png" width="100%"/>
+1. __Create a new Workspace:__
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-workspace-starting.png" width="100%"/>
+   This is where things start to happen.  All you need to get started is the URL of the git repository for your project.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors.png" width="100%"/>
+   For this demo, I have created a more complex project so that you can really see some of the power of Eclipse Che (OpenShift Dev Spaces).
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-workspace-started.png" width="100%"/>
+   I also created a GitHub organization to hold this project: [https://github.com/eclipse-che-demo-app](https://github.com/eclipse-che-demo-app)
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-open-workspace.png" width="100%"/>
+   The documentation is pretty sparse at the time of this Blog post, but will be filling out soon.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors-2.png" width="100%"/>
+   The project that we will be playing with is composed of three code repositories:
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-extensions-installing.png" width="100%"/>
+   * [https://github.com/eclipse-che-demo-app/che-demo-app.git](https://github.com/eclipse-che-demo-app/che-demo-app.git)
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-three-repos-cloned.png" width="100%"/>
+     This code repo contains the Eclipse Che and VS Code configurations for the project.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-opening-java-projects.png" width="100%"/>
+     The config file for the Eclipse Che workspace is `.devfile.yaml`  You can explore the syntax here: [https://devfile.io](https://devfile.io)
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-java-build-running.png" width="100%"/>
+   * [https://github.com/eclipse-che-demo-app/che-demo-app-ui.git](https://github.com/eclipse-che-demo-app/che-demo-app-ui.git)
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-java-build-done.png" width="100%"/>
+     This code repo contains a very lame Angular UI that I wrote for this demo...  I'm not a UI/UX guy and had to learn Angular over the weekend.  So, no judgement please...  ;-)
 
-<img src="" width="100%"/>
+   * [https://github.com/eclipse-che-demo-app/che-demo-app-service.git](https://github.com/eclipse-che-demo-app/che-demo-app-service.git)
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-copy-kubeconfig.png" width="100%"/>
+     This code repo contains a Quarkus application which exposes a couple of REST endpoints and uses a PostgreSQL database as its data persistence engine.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-set-angular-env.png" width="100%"/>
+   __To create your workspace, simply paste this URL: `https://github.com/eclipse-che-demo-app/che-demo-app.git` into the `Import from Git` dialog as shown below and click `Create & Open`__
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-start-quarkus-app.png" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-enter-project-git-url.png" width="50%"/>
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-live.png" width="100%"/>
+1. __Your workspace should now be starting:__
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-npm-install.png" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-workspace-starting.png" width="50%"/>
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-start-node.png" width="100%"/>
+   __Note:__ There is a slight chance that you will see an error like this:
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-open-angular-app.png" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-failed-to-load.png" width="50%">
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-acknowledge-page-open.png" width="100%"/>
+   This popped up in `7.63`.  It appears to be a race condition of some sort.
 
-<img src="/_pages/dev-spaces/demo-app-images/demo-angular-app-running.png" width="100%"/>
+   If you see this, your workspace did actually start.  It just failed to open your browser to the correct page.  In the left hand menu, you should see `che-demo-app` in `RECENT WORKSPACES`.  Just click on that and your workspace should open.
 
-<img src="" width="100%"/>
+1. __VS Code will ask you to trust the authors of the git repository that you cloned:__
 
-<img src="" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors.png" width="50%"/>
 
-<img src="" width="100%"/>
+1. __At this point you should be looking at VS Code in your browser.  Note that it cloned the `che-demo-app` repo.  Also, note that it detected the presence of a VS Code workspace and is asking if you want to open it.
 
-<img src="" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-workspace-started.png" width="100%"/>
 
-<img src="" width="100%"/>
+1. __Open the workspace:__
 
-<img src="" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-open-workspace.png" width="50%"/>
 
-<img src="" width="100%"/>
+1. __You'll be prompted to trust the authors again, because it is now opening the other two code repos that it cloned.__
 
-<img src="" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors-2.png" width="50%"/>
 
-<img src="" width="100%"/>
+1. __Sit back a watch for just a minute.  A lot is getting ready to happen.__
 
-<img src="" width="100%"/>
+   One of the first things that you will likely notice, is that the screen suddenly changes from a dark theme to a light theme.  This is because VS Code is installing the extensions that are recommended in the workspace config file that you just opened, and VS Code is applying the configuration.  I intentionally used a light theme here to add more drama to the demo.  :-)  Plus, this is my favorite VS Code color theme.  Both light and dark.
 
-<img src="" width="100%"/>
+   <img src="/_pages/dev-spaces/demo-app-images/demo-extensions-installing.png" width="100%"/>
 
-<img src="" width="100%"/>
+1. __Look at the left side of the screen and notice that there are three code repos in your workspace:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-three-repos-cloned.png" width="50%"/>
+
+1. __Look down at the bottom right of your browser window and notice the `Opening Java Projects:` dialog.__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-opening-java-projects.png" width="50%"/>
+
+1. __Click on `check details` in that dialog:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-java-build-running.png" width="100%"/>
+
+1. __You are seeing VS Code initialize the Quarkus app in this workspace:__
+
+   When it is done, it will look like this:
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-java-build-done.png" width="100%"/>
+
+   You can click on the little `X` icon or the trashcan icon to close the terminal window.
+
+## Time to Work On Some Code
+
+At this point you have seen how quickly and easily you can get set up to contribute to a project.
+
+The `DevFile` (`.devfile.yaml`) and the VS Code workspace config file have all of the configuration specified.  Eclipse Che (OpenShift Dev Spaces) consumed those files and set everything up for you.  We're not going to talk about it much in this post, but you even have a running PostgreSQL database, and the ability to create container images with `podman` or `buildah`.
+
+This post is focused on coding, so let's write some code now.
+
+1. __Before diving into some code, we need to set up a couple of things to enable live dev mode in Angular and Quarkus:__
+
+   So, click on the icon in the left hand menu that looks like a small clipboard.  This is the Task Manager extension.  We need to run a few tasks to get set up.
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-task-manager-perspective.png" width="40%"/>
+
+1. __Run the `Copy Kubeconfig` task:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-copy-kubeconfig.png" width="40%"/>
+
+1. __Run the `Set Angular Environment` task:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-set-angular-env.png" width="40%"/>
+
+1. __Run `npm install` to initialize the Angular app:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-run-npm-install.png" width="40%"/>
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-npm-install.png" width="100%"/>
+
+1. __Start the Quarkus app in live dev mode:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-start-quarkus-app.png" width="40%"/>
 
 
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-angular-code.png)
-![](/_pages/dev-spaces/demo-app-images/demo-angular-live-update.png)
-![]()
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-delete-workspace.png)
-![](/_pages/dev-spaces/demo-app-images/demo-enter-first-random-thought.png)
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-failed-to-load.png)
-![](/_pages/dev-spaces/demo-app-images/demo-get-first-random-thought.png)
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-live-quarkus-change.png)
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-login-openshift.png)
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-modify-angular.png)
-![]()
-![]()
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-quarkus-code-change.png)
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-quarkus-service.png)
-![](/_pages/dev-spaces/demo-app-images/demo-restarting-workspace.png)
-![](/_pages/dev-spaces/demo-app-images/demo-run-npm-install.png)
-![](/_pages/dev-spaces/demo-app-images/demo-running-workspaces.png)
-![](/_pages/dev-spaces/demo-app-images/demo-second-thought.png)
-![](/_pages/dev-spaces/demo-app-images/demo-select-delete-workspace.png)
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-select-get.png)
-![](/_pages/dev-spaces/demo-app-images/demo-select-to-quick-start.png)
-![](/_pages/dev-spaces/demo-app-images/demo-select-workspaces.png)
-![]()
-![]()
-![]()
-![](/_pages/dev-spaces/demo-app-images/demo-stop-workspace.png)
-![](/_pages/dev-spaces/demo-app-images/demo-switch-view-to-code.png)
-![]()
-![]()
-![]()
-![]()
+   <img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-live.png" width="100%"/>
+
+1. __Start the Angular account in live dev mode:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-start-node.png" width="50%"/>
+
+1. __Open a browser tab to the Angular app:__
+
+   Wait until the Angular app is running, then click on the `Open in New Tab` button that is down in the bottom right:
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-open-angular-app.png" width="100%"/>
+
+1. __Click `Open` in the popup dialog:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-acknowledge-page-open.png" width="40%"/>
+
+1. __You should now see my really lame Angular app:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-angular-app-running.png" width="50%"/>
+
+1. __Go back to the VS Code tab and open the `app.component.ts` file in the `che-demo-app-ui` project:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-angular-code.png" width="100%"/>
+
+1. __Change the `title` to `My Random Thoughts`:
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-modify-angular.png" width="50%"/>
+
+1. __Notice that the browser tab with the Angular app open immediately reflects your change!__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-angular-live-update.png" width="50%"/>
+
+   __You are LIVE CODING with Angular!!!__
+
+1. __Type `Quarkus Is Fun` into the `Random Thought` text field and click `Submit`:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-enter-first-random-thought.png" width="50%"/>
+
+1. __Click on the `Get Random Thoughts` button and observe the response:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-select-get.png" width="50%"/>
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-get-first-random-thought.png" width="50%"/>
+
+1. __Now let's make a change to the Quarkus app:__
+
+   Open the file; `src/main/java/fun/is/quarkus/randomThoughts/service/RandomThoughts.java` in the `che-demo-app-service` project:
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-service.png" width="75%"/>
+
+1. __Make the code changes below:__
+
+   ```java
+   String modifiedThought = "My Random Thought: " + dto.randomTHought();
+
+   RandomThoughtDto thought = new RandomThoughtDto(UUID.randomUUID(), modifiedThought);
+   ```
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-code-change.png" width="75%"/>
+
+1. __Now go back to the tab with the running Angular app and add another thought:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-second-thought.png" width="50%"/>
+
+1. __Click on `Get Random Thoughts` and notice the change:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-live-quarkus-change.png" width="50%"/>
+
+So, that's a quick demo of live coding in Dec Spaces / Eclipse Che.
+
+## Stop, Start, & Delete
+
+Go back to the Eclipse Che landing page.  We'll explore stopping, starting, and deleting a workspace.
+
+1. __In the upper left portion of the page, click on the `Workspaces` section below `Create Workspace`:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-select-workspaces.png" width="50%"/>
+
+1. __You can now see all of your workspaces...  all one of them...__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-running-workspaces.png" width="100%"/>
+
+1. __Click on the three vertical dots on the right side of the row with your running workspace:__
+
+   Select `Stop Workspace`
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-stop-workspace.png" width="100%"/>
+
+1. __Restart your workspace:__
+
+   You can restart your workspace from the same menu, or you can click on the name of your workspace that is in the left hand column of the screen:
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-select-to-quick-start.png" width="50%"/>
+
+1. __Observe your worspace restart:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-restarting-workspace.png" width="50%"/>
+
+   When VS Code opens, you can reopen the VS Code workspace.  You will notice that all of your uncommitted code changes are preserved.
+
+1. __Now, delete the workspace:__
+
+   Click on the three vertical dots on the right side of the row with your stopped workspace and select `Delete Workspace`
+   <img src="/_pages/dev-spaces/demo-app-images/demo-select-delete-workspace.png" width="50%"/>
+
+1. __Acknowledge the warning and click `Delete`:__
+
+   <img src="/_pages/dev-spaces/demo-app-images/demo-delete-workspace.png" width="50%"/>
+
+That's it!
+
+You can recreate the workspace by following the same procedures above.
+
+Later I'll dive deeper into the DevFile to show you how it all works.
+
+Happy coding!
