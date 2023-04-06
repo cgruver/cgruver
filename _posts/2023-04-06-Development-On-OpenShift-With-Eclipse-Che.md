@@ -1,6 +1,6 @@
 ---
 title: "OpenShift - Your New Favorite IDE"
-date:   2023-03-22 00:00:00 -0400
+date:   2023-04-06 00:00:00
 description: "Eclipse Che & OpenShift Dev Spaces: Cloud Native Development - In The Cloud"
 header:
   image: /_pages/dev-spaces/images/code-on-ipad.png
@@ -10,6 +10,7 @@ tags:
   - Eclipse Che
   - Cloud Native IDE
   - Quarkus On OpenShift
+  - Angular On OpenShift
 categories:
   - Blog Post
 ---
@@ -28,7 +29,7 @@ Finally, let's talk about governance.  Do you have to submit a help desk ticket 
 
 If you are fortunate enough to have full autonomy on your workstation, how many times have you rendered it useless and had to rebuild from scratch?  Yeah...  I'm one of those (un)fortunate few.  I've been there many, many times.  I've donated many days to trying to get something to work on my machine...
 
-__Wouldn't it be nice if...__
+__Wouldn't it be nice if we could...__
 
 OK, now that the song is stuck in your head.
 
@@ -46,6 +47,7 @@ You can get all of the TL;DR here:
 
 * [https://www.eclipse.org/che/](https://www.eclipse.org/che/)
 * [https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces)
+* [https://devfile.io](https://devfile.io)
 
 But, who wants to read when we can write code!?  So, let's install Eclipse Che in our lab and use it to write some code.
 
@@ -55,7 +57,7 @@ We're going to install the upstream Eclipse Che on the community supported build
 
 If you don't have an OKD cluster, you can build one by following the instructions in this post: [Back To Where It All Started - Let’s Build an OpenShift Home Lab](/blog%20post/2023/03/06/Back-To-Where-It-All-Started.html)
 
-The first thing that we need to do, is create a `CatalogSource` for the DevWorkspace Operator.  Eclipse Che and OpenShift Dev Spaces are dependent on this operator.  If you are on a subscribed OpenShift cluster, then the DevWorkspace Operator is already available, and you can installed the Red Hat supported build of Eclipse Che called OpenShift Dev Spaces.  __Note:__ If you don't have access to an OKD cluster, or want to use OpenShift Local with OpenShift Dev Spaces, then skip this next section and follow the instructions here instead: [Install OpenShift Local and OpenShift Dev Spaces](/dev-spaces/install-crc/)  Then, come back here for the demo section.
+The first thing that we need to do, is create a `CatalogSource` for the DevWorkspace Operator.  Eclipse Che and OpenShift Dev Spaces are dependent on this operator.  If you are on a subscribed OpenShift cluster or using OpenShift Local, then the DevWorkspace Operator is already available, and you can install the Red Hat supported build of Eclipse Che called OpenShift Dev Spaces.  __Note:__ If you don't have access to an OKD cluster, or want to use OpenShift Local with OpenShift Dev Spaces, then skip this next section and follow the instructions here instead: [Install OpenShift Local and OpenShift Dev Spaces](/dev-spaces/install-crc/)  Then, come back here for the demo section.
 
 But, like I said, this post is going to focus on upstream Eclipse Che.  This blog is all about upstream after all...
 
@@ -63,7 +65,7 @@ But, like I said, this post is going to focus on upstream Eclipse Che.  This blo
 
 1. Create a CatalogSource for the Dev Workspace Operator
 
-   __Note:__ This step is not necessary if you are installing OpenShift Dev Spaces.  A supported OpenShift cluster already has the appropriate catalog sources.
+   __Note:__ This step is not necessary if you are installing OpenShift Dev Spaces.
 
    ```bash
    cat << EOF | oc apply -f -
@@ -208,6 +210,8 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
      The config file for the Eclipse Che workspace is `.devfile.yaml`  You can explore the syntax here: [https://devfile.io](https://devfile.io)
 
+     In the not too distant future, I'll publish a post explaining the DevFile in this project.
+
    * [https://github.com/eclipse-che-demo-app/che-demo-app-ui.git](https://github.com/eclipse-che-demo-app/che-demo-app-ui.git)
 
      This code repo contains a very lame Angular UI that I wrote for this demo...  I'm not a UI/UX guy and had to learn Angular over the weekend.  So, no judgement please...  ;-)
@@ -216,7 +220,11 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
      This code repo contains a Quarkus application which exposes a couple of REST endpoints and uses a PostgreSQL database as its data persistence engine.
 
-   __To create your workspace, simply paste this URL: `https://github.com/eclipse-che-demo-app/che-demo-app.git` into the `Import from Git` dialog as shown below and click `Create & Open`__
+   __To create your workspace, simply paste this URL:__
+   
+   `https://github.com/eclipse-che-demo-app/che-demo-app.git` 
+   
+   __into the `Import from Git` dialog as shown below and click `Create & Open`__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-enter-project-git-url.png" width="50%"/>
 
@@ -236,7 +244,7 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors.png" width="50%"/>
 
-1. __At this point you should be looking at VS Code in your browser.  Note that it cloned the `che-demo-app` repo.  Also, note that it detected the presence of a VS Code workspace and is asking if you want to open it.
+1. __At this point you should be looking at VS Code in your browser.  Note that it cloned the `che-demo-app` repo.  Also, note that it detected the presence of a VS Code workspace and is asking if you want to open it.__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-workspace-started.png" width="100%"/>
 
@@ -248,7 +256,7 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-trust-authors-2.png" width="50%"/>
 
-1. __Sit back a watch for just a minute.  A lot is getting ready to happen.__
+1. __Sit back and watch for just a minute.  A lot is getting ready to happen.__
 
    One of the first things that you will likely notice, is that the screen suddenly changes from a dark theme to a light theme.  This is because VS Code is installing the extensions that are recommended in the workspace config file that you just opened, and VS Code is applying the configuration.  I intentionally used a light theme here to add more drama to the demo.  :-)  Plus, this is my favorite VS Code color theme.  Both light and dark.
 
@@ -290,9 +298,13 @@ This post is focused on coding, so let's write some code now.
 
 1. __Run the `Copy Kubeconfig` task:__
 
+   This first task is a bit of a hack to give the container with the `oc` cli the correct permissions.  You only have to do this once.
+
    <img src="/_pages/dev-spaces/demo-app-images/demo-copy-kubeconfig.png" width="40%"/>
 
 1. __Run the `Set Angular Environment` task:__
+
+   This is also a bit of a hack.  The Quarkus app will be exposing an API on an OpenShift Route that the workspace creates for you.  It has a generated name.  Our Angular app needs that API URL in order to talk to its backend that the Quarkus app is providing.  So, I wrote a shell script that injects the appropriate endpoint into the environment for the Angular app.  You also only need to run this task once.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-set-angular-env.png" width="40%"/>
 
@@ -331,7 +343,7 @@ This post is focused on coding, so let's write some code now.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-angular-code.png" width="100%"/>
 
-1. __Change the `title` to `My Random Thoughts`:
+1. __Change the `title` to `My Random Thoughts`:__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-modify-angular.png" width="50%"/>
 
@@ -349,6 +361,8 @@ This post is focused on coding, so let's write some code now.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-select-get.png" width="50%"/>
 
+1. __The Quarkus app assigns a UUID to your thoughts which are then stored in the PostgreSQL database that is running in your workspace.__
+
    <img src="/_pages/dev-spaces/demo-app-images/demo-get-first-random-thought.png" width="50%"/>
 
 1. __Now let's make a change to the Quarkus app:__
@@ -364,6 +378,8 @@ This post is focused on coding, so let's write some code now.
 
    RandomThoughtDto thought = new RandomThoughtDto(UUID.randomUUID(), modifiedThought);
    ```
+
+   __The file should now look like:__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-code-change.png" width="75%"/>
 
