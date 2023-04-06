@@ -206,7 +206,23 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
 <img src="/_pages/dev-spaces/demo-app-images/demo-npm-install.png" width="100%"/>
 
+<img src="/_pages/dev-spaces/demo-app-images/demo-start-node.png" width="100%"/>
 
+<img src="/_pages/dev-spaces/demo-app-images/demo-open-angular-app.png" width="100%"/>
+
+<img src="/_pages/dev-spaces/demo-app-images/demo-acknowledge-page-open.png" width="100%"/>
+
+<img src="/_pages/dev-spaces/demo-app-images/demo-angular-app-running.png" width="100%"/>
+
+<img src="" width="100%"/>
+
+<img src="" width="100%"/>
+
+<img src="" width="100%"/>
+
+<img src="" width="100%"/>
+
+<img src="" width="100%"/>
 
 <img src="" width="100%"/>
 
@@ -222,15 +238,9 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
 <img src="" width="100%"/>
 
-<img src="" width="100%"/>
 
-<img src="" width="100%"/>
-
-
-
-
-![](/_pages/dev-spaces/demo-app-images/demo-acknowledge-page-open.png)
-![](/_pages/dev-spaces/demo-app-images/demo-angular-app-running.png)
+![]()
+![]()
 ![](/_pages/dev-spaces/demo-app-images/demo-angular-code.png)
 ![](/_pages/dev-spaces/demo-app-images/demo-angular-live-update.png)
 ![]()
@@ -250,7 +260,7 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 ![]()
 ![](/_pages/dev-spaces/demo-app-images/demo-modify-angular.png)
 ![]()
-![](/_pages/dev-spaces/demo-app-images/demo-open-angular-app.png)
+![]()
 ![]()
 ![]()
 ![](/_pages/dev-spaces/demo-app-images/demo-quarkus-code-change.png)
@@ -266,7 +276,7 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 ![](/_pages/dev-spaces/demo-app-images/demo-select-to-quick-start.png)
 ![](/_pages/dev-spaces/demo-app-images/demo-select-workspaces.png)
 ![]()
-![](/_pages/dev-spaces/demo-app-images/demo-start-node.png)
+![]()
 ![]()
 ![](/_pages/dev-spaces/demo-app-images/demo-stop-workspace.png)
 ![](/_pages/dev-spaces/demo-app-images/demo-switch-view-to-code.png)
