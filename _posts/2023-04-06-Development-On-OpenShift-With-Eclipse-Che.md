@@ -15,7 +15,7 @@ categories:
   - Blog Post
 ---
 
-Think about this for a moment.  If you were handed a brand new laptop tomorrow, how long would it take you to get it fully set up for application development?
+Think about this for a moment.  If you were handed a brand new laptop tomorrow, how long would it take you to get it fully set up for application development?  An hour?  A day? Two days?
 
 And then there's the old; __"But it works on my machine..."__ Yes, we've all been there.  You do your best with your local environment.  But, unless you are writing desktop apps, your local environment is likely much different from the environment that your code will ultimately run in.
 
@@ -25,11 +25,11 @@ How about compute resources?  Do you have enough CPU or RAM?  If you do, how muc
 
 Do you have the ability to run all of the other apps that your project interacts with?  A Kafka cluster? PostgreSQL or Cassandra?  What about all of the other micro-services that your app consumes APIs or messages from?
 
-Finally, let's talk about governance.  Do you have to submit a help desk ticket every time you need a new tool?  How to you handle updates?  How do you install new technologies that your app needs?  Are you permitted to install new software or change the configuration of your workstation?  What do you do when you are working on different projects that use conflicting versions of something?
+Finally, let's talk about governance.  Do you have to submit a help desk ticket every time you need a new tool?  How do you handle updates?  How do you install new technologies that your app needs?  Are you permitted to install new software or change the configuration of your workstation?  What do you do when you are working on different projects that use conflicting versions of something?
 
 If you are fortunate enough to have full autonomy on your workstation, how many times have you rendered it useless and had to rebuild from scratch?  Yeah...  I'm one of those (un)fortunate few.  I've been there many, many times.  I've donated many days to trying to get something to work on my machine...
 
-__Wouldn't it be nice if we could...__
+__Wouldn't it be nice if we...__
 
 OK, now that the song is stuck in your head.
 
@@ -57,7 +57,11 @@ We're going to install the upstream Eclipse Che on the community supported build
 
 If you don't have an OKD cluster, you can build one by following the instructions in this post: [Back To Where It All Started - Let’s Build an OpenShift Home Lab](/blog%20post/2023/03/06/Back-To-Where-It-All-Started.html)
 
-The first thing that we need to do, is create a `CatalogSource` for the DevWorkspace Operator.  Eclipse Che and OpenShift Dev Spaces are dependent on this operator.  If you are on a subscribed OpenShift cluster or using OpenShift Local, then the DevWorkspace Operator is already available, and you can install the Red Hat supported build of Eclipse Che called OpenShift Dev Spaces.  __Note:__ If you don't have access to an OKD cluster, or want to use OpenShift Local with OpenShift Dev Spaces, then skip this next section and follow the instructions here instead: [Install OpenShift Local and OpenShift Dev Spaces](/dev-spaces/install-crc/)  Then, come back here for the demo section.
+__Note:__ If you don't have access to an OKD cluster, or want to use OpenShift Local with OpenShift Dev Spaces, then skip this next section and follow the instructions here instead: [Install OpenShift Local and OpenShift Dev Spaces](/dev-spaces/install-crc/)  Then, come back to this post for the demo section.
+
+### Install and Configure a CheCluster
+
+The first thing that we need to do, is create a `CatalogSource` for the DevWorkspace Operator.  Eclipse Che and OpenShift Dev Spaces are dependent on this operator.  If you are on a subscribed OpenShift cluster or using OpenShift Local, then the DevWorkspace Operator is already available, and you can install the Red Hat supported build of Eclipse Che called OpenShift Dev Spaces.  
 
 But, like I said, this post is going to focus on upstream Eclipse Che.  This blog is all about upstream after all...
 
@@ -298,7 +302,7 @@ This post is focused on coding, so let's write some code now.
 
 1. __Run the `Copy Kubeconfig` task:__
 
-   This first task is a bit of a hack to give the container with the `oc` cli the correct permissions.  You only have to do this once.
+   This first task is a bit of a hack to give the container with the `oc` CLI the correct permissions.  You only have to do this once.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-copy-kubeconfig.png" width="40%"/>
 
@@ -321,7 +325,7 @@ This post is focused on coding, so let's write some code now.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-quarkus-live.png" width="100%"/>
 
-1. __Start the Angular account in live dev mode:__
+1. __Start the Angular app in live dev mode:__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-start-node.png" width="50%"/>
 
@@ -347,7 +351,7 @@ This post is focused on coding, so let's write some code now.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-modify-angular.png" width="50%"/>
 
-1. __Notice that the browser tab with the Angular app open immediately reflects your change!__
+1. __Notice that the browser tab, with the Angular app open, immediately reflects your change!__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-angular-live-update.png" width="50%"/>
 
