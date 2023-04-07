@@ -378,7 +378,7 @@ This post is focused on coding, so let's write some code now.
 1. __Make the code changes below:__
 
    ```java
-   String modifiedThought = "My Random Thought: " + dto.randomTHought();
+   String modifiedThought = "My Random Thought: " + dto.randomThought();
 
    RandomThoughtDto thought = new RandomThoughtDto(UUID.randomUUID(), modifiedThought);
    ```
