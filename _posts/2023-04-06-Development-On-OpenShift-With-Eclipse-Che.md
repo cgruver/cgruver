@@ -59,6 +59,8 @@ If you don't have an OKD cluster, you can build one by following the instruction
 
 __Note:__ If you don't have access to an OKD cluster, or want to use OpenShift Local with OpenShift Dev Spaces, then skip this next section and follow the instructions here instead: [Install OpenShift Local and OpenShift Dev Spaces](/dev-spaces/install-crc/)  Then, come back to this post for the demo section.
 
+If you already have access to an OpenShift cluster with Eclipse Che or OpenShift Dev Spaces, you can skip straight to the demo: [Eclipse Che Demo](/blog%20post/2023/04/06/Development-On-OpenShift-With-Eclipse-Che.html#eclipse-che-demo)
+
 ### Install and Configure a CheCluster
 
 The first thing that we need to do, is create a `CatalogSource` for the DevWorkspace Operator.  Eclipse Che and OpenShift Dev Spaces are dependent on this operator.  If you are on a subscribed OpenShift cluster or using OpenShift Local, then the DevWorkspace Operator is already available, and you can install the Red Hat supported build of Eclipse Che called OpenShift Dev Spaces.  
