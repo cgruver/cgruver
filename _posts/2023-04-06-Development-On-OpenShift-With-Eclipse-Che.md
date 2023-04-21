@@ -302,18 +302,6 @@ This post is focused on coding, so let's write some code now.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-task-manager-perspective.png" width="40%"/>
 
-1. __Run the `Copy Kubeconfig` task:__
-
-   This first task is a bit of a hack to give the container with the `oc` CLI the correct permissions.  You only have to do this once.
-
-   <img src="/_pages/dev-spaces/demo-app-images/demo-copy-kubeconfig.png" width="40%"/>
-
-1. __Run the `Set Angular Environment` task:__
-
-   This is also a bit of a hack.  The Quarkus app will be exposing an API on an OpenShift Route that the workspace creates for you.  It has a generated name.  Our Angular app needs that API URL in order to talk to its backend that the Quarkus app is providing.  So, I wrote a shell script that injects the appropriate endpoint into the environment for the Angular app.  You also only need to run this task once.
-
-   <img src="/_pages/dev-spaces/demo-app-images/demo-set-angular-env.png" width="40%"/>
-
 1. __Run `npm install` to initialize the Angular app:__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-run-npm-install.png" width="40%"/>
