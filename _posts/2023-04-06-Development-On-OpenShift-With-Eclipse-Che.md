@@ -298,7 +298,7 @@ This post is focused on coding, so let's write some code now.
 
 1. __Before diving into some code, we need to start our frontend (Angular) and backend (Quarkus) apps in live dev mode:__
 
-   So, click on the icon in the left hand menu that looks like a small clipboard.  This is the Task Manager extension.  We need to run a few tasks to get set up.
+   So, click on the icon in the left hand menu that looks like a small clipboard.  This is the Task Manager extension.  We need to run two tasks to get set up.
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-task-manager-perspective.png" width="40%"/>
 
