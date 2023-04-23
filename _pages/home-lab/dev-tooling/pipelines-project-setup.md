@@ -77,8 +77,6 @@ tags:
    oc apply -f ${OKD_LAB_PATH}/okd-home-lab/pipelines/manifests/ -n app-demo
    ```
 
-   *A TL;DR description of the manifests can be found here*: [Tekton Pipelines - Overview of Lab Manifests](/home-lab/behind-the-scenes/tekton-overview/)
-
 1. Create an authentication secret so that the pipeline service account can access gitea with the credentials we created above:
 
    Place the credentials into environment variables.  We're using the `read` shell command so that the username and password are not stored in the shell history.
