@@ -180,7 +180,7 @@ You will need an unprivileged OpenShift account for this demo.  You can do this 
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-select-eclipse-che-app.png" width="50%"/>
 
-1. __Select `Log in with OpenShift`
+1. __Select `Log in with OpenShift`__
 
    <img src="/_pages/dev-spaces/demo-app-images/demo-login-with-openshift.png" width="50%"/>
 
