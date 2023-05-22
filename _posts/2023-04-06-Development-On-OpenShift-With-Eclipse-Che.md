@@ -1,6 +1,6 @@
 ---
 title: "OpenShift - Your New Favorite IDE"
-date:   2023-04-06 00:00:00
+date:   2023-04-06 00:00:00 -0400
 description: "Eclipse Che & OpenShift Dev Spaces: Cloud Native Development - In The Cloud"
 header:
   image: /_pages/dev-spaces/images/code-on-ipad.png
