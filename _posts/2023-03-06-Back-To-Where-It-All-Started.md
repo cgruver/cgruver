@@ -102,14 +102,14 @@ I have created a companion project for this blog.  It contains all of the shell 
 1. Copy the example files for single node OpenShift
 
    ```bash
-   cp ${HOME}/okd-lab/lab-config/examples/basic-lab-sno.yaml ${HOME}/okd-lab/lab-config
-   cp ${HOME}/okd-lab/lab-config/examples/cluster-configs/sno-no-pi.yaml ${HOME}/okd-lab/lab-config/cluster-configs
+   cp ${HOME}/okd-lab/lab-config/examples/basic-lab-kvm-sno.yaml ${HOME}/okd-lab/lab-config
+   cp ${HOME}/okd-lab/lab-config/examples/cluster-configs/sno-kvm-no-pi.yaml ${HOME}/okd-lab/lab-config/cluster-configs
    ```
 
 1. Create a symbolic link to use the config file for a single node OpenShift cluster.
 
    ```bash
-   ln -s ${HOME}/okd-lab/lab-config/basic-lab-sno.yaml ${HOME}/okd-lab/lab-config/lab.yaml
+   ln -s ${HOME}/okd-lab/lab-config/basic-lab-kvm-sno.yaml ${HOME}/okd-lab/lab-config/lab.yaml
    ```
 
 1. Remove the temporary directory
@@ -165,11 +165,11 @@ I'm being intentionally prescriptive here to help ensure success the first time 
    sub-domain-configs: []
    cluster-configs:
      - name: dev
-       cluster-config-file: sno-no-pi.yaml
+       cluster-config-file: sno-kvm-no-pi.yaml
        domain: edge
    ```
 
-1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/cluster-configs/sno-no-pi.yaml
+1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/cluster-configs/sno-kvm-no-pi.yaml
 
    ```yaml
    cluster:
@@ -367,7 +367,7 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 
 1. Read the `MAC` address off of the bottom of the NUC and add it to the cluster config file:
 
-   Edit `${HOME}/okd-lab/lab-config/domain-configs/sno-no-pi.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC.
+   Edit `${HOME}/okd-lab/lab-config/domain-configs/sno-kvm-no-pi.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of your NUC.
 
    __Note:__ Use lower case letters in the MAC.
 
@@ -375,9 +375,9 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 
    1. If you have an NVME drive installed in the NUC, you do not need to modify anything.
 
-   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/sno-no-pi.yaml`, and replace `nvme0n1` with `sda`.
+   1. If you have SATA M.2 drive instead of NVME then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/sno-kvm-no-pi.yaml`, and replace `nvme0n1` with `sda`.
 
-   1. If you have more than one drive installed and you want to use all of them for storage, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/sno-no-pi.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
+   1. If you have more than one drive installed and you want to use all of them for storage, then edit: `${OKD_LAB_PATH}/lab-config/domain-configs/sno-kvm-no-pi.yaml`, and replace `disk2: NA` with `disk2: nvme0n2` or `disk2: sdb` as appropriate
 
 Once you have completed the configuration file changes, Deploy the KVM hosts:
 
