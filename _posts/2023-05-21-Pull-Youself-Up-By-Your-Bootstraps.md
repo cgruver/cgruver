@@ -90,7 +90,7 @@ I'm being intentionally prescriptive here to help ensure success the first time 
        domain: edge
    ```
 
-1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/cluster-configs/sno-bip-no-pi.yaml
+1. The configuration file for your OpenShift cluster is in: `${HOME}/okd-lab/lab-config/cluster-configs/sno-bip-no-pi.yaml`
 
    ```yaml
    cluster:
@@ -221,9 +221,19 @@ __Note:__ If at any time you need to reset the router, or any of the below comma
 1. Save the BIOS settings
 1. Power off the server
 
-Also, Take this opportunity to apply the latest BIOS to your NUC.__  You won't need the keyboard or mouse again, until it's time for another BIOS update.
+Also, Take this opportunity to apply the latest BIOS to your NUC.  You won't need the keyboard or mouse again, until it's time for another BIOS update.
 
 ## We are now ready to deploy our Single Node OpenShift cluster
+
+1. Put the MAC address of your server into the config file:
+
+   Edit `${HOME}/okd-lab/lab-config/cluster-configs/sno-bip-no-pi.yaml` and replace `YOUR_HOST_MAC_HERE` with the MAC address of your server.
+
+1. Set all of the environment variables:
+
+   ```bash
+   labctx dev`
+   ```
 
 1. Pull the latest release binaries for OKD and `butane`:
 
