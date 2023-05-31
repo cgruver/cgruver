@@ -47,9 +47,10 @@ function startBlog() {
   bundle exec jekyll serve --livereload --drafts --unpublished
 }
 ### Go Vars
-### Go
 export GOPATH="\$HOME/go"
 export PATH="\${PATH}:\${GOPATH}/bin"
+### Krew
+export PATH="\${PATH}:\${HOME}/.krew/bin"
 ###
 EOF
 
@@ -67,6 +68,27 @@ rm Gemfile.lock
 bundle update --all
 ```
 
+## Install Krew
+
+```bash
+(
+  set -x; cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
+
+oc krew install sniff
+```
+
+## Install Wireshark
+
+```bash
+brew install --cask wireshark
+```
 ## Setup CentOS Stream
 
 ```bash
