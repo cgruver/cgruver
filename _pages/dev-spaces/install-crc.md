@@ -144,6 +144,7 @@ tags:
        startTimeoutSeconds: 300
        secondsOfRunBeforeIdling: -1
        maxNumberOfWorkspacesPerUser: -1
+       maxNumberOfRunningWorkspacesPerUser: 5
        containerBuildConfiguration:
          openShiftSecurityContextConstraint: container-build
        disableContainerBuildCapabilities: false

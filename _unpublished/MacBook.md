@@ -81,6 +81,8 @@ bundle update --all
   ./"${KREW}" install krew
 )
 
+export PATH="${PATH}:${HOME}/.krew/bin"
+
 oc krew install sniff
 ```
 

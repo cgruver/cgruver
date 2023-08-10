@@ -2789,3 +2789,25 @@ oc get pod --all-namespaces --kubeconfig=${WORK_DIR}/${KUBECONFIG_FILE}
 ```bash
 oc get rolebindings -n test -o json | jq '.items[] | select(.subjects[].name=="cgruver" and .subjects[].kind=="User") | .roleRef.name'
 ```
+
+```bash
+mc_version=$(oc get clusterversion.config.openshift.io/version -o jsonpath='{.status.desired.version}' | cut -d"-" -f1)
+cat << EOF | butane 
+variant: openshift
+version: ${mc_version}
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: config-bip
+openshift:
+  kernel_arguments:
+    should_exist:
+      - mitigations=off
+    should_not_exist:
+      - mitigations=auto,nosmt
+EOF
+```
+
+```bash
+ssh core@10.11.12.72 "sudo rm -rf /var/lib/cni/bin/rhel9 && sudo rm -rf /var/lib/cni/bin/rhel8"
+```

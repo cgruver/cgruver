@@ -1,6 +1,6 @@
 ---
 title: "From Single Node to Multi-Node - Building a Resilient OpenShift Home Lab"
-date:   2023-03-18 00:00:00
+date:   2023-03-18 00:00:00 -0400
 description: "Building a 3 Node OpenShift Home Lab"
 tags:
   - OpenShift Home Lab
