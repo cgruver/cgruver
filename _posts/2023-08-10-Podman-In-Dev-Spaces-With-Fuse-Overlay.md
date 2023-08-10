@@ -277,11 +277,14 @@ Now, let's see it in action.
 1. In the terminal, execute the following to set up the Podman config:
 
    ```bash
-   mkdir ~/proc
+   mkdir ${HOME}/proc
    mkdir -p ~/.config/containers
    cat << EOF > ~/.config/containers/containers.conf                              
    [containers]
    netns="host"
+   volumes=[
+     "${HOME}/proc:/proc:rw"
+   ]
    EOF
    ```
 
@@ -294,7 +297,7 @@ Now, let's see it in action.
 1. In the terminal run a container:
 
    ```bash
-   podman run -v ${HOME}/proc:/proc registry.access.redhat.com/ubi9/ubi-minimal echo hello
+   podman run registry.access.redhat.com/ubi9/ubi-minimal echo hello
    ```
 
 1. You should have seen a successful execution of the container.
@@ -304,7 +307,7 @@ Now, let's see it in action.
 1. Now, run:
 
    ```bash
-   podman run -v ${HOME}/proc:/proc -it registry.access.redhat.com/ubi9/ubi-minimal
+   podman run -it registry.access.redhat.com/ubi9/ubi-minimal
    ```
 
 1. You should now have an open shell into the running container.
