@@ -274,26 +274,6 @@ Now, let's see it in action.
 
    <img src="/_pages/dev-spaces/podman-fuse-demo-images/podman-fuse-demo-open-terminal.png" width="50%"/>
 
-1. In the terminal, execute the following to set up the Podman config:
-
-   ```bash
-   mkdir ${HOME}/proc
-   mkdir -p ~/.config/containers
-   cat << EOF > ~/.config/containers/containers.conf                              
-   [containers]
-   netns="host"
-   volumes=[
-     "${HOME}/proc:/proc:rw"
-   ]
-   EOF
-   ```
-
-   We're adding this config because podman will not have access to `/dev/tun`.
-
-   I could probably add that to the MachineConfig.  But I haven't yet.
-
-   We are also adding an empty `proc` directory because Podman does not have access to `/proc`.  That's a puzzle I haven't solved yet.
-
 1. In the terminal run a container:
 
    ```bash
