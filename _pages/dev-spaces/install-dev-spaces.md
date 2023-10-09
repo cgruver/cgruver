@@ -57,6 +57,8 @@ tags:
        metrics:
          enable: true
      containerRegistry: {}
+     pluginRegistry:
+      openVSXURL: https://open-vsx.org
      devEnvironments:
        startTimeoutSeconds: 300
        secondsOfRunBeforeIdling: -1
