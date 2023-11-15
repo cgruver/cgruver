@@ -31,7 +31,7 @@ export CPPFLAGS="-I${HOMEBREW_REPOSITORY}/opt/ruby/include"
 # export LDFLAGS="-L${HOMEBREW_REPOSITORY}/opt/node@18/lib"
 # export CPPFLAGS="-I${HOMEBREW_REPOSITORY}/opt/node@18/include"
 export PKG_CONFIG_PATH="${HOMEBREW_REPOSITORY}/opt/ruby/lib/pkgconfig"
-export JAVA_HOME=$(/usr/libexec/java_home)
+export JAVA_HOME=\$(/usr/libexec/java_home)
 ### My Env Config
 set -o vi
 alias ssh="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa"
@@ -84,6 +84,12 @@ bundle update --all
 export PATH="${PATH}:${HOME}/.krew/bin"
 
 oc krew install sniff
+```
+
+## Install VSCodium
+
+```bash
+brew install --cask vscodium
 ```
 
 ## Install Wireshark

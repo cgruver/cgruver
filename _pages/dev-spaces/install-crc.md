@@ -139,6 +139,8 @@ tags:
          logLevel: INFO
        metrics:
          enable: true
+       pluginRegistry:
+         openVSXURL: https://open-vsx.org
      containerRegistry: {}
      devEnvironments:
        startTimeoutSeconds: 300
