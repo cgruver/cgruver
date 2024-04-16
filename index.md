@@ -1,12 +1,12 @@
 ---
 layout: home
 title: Welcome to my Blog and Kubernetes Playground
-description: "A Chronicle of my Adventures In Code - With OpenShift (OKD), Quarkus, and more! Blog Dedicated to OpenShift Home Lab Projects with OKD"
+description: "A Chronicle of my Adventures In Code - With OpenShift (OKD), Quarkus, and more! Blog Dedicated to OpenShift Home Lab Projects"
 sidebar:
   nav: lab-projects
 classes: wide
 header:
-  image: /assets/images/Fiat-Wide.jpg
+  image: /assets/images/OpenShift-Outdoors.png
 tags:
   - openshift
   - okd
@@ -15,8 +15,6 @@ tags:
   - kubernetes
   - openwrt
   - gl.inet
-  - ar750s
-  - mv1000
 ---
 This site is dedicated to sharing the work that I do in my home lab.  I am a huge fan of cloud native application delivery on Kubernetes based platforms.  I specifically focus on [OpenShift Container Platform](https://openshift.com), and its subscription free (community supported) sibling, [OKD](https://okd.io).
 

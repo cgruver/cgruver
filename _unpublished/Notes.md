@@ -2811,3 +2811,104 @@ EOF
 ```bash
 ssh core@10.11.12.72 "sudo rm -rf /var/lib/cni/bin/rhel9 && sudo rm -rf /var/lib/cni/bin/rhel8"
 ```
+
+## Add CSI Driver to Workspace
+
+```yaml
+schemaVersion: 2.2.0
+attributes:
+  controller.devfile.io/storage-type: per-workspace
+metadata:
+  name: che-demo
+  attributes:
+    pod-overrides: {"spec": {"volumes": [{"name": "mysecret-volume", "csi": {"driver": "some-csi-driver", "readOnly" : true, "volumeAttributes": {"attrib1": "some-value"}}}]}}
+components:
+- name: workspace
+  attributes:
+    container-overrides: {"volumeMounts": [{"name": "mysecret", "mountPath": "/var/my/path", "readOnly": true}]}
+  container: 
+    image: quay.io/some/image:latest
+    etc...
+```
+
+## Hosted Control Plane
+
+Increase Max Pods
+
+```bash
+cat << EOF | oc apply -f -
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: set-max-pods-hcp
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/master: "" 
+  kubeletConfig:
+    podsPerCore: 40 
+    maxPods: 500
+EOF
+```
+
+```bash
+cat << EOF | oc apply -f -
+apiVersion: metal3.io/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-configuration
+spec:
+  provisioningNetwork: "Disabled"
+  watchAllNamespaces: true
+EOF
+```
+
+Get Pods using PVCs
+
+```bash
+oc describe pvc --all-namespaces | grep "Used By:"
+```
+
+```bash
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Removed"}}'
+
+for i in $(oc get nodes -o name)
+do
+  oc adm cordon $i
+done
+
+for i in $(oc describe pvc --all-namespaces | grep "Used By:" | cut -d" " -f9)
+do
+  oc delete pod ${i} -n multicluster-engine
+done
+```
+
+```bash
+export CLUSTERS_NAMESPACE="clusters"
+export HOSTED_CLUSTER_NAME="example"
+export HOSTED_CONTROL_PLANE_NAMESPACE="${CLUSTERS_NAMESPACE}-${HOSTED_CLUSTER_NAME}" 1
+export BASEDOMAIN="krnl.es"
+export PULL_SECRET_FILE=$PWD/pull-secret
+export MACHINE_CIDR=192.168.122.0/24
+export ETCD_STORAGE="lvm-storageclass"
+export OCP_RELEASE=4.14.0-multi
+export SSH_KEY=${HOME}/.ssh/id_rsa.pub
+oc create ns ${HOSTED_CONTROL_PLANE_NAMESPACE}
+
+hcp create cluster agent \
+    --name=${HOSTED_CLUSTER_NAME} \
+    --pull-secret=${PULL_SECRET_FILE} \
+    --agent-namespace=${HOSTED_CONTROL_PLANE_NAMESPACE} \
+    --base-domain=${BASEDOMAIN} \
+    --api-server-address=api.${HOSTED_CLUSTER_NAME}.${BASEDOMAIN} \
+    --etcd-storage-class=${ETCD_STORAGE} \
+    --ssh-key  ${SSH_KEY} \
+    --namespace ${CLUSTERS_NAMESPACE} \
+    --control-plane-availability-policy SingleReplica \
+    --release-image=quay.io/openshift-release-dev/ocp-release:${OCP_RELEASE} \
+    --api-server-address=api.${HOSTED_CLUSTER_NAME}.${BASEDOMAIN}
+```
+
+```bash
+oc get pvc -A -o 'jsonpath={.items[*].metadata.namespace}'
+```
