@@ -22,13 +22,13 @@ Introducing `OpenShift Outdoors - The Video Blog`.
 
 In this new format, I will be recording short(ish) videos about different topics in my home lab.  Some of the posts will also include text based instructions for you to follow along with.
 
-Blog videos will be posted in my new YouTube channel: [https://www.youtube.com/@upstream-without-a-paddle](https://www.youtube.com/@upstream-without-a-paddle)
+Blog videos will be posted in my new YouTube channel: [https://www.youtube.com/@upstream-without-a-paddle](https://www.youtube.com/@upstream-without-a-paddle){:target="_blank"}
 
 The first two videos are focused on OpenShift Dev Spaces and can be found at the following links:
 
-* [Introduction to OpenShift Dev Spaces](https://www.youtube.com/watch?v=86S2ErWyorQ)
+* [Introduction to OpenShift Dev Spaces](https://www.youtube.com/watch?v=86S2ErWyorQ){:target="_blank"}
 
-* [Deep Dive Into the `devfile` spec for a Dev Spaces workspace](https://www.youtube.com/watch?v=gvbpDDhAgxM)
+* [Deep Dive Into the `devfile` spec for a Dev Spaces workspace](https://www.youtube.com/watch?v=gvbpDDhAgxM){:target="_blank"}
 
 Stay tuned for new videos.
 
