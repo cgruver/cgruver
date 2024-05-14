@@ -82,7 +82,7 @@ I have created a companion project for this blog.  It contains all of the shell 
 1. Clone the git repository that I have created with helper scripts:
 
    ```bash
-   git clone https://github.com/cgruver/kamarotos.git ${WORK_DIR}
+   git clone -b archive-2 https://github.com/cgruver/kamarotos.git ${WORK_DIR}
    ```
 
 1. Copy the helper scripts to `${HOME}/okd-lab`:

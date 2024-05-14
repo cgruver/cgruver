@@ -31,7 +31,7 @@ Update the `labcli` scripts.  I may have fixed a couple of bugs between now and 
 
 ```bash
 WORK_DIR=$(mktemp -d)
-git clone https://github.com/cgruver/kamarotos.git ${WORK_DIR}
+git clone -b archive-2 https://github.com/cgruver/kamarotos.git ${WORK_DIR}
 cp ${WORK_DIR}/bin/* ${HOME}/okd-lab/bin
 chmod 700 ${HOME}/okd-lab/bin/*
 cp -r ${WORK_DIR}/examples ${HOME}/okd-lab/lab-config
