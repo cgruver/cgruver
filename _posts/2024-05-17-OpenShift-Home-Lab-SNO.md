@@ -1,6 +1,6 @@
 ---
 title: "Building a Single Node OpenShift Home Lab - Agent Based Install"
-date:   2024-05-09 00:00:00 -0400
+date:   2024-05-17 00:00:00 -0400
 description: "Building an OpenShift Home Lab with the Agent Based Installer"
 header:
   image: /_pages/dev-spaces/images/code-on-ipad.png
@@ -15,9 +15,9 @@ Greetings!  Welcome to another episode of OpenShift Outdoors.
 
 Today, let's build an affordable, yet powerful cloud native home lab with OpenShift!
 
-Since I have changed the format of this blog to be video based, this post is accompanied by a video: [link](link){:target="_blank"}  The explaination and instructions are in the video.  This post include commands for you to follow along with.
+Since I have changed the format of this blog to be video based, this post is accompanied by a video.  The explanation and instructions are in the video.  This post include commands for you to follow along with.
 
-In order to follow along with this post, you are going to need some gear.  Below is the bill of materials necessary to follow along with this post.
+In order to follow along with this post, you are going to need some gear.  Below is the bill of materials that I am using today.
 
 ## Lab Bill of Materials
 
@@ -28,9 +28,13 @@ In order to follow along with this post, you are going to need some gear.  Below
 | Router | [GL.iNet GL-AXT1800](https://www.gl-inet.com/products/gl-axt1800/){:target="_blank"} |
 | MicroSD Card for Router | PNY 128GB Premier-X Class 10 U3 V30 microSDXC Flash Memory Card |
 
-Now, without further ado, click on the video link above and we'll get started.
+Now, without further ado, click on the video link below and we'll get started.
+
+[https://www.youtube.com/playlist?list=PLKH_FBfRRqlQh3X2QQu_gXV9m8GmBJSDH](https://www.youtube.com/playlist?list=PLKH_FBfRRqlQh3X2QQu_gXV9m8GmBJSDH){:target="_blank"}
 
 ## Follow along commands
+
+1. Create an account at [developers.redhat.com](https://developers.redhat.com){:target="_blank"}
 
 1. Install the lab CLI scripts that I have prepared:
 
@@ -67,7 +71,7 @@ Now, without further ado, click on the video link above and we'll get started.
 
 1. __Open a new terminal to set the variables.__
 
-1. Install `yq` [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
+1. Install `yq` [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/){:target="_blank"}
 
    We will need the `yq` utility for YAML file manipulation. 
 
@@ -113,7 +117,7 @@ Now, without further ado, click on the video link above and we'll get started.
 1. Create the lab config file that defines your lab network:
 
    ```bash
-   cat << EOF > ${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/lab-config-files/my-openshift-lab.yaml
+   cat << EOF > ${OPENSHIFT_LAB_PATH}/lab-config/lab-config-files/my-openshift-lab.yaml
    domain: my.openshift.lab
    network: 10.11.12.0
    router-ip: 10.11.12.1
@@ -129,7 +133,7 @@ Now, without further ado, click on the video link above and we'll get started.
    ```
    
    ```bash
-   cat << EOF > ${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/lab-list.yaml
+   cat << EOF > ${OPENSHIFT_LAB_PATH}/lab-config/lab-list.yaml
    lab-configs:
    - name: "My OpenShift Lab"
      config: my-openshift-lab.yaml
@@ -137,13 +141,13 @@ Now, without further ado, click on the video link above and we'll get started.
    ```
 
    ```bash
-   ln -s ${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/lab-config-files/my-openshift-lab.yaml ${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/lab.yaml
+   ln -s ${OPENSHIFT_LAB_PATH}/lab-config/lab-config-files/my-openshift-lab.yaml ${OPENSHIFT_LAB_PATH}/lab-config/lab.yaml
    ```
 
 1. Create a cluster config file that defines the parameters for your OpenShift cluster:
 
-```bash
-   cat << EOF > ${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/cluster-configs/sno-ocp-4.15.yaml
+   ```bash
+   cat << EOF > ${OPENSHIFT_LAB_PATH}/lab-config/cluster-configs/sno-ocp-4.15.yaml
    cluster:
      name: sno-ocp-415
      cluster-cidr: 10.100.0.0/14
@@ -153,75 +157,125 @@ Now, without further ado, click on the video link above and we'll get started.
      butane-version: v0.20.0
      butane-spec-version: 1.5.0
      butane-variant: fcos
+     nmstatectl-version: v2.2.27
      disconnected: "false"
      release-type: ocp
-     release: 4.15.13-x86_64
+     release: 4.15.11-x86_64
    control-plane:
      metal: true
      boot-dev: /dev/sda
      hostpath-dev: /dev/nvme0n1
      nodes:
-     - ip-addr: 10.11.12.102
+     - ip-addr: 10.11.12.100
        mac-addr: 12:34:56:ab:cd:ef
-```
+   EOF
+   ```
 
-1. Edit `${OPENSHIFT_LAB_PATH}/openshift-lab/lab-config/cluster-configs/sno-ocp-4.15.yaml`
+1. Edit `${OPENSHIFT_LAB_PATH}/lab-config/cluster-configs/sno-ocp-4.15.yaml`
 
    Replace `12:34:56:ab:cd:ef` with the MAC address of your server.  Use lower case letters.
 
-```bash
-labctx sno-ocp-4.15
-```
+1. Go to [console.redhat.com/openshift/downloads](https://console.redhat.com/openshift/downloads){:target="_blank"}
 
-```bash
-cat ${OPENSHIFT_LAB_PATH}/ssh_key.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
-```
+1. Select `Tokens` from the drop down menu
 
-```bash
-labcli --router -i -e
-```
+1. Select `Copy` to the right of `Pull Secret`
 
-```bash
-labcli --router -s -e -f
-```
+1. Paste the content of your pull secret into a new file named `${OPENSHIFT_LAB_PATH}/lab-config/ocp-pull-secret`
 
-```bash
-labcli --deploy -c
-```
+## Router Setup
 
-```bash
-labcli --start -m
-```
+1. Plug in your GL-AXT1800 and connect to it via WiFI or cable
 
-```bash
-labcli --monitor -b
-```
+1. Copy your SSH public key to the router
 
-```bash
-labcli --monitor -m=0
-```
+   ```bash
+   cat ${OPENSHIFT_LAB_PATH}/ssh_key.pub | ssh root@192.168.8.1 "cat >> /etc/dropbear/authorized_keys"
+   ```
 
-```bash
-labcli --monitor -i
-```
+1. Log into the router and set up its internet connection.
 
-```bash
-labcli --post
-```
+   [https://192.168.8.1](https://192.168.8.1){:target="_blank"}
 
-```bash
-labcli --trust -c
-```
+1. Set the environment up for your lab:
 
-```bash
-labcli --user -i -a -u=admin
-```
+   ```bash
+   labctx sno-ocp-4.15
+   ```
 
-```bash
-labcli --user -u=mydevuser
-```
+1. Initialize the router for the lab.
 
-```bash
-labcli --hostpath
-```
+   ```bash
+   labcli --router -i -e
+   ```
+
+1. After the router reboots, run the following to complete the setup.
+
+   ```bash
+   labcli --router -s -e -f
+   ```
+
+1. Initialize the artifacts for the OpenShift install:
+
+   ```bash
+   labcli --deploy -c
+   ```
+
+1. Start the install:
+
+   ```bash
+   labcli --start -c
+   ```
+
+1. Watch the installation logs:
+
+   Bootstrap:
+
+   ```bash
+   labcli --monitor -b
+   ```
+
+   Journal on the CoreOS node:
+
+   ```bash
+   labcli --monitor -m=0
+   ```
+
+   Final OpenShift Installation logs after bootstrap:
+
+   ```bash
+   labcli --monitor -i
+   ```
+
+1. Clean up after the install completes:
+
+   ```bash
+   labcli --post
+   ```
+
+1. Trust the cluster certs on your workstation:
+
+   ```bash
+   labcli --trust -c
+   ```
+
+1. Create a cluster admin user:
+
+   ```bash
+   labcli --user -i -a -u=admin
+   ```
+
+1. Create a non-privileged user:
+
+   ```bash
+   labcli --user -u=mydevuser
+   ```
+
+1. Install the HostPath Provisioner Operator:
+
+   ```bash
+   labcli --hostpath
+   ```
+
+1. Have fun with your new Single Node Cluster!
 
