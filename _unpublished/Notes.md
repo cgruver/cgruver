@@ -559,6 +559,32 @@ EOF
 
 ## Add Certs to Nodes:
 
+1. Create a ConfigMap in the `openshift-config` namespace
+
+   ```bash
+   NEXUS_CERT=$(openssl s_client -showcerts -connect nexus.${LAB_DOMAIN}:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM | base64)
+
+   cat << EOF | oc apply -n openshift-config -f -
+   apiVersion: v1
+   kind: ConfigMap
+   metadata:
+     name: lab-ca
+   data:
+     ca-bundle.crt: |
+       # Nexus Cert
+   ${NEXUS_CERT}
+
+   EOF
+   ```
+
+1. Patch the default Proxy instance for the OpenShift cluster:
+
+   ```bash
+   oc patch proxy cluster --type=merge --patch '{"spec":{"trustedCA":{"name":"lab-ca"}}}'
+   ```
+
+Alternate Approach
+
 1. The next thing that we are going to do, is add a couple of certificates to our OpenShift cluster nodes:
 
    Our Gitea server and our Nexus server are both using self-signed certificates.  It's a bad practice to disable TLS verification in all of our pipelines.  So, I am going to show you how to add additional trusted certs to your OpenShift cluster.
@@ -2911,4 +2937,10 @@ hcp create cluster agent \
 
 ```bash
 oc get pvc -A -o 'jsonpath={.items[*].metadata.namespace}'
+```
+
+## Get Dev Workspace Info
+
+```bash
+oc get DevWorkspace --all-namespaces -o jsonpath='{range .items[*]}{"Namespace: "}{.metadata.namespace}{" Workspace: "}{.metadata.name}{"\n"}{range .spec.template.components[*]}{"\tComponent: "}{.name}{" Memory: "}{.container.memoryRequest}{" CPU: "}{.container.cpuRequest}{"\n"}{end}'
 ```
