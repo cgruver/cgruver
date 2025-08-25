@@ -1,0 +1,54 @@
+schemaVersion: 2.2.2
+metadata:
+  name: dot-net-workspace
+components:
+  - name: tools
+    attributes:
+      pod-overrides:
+        spec:
+          hostUsers: false
+    container:
+      image: nexus.clg.lab:5002/dev-spaces/workspace-base:latest
+      mountSources: true
+      cpuRequest: 50m
+      cpuLimit: 1000m
+      memoryRequest: 1Gi
+      memoryLimit: 4Gi
+      env:
+        - name: SHELL
+          value: "/bin/zsh"
+        - name: HOME
+          value: "/projects/home"
+        - name: VSCODE_DEFAULT_WORKSPACE
+          value: "/projects/cgruver/cgruver.code-workspace"
+      endpoints:
+        - exposure: public
+          name: 'blog'
+          protocol: https
+          targetPort: 4200
+  - name: prep-workspace
+    container:
+      args:
+        - '-c'
+        - >-
+          mkdir -p /projects/bin && cp /usr/bin/oc /projects/bin/oc && cp /usr/bin/kubectl /projects/bin/kubectl && if [[ -f ${HOME}/.kube/config ]]; then rm ${HOME}/.kube/config; fi
+      command:
+        - /bin/bash
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      mountSources: true
+      sourceMapping: /projects
+      memoryRequest: 128Mi
+      memoryLimit: 256Mi
+      cpuRequest: 10m
+      cpuLimit: 200m
+      env:
+      - name: HOME
+        value: "/projects/home"
+events:
+  preStart:
+    - prep-workspace
+commands:
+  - id: prep-workspace
+    apply:
+      component: prep-workspace
+      label: Pre Start Prep
