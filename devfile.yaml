@@ -2,13 +2,13 @@ schemaVersion: 2.2.2
 metadata:
   name: upstream-without-a-paddle
 components:
-  - name: tools
+  - name: dev-tools
     attributes:
       pod-overrides:
         spec:
           hostUsers: false
     container:
-      image: nexus.clg.lab:5002/dev-spaces/workspace-base:latest
+      image: nexus.clg.lab:5002/dev-spaces/blog:latest
       mountSources: true
       cpuRequest: 50m
       cpuLimit: 1000m
@@ -25,7 +25,7 @@ components:
         - exposure: public
           name: 'blog'
           protocol: https
-          targetPort: 4200
+          targetPort: 4000
   - name: prep-workspace
     container:
       args:
@@ -52,3 +52,8 @@ commands:
     apply:
       component: prep-workspace
       label: Pre Start Prep
+  - id: start-blog
+    exec:
+      commandLine: bundle exec jekyll serve --livereload --drafts --unpublished --host 0.0.0.0 --port 4000
+      component: dev-tools
+      workingDir: ${PROJECT_SOURCE}
