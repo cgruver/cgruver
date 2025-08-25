@@ -1,6 +1,6 @@
 schemaVersion: 2.2.2
 metadata:
-  name: dot-net-workspace
+  name: upstream-without-a-paddle
 components:
   - name: tools
     attributes:
