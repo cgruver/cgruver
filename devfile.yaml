@@ -54,6 +54,6 @@ commands:
       label: Pre Start Prep
   - id: start-blog
     exec:
-      commandLine: bundle exec jekyll serve --livereload --drafts --unpublished --host 0.0.0.0 --port 4000
+      commandLine: bash -c bundle exec jekyll serve --livereload --drafts --unpublished --host 0.0.0.0 --port 4000
       component: dev-tools
       workingDir: ${PROJECT_SOURCE}
